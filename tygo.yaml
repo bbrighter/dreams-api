@@ -1,0 +1,13 @@
+packages:
+  - path: "github.com/bbrighter/dream-api"
+    output_path: "./interface.ts"
+    type_mappings:
+      time.Time: "string /* RFC3339 */"
+    indent: "    "
+    exclude_files:
+    - "controller.go"
+    - "dreams.go"
+    - "tags.go"
+    - "repo.go"
+    - "main.go"
+    - "migration.go"

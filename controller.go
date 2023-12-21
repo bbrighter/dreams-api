@@ -33,5 +33,7 @@ func SetupRouter(con Controller) *gin.Engine {
 
 	router.GET("/dreams", con.GetDreams)
 	router.POST("/dreams", con.CreateDream)
+	router.GET("/dreams/:id", con.GetDream)
+	router.DELETE("/dreams/:id", con.DeleteDream)
 	return router
 }

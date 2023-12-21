@@ -20,7 +20,7 @@ func (repo Repo) getDreams() ([]Dream, error) {
 }
 
 func (repo Repo) getDream(id uint) (Dream, error) {
-	var dream Dream
+	var dream Dream = Dream{ID: id}
 	tx := repo.db.First(&dream)
 	if tx.RowsAffected == 0 {
 		return dream, ErrorNotFound
@@ -41,10 +41,4 @@ func (repo Repo) deleteDream(id uint) error {
 		return ErrorNotFound
 	}
 	return tx.Error
-}
-
-type Tag struct {
-	ID      uint
-	Title   string
-	DreamID uint
 }

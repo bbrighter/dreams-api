@@ -40,3 +40,34 @@ func TestCreateDreamAPI(t *testing.T) {
 
 	assert.Equal(t, 201, w.Result().StatusCode)
 }
+
+func TestGetDreamAPI(t *testing.T) {
+	teardown, router := setupAPITest(t)
+	defer teardown(t)
+
+	handler := router.ServeHTTP
+
+	createTestDream(t)
+	assert.HTTPSuccess(t, handler, http.MethodGet, "/dreams/1", nil)
+
+	// Error handling
+	// not found
+	assert.HTTPStatusCode(t, handler, http.MethodGet, "/dreams/10", nil, 404)
+	// bad param
+	assert.HTTPStatusCode(t, handler, http.MethodGet, "/dreams/x", nil, 400)
+}
+
+func TestDeleteDreamAPI(t *testing.T) {
+	teardown, router := setupAPITest(t)
+	defer teardown(t)
+	createTestDream(t)
+
+	handler := router.ServeHTTP
+	assert.HTTPSuccess(t, handler, http.MethodDelete, "/dreams/1", nil)
+
+	// Error handling
+	// not found
+	assert.HTTPStatusCode(t, handler, http.MethodDelete, "/dreams/10", nil, 404)
+	// bad param
+	assert.HTTPStatusCode(t, handler, http.MethodDelete, "/dreams/x", nil, 400)
+}

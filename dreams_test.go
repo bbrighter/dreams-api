@@ -7,7 +7,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (repo Repo) createTestDream(t *testing.T) {
+func createTestDream(t *testing.T) {
+	repo := InitRepo("test.sqlite")
 	err := repo.db.Create(&Dream{Date: time.Now(), Description: "desc"}).Error
 	assert.NoError(t, err, "Creation of example dream failed")
 }
@@ -21,7 +22,7 @@ func TestGetDreams(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, dreams, 0)
 
-	repo.createTestDream(t)
+	createTestDream(t)
 
 	dreams, err = repo.getDreams()
 
@@ -36,7 +37,7 @@ func TestGetDream(t *testing.T) {
 	_, err := repo.getDream(1)
 	assert.EqualError(t, err, "Not found")
 
-	repo.createTestDream(t)
+	createTestDream(t)
 
 	dream, err := repo.getDream(1)
 	assert.NoError(t, err)
@@ -69,7 +70,7 @@ func TestDeleteDream(t *testing.T) {
 	err := repo.deleteDream(1)
 	assert.EqualError(t, err, "Not found")
 
-	repo.createTestDream(t)
+	createTestDream(t)
 
 	err = repo.deleteDream(1)
 	assert.NoError(t, err)

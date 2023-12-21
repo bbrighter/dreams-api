@@ -1,0 +1,51 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+       {
+            "label": "Build for Windows",
+            "type": "shell",
+            "command": "go build",
+            "detail": "Create a build for Windows only. Exe is within this folder",
+        },
+        {
+            "label": "Create TS types",
+            "type": "shell",
+            "command": ".\\typescript-typechecker.exe generate",
+            "icon": {"id": "type-hierarchy"}
+        },
+        {
+            "label": "Build for Rasperry",
+            "type": "shell",
+            "group": "build",
+            "options": {
+                "env": {
+                    "GOARCH": "arm",
+                    "GORARM": "6",
+                    "CGO_ENABLED": "1",
+                    "CC": "arm-linux-gnueabi-gcc"
+                }
+            },
+            "command": "go build .",
+            "detail": "Create a build for Rasperry Pi. Only within container!",
+            "icon": {"id": "terminal-linux"}
+        },
+        {
+            "label": "Test",
+            "type": "shell",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "command": "go test -v ./... -coverprofile cover.out",
+            "icon": {"id": "beaker"}
+        },
+        {
+            "label": "Test with coverage",
+            "type": "shell", 
+            "group": "test",
+            "command": "go tool cover -html cover.out",
+            "dependsOn": "Test",
+            "icon": {"id": "light-bulb"},
+        }
+    ]
+}

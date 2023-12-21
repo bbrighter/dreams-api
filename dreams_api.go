@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -25,14 +26,18 @@ type DreamResponse struct {
 	Description string    `json:"description"`
 }
 
+func dreamToDreamResponse(d Dream) DreamResponse {
+	return DreamResponse{
+		ID:          d.ID,
+		Date:        d.Date,
+		Description: d.Description,
+	}
+}
+
 func dreamsToDreamsResponse(dreams []Dream) []DreamResponse {
 	var dreamsResp []DreamResponse
 	for _, d := range dreams {
-		dream := DreamResponse{
-			ID:          d.ID,
-			Date:        d.Date,
-			Description: d.Description,
-		}
+		dream := dreamToDreamResponse(d)
 		dreamsResp = append(dreamsResp, dream)
 	}
 	return dreamsResp
@@ -59,4 +64,40 @@ func (con Controller) CreateDream(g *gin.Context) {
 		return
 	}
 	g.JSON(http.StatusCreated, id)
+}
+
+func (con Controller) GetDream(g *gin.Context) {
+	id, err := strconv.Atoi(g.Param("id"))
+	if err != nil {
+		g.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+	dream, err := con.Repo.getDream(uint(id))
+	if err == ErrorNotFound {
+		g.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+	if err != nil {
+		g.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+	g.JSON(http.StatusOK, dreamToDreamResponse(dream))
+}
+
+func (con Controller) DeleteDream(g *gin.Context) {
+	id, err := strconv.Atoi(g.Param("id"))
+	if err != nil {
+		g.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+	err = con.Repo.deleteDream(uint(id))
+	if err == ErrorNotFound {
+		g.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+	if err != nil {
+		g.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+	g.Status(http.StatusOK)
 }
