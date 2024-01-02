@@ -1,0 +1,15 @@
+[Unit]
+Description=Dreams API
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/Documents/dreams
+ExecStart=/home/pi/Documents/dreams/dreams-api --ipAddress 192.168.178.133
+Restart=always
+# Other restart options: always, on-abort, etc
+StartLimitInterval=5
+
+[Install]
+WantedBy=multi-user.target

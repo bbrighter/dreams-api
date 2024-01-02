@@ -1,3 +1,4 @@
 *.sqlite
 *.exe
 interface.ts
+dream-api
