@@ -35,6 +35,14 @@ func (repo Repo) createDream(dream Dream) (uint, error) {
 	return dream.ID, nil
 }
 
+func (repo Repo) updateDream(dream Dream) error {
+	tx := repo.db.Model(&dream).Updates(&dream)
+	if tx.RowsAffected == 0 {
+		return ErrorNotFound
+	}
+	return tx.Error
+}
+
 func (repo Repo) deleteDream(id uint) error {
 	tx := repo.db.Delete(&Dream{ID: id})
 	if tx.RowsAffected == 0 {

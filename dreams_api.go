@@ -10,13 +10,17 @@ import (
 
 type DreamRequestBody struct {
 	Date        time.Time `json:"date"`
-	Description string    `json:"description"`
+	Description *string   `json:"description"`
 }
 
 func (body DreamRequestBody) dreamRequestBodyToDream() Dream {
+	var desc string
+	if body.Description != nil {
+		desc = *body.Description
+	}
 	return Dream{
 		Date:        body.Date,
-		Description: body.Description,
+		Description: desc,
 	}
 }
 
@@ -24,6 +28,10 @@ type DreamResponse struct {
 	ID          uint      `json:"id"`
 	Date        time.Time `json:"date"`
 	Description string    `json:"description"`
+}
+
+type DreamsResponse struct {
+	Dreams []DreamResponse `json:"dreams"`
 }
 
 func dreamToDreamResponse(d Dream) DreamResponse {
@@ -34,13 +42,13 @@ func dreamToDreamResponse(d Dream) DreamResponse {
 	}
 }
 
-func dreamsToDreamsResponse(dreams []Dream) []DreamResponse {
-	var dreamsResp []DreamResponse
+func dreamsToDreamsResponse(dreams []Dream) DreamsResponse {
+	var respList = []DreamResponse{}
 	for _, d := range dreams {
 		dream := dreamToDreamResponse(d)
-		dreamsResp = append(dreamsResp, dream)
+		respList = append(respList, dream)
 	}
-	return dreamsResp
+	return DreamsResponse{Dreams: respList}
 }
 
 func (con Controller) GetDreams(g *gin.Context) {
@@ -58,12 +66,38 @@ func (con Controller) CreateDream(g *gin.Context) {
 		g.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
+	if body.Date.IsZero() {
+		g.AbortWithError(http.StatusBadRequest, ErrorParameterMissing("date"))
+		return
+	}
 	id, err := con.Repo.createDream(body.dreamRequestBodyToDream())
 	if err != nil {
 		g.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 	g.JSON(http.StatusCreated, id)
+}
+
+func (con Controller) UpdateDream(g *gin.Context) {
+	var body DreamRequestBody
+	if err := g.BindJSON(&body); err != nil {
+		g.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+	var dream = body.dreamRequestBodyToDream()
+
+	id, err := strconv.Atoi(g.Param("id"))
+	if err != nil {
+		g.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+	dream.ID = uint(id)
+
+	if err := con.Repo.updateDream(dream); err != nil {
+		g.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+	g.Status(http.StatusOK)
 }
 
 func (con Controller) GetDream(g *gin.Context) {

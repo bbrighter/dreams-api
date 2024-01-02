@@ -63,6 +63,23 @@ func TestCreateDream(t *testing.T) {
 	assert.Equal(t, "desc", result.Description)
 }
 
+func TestUpdateDream(t *testing.T) {
+	repo, setup := setupTest(t)
+	defer setup(t)
+	createTestDream(t)
+
+	var err error
+
+	err = repo.updateDream(Dream{ID: 1, Date: time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)})
+	assert.NoError(t, err)
+
+	err = repo.updateDream(Dream{ID: 1, Description: "new"})
+	assert.NoError(t, err)
+
+	err = repo.updateDream(Dream{ID: 2})
+	assert.Error(t, err)
+}
+
 func TestDeleteDream(t *testing.T) {
 	repo, setup := setupTest(t)
 	defer setup(t)

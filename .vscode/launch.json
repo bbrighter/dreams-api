@@ -10,8 +10,8 @@
             "request": "launch",
             "mode": "auto",
             // "program": "${fileDirname}",
-            "program": "main.go",
-            "args": ["--ipAddress", "localhost"]
+            "program": ".",
+            // "args": ["--ipAddress", "localhost"]
         }
     ]
 }

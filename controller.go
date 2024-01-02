@@ -17,7 +17,7 @@ func CORSMiddleware() gin.HandlerFunc {
 		c.Writer.Header().Set("Access-Control-Request-Method", "*")
 		c.Writer.Header().Set("Access-Control-Content-Type", "*")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, accept, origin, Cache-Control, If-None-Match")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PATCH, DELETE")
 
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(204)
@@ -35,5 +35,6 @@ func SetupRouter(con Controller) *gin.Engine {
 	router.POST("/dreams", con.CreateDream)
 	router.GET("/dreams/:id", con.GetDream)
 	router.DELETE("/dreams/:id", con.DeleteDream)
+	router.PATCH("dreams/:id", con.UpdateDream)
 	return router
 }

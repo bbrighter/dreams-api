@@ -1,17 +1,16 @@
 package main
 
 import (
+	"flag"
 	"log"
 )
 
-// var ipAddress string
-
-// func init() {
-// 	flag.StringVar(&ipAddress, "ipAddress", "192.168.178.133", "IP address to run")
-// 	flag.Parse()
-// }
+var ipAddress string
 
 func main() {
+	flag.StringVar(&ipAddress, "ipAddress", "localhost", "IP address to run")
+	flag.Parse()
+
 	repo := InitRepo("dreams.sqlite")
 	con := InitController(repo)
 
@@ -19,5 +18,6 @@ func main() {
 		log.Fatal(err)
 	}
 	r := SetupRouter(con)
-	r.Run("localhost" + ":5000")
+
+	r.Run(ipAddress + ":5005")
 }
