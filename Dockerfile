@@ -11,5 +11,5 @@ COPY go.sum ./
 RUN go mod download
 COPY *.go ./
 
-WORKDIR /dream-api
+WORKDIR /dreams-api
 # env GOARCH=arm GOARM=6 CGO_ENABLED=1 CC=arm-linux-gnueabi-gcc  go build .

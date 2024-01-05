@@ -1,4 +1,4 @@
-module github.com/bbrighter/dream-api
+module github.com/bbrighter/dreams-api
 
 go 1.19
 

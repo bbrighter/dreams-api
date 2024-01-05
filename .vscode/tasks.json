@@ -4,7 +4,7 @@
        {
             "label": "Build for Windows",
             "type": "shell",
-            "command": "go build",
+            "command": "go build .",
             "detail": "Create a build for Windows only. Exe is within this folder",
         },
         {
