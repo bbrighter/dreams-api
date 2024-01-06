@@ -72,7 +72,10 @@ var migrations = []*gormigrate.Migration{
 				Title   string
 				DreamID uint
 			}
-			if err := tx.Migrator().AddColumn(Tag{}, "dreamId"); err != nil {
+			if err := tx.Migrator().DropTable("tags"); err != nil {
+				return err
+			}
+			if err := tx.AutoMigrate(Tag{}); err != nil {
 				return err
 			}
 			if err := tx.Migrator().DropTable("tags_dreams"); err != nil {
