@@ -1,0 +1,52 @@
+package controller
+
+import (
+	"net/http"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
+)
+
+func (con Controller) GetTags(g *gin.Context) {
+	tags := tagsToTagsResponse(con.Repo.GetTags())
+	g.JSON(http.StatusOK, tags)
+}
+
+func (con Controller) AddTag(g *gin.Context) {
+	dreamId, err := strconv.Atoi(g.Param("id"))
+	if err != nil {
+		g.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+	tagTitle := g.Query("title")
+	if tagTitle == "" {
+		g.AbortWithError(http.StatusBadRequest, ErrorParameterMissing("title"))
+		return
+	}
+
+	err = con.Repo.AddTagToDream(tagTitle, uint(dreamId))
+	if err == ErrorNotFound {
+		g.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+	g.Status(http.StatusOK)
+}
+
+func (con Controller) RemoveTag(g *gin.Context) {
+	dreamId, err := strconv.Atoi(g.Param("id"))
+	if err != nil {
+		g.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+	tagId, err := strconv.Atoi(g.Param("tagId"))
+	if err != nil {
+		g.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+	err = con.Repo.RemoveTagFromDream(uint(tagId), uint(dreamId))
+	if err == ErrorNotFound {
+		g.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+	g.Status(http.StatusOK)
+}

@@ -1,62 +1,14 @@
-package main
+package controller
 
 import (
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
-type DreamRequestBody struct {
-	Date        time.Time `json:"date"`
-	Description *string   `json:"description"`
-}
-
-func (body DreamRequestBody) dreamRequestBodyToDream() Dream {
-	var desc string
-	if body.Description != nil {
-		desc = *body.Description
-	}
-	return Dream{
-		Date:        body.Date,
-		Description: desc,
-	}
-}
-
-type DreamResponse struct {
-	ID          uint      `json:"id"`
-	Date        time.Time `json:"date"`
-	Description string    `json:"description"`
-}
-
-type DreamsResponse struct {
-	Dreams []DreamResponse `json:"dreams"`
-}
-
-func dreamToDreamResponse(d Dream) DreamResponse {
-	return DreamResponse{
-		ID:          d.ID,
-		Date:        d.Date,
-		Description: d.Description,
-	}
-}
-
-func dreamsToDreamsResponse(dreams []Dream) DreamsResponse {
-	var respList = []DreamResponse{}
-	for _, d := range dreams {
-		dream := dreamToDreamResponse(d)
-		respList = append(respList, dream)
-	}
-	return DreamsResponse{Dreams: respList}
-}
-
 func (con Controller) GetDreams(g *gin.Context) {
-	dreams, err := con.Repo.getDreams()
-	if err != nil {
-		g.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
+	dreams := con.Repo.GetDreams()
 	g.JSON(http.StatusOK, dreamsToDreamsResponse(dreams))
 }
 
@@ -70,7 +22,7 @@ func (con Controller) CreateDream(g *gin.Context) {
 		g.AbortWithError(http.StatusBadRequest, ErrorParameterMissing("date"))
 		return
 	}
-	id, err := con.Repo.createDream(body.dreamRequestBodyToDream())
+	id, err := con.Repo.CreateDream(body.dreamRequestBodyToDream())
 	if err != nil {
 		g.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -93,7 +45,7 @@ func (con Controller) UpdateDream(g *gin.Context) {
 	}
 	dream.ID = uint(id)
 
-	if err := con.Repo.updateDream(dream); err != nil {
+	if err := con.Repo.UpdateDream(dream); err != nil {
 		g.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
@@ -106,7 +58,7 @@ func (con Controller) GetDream(g *gin.Context) {
 		g.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	dream, err := con.Repo.getDream(uint(id))
+	dream, err := con.Repo.GetDream(uint(id))
 	if err == ErrorNotFound {
 		g.AbortWithStatus(http.StatusNotFound)
 		return
@@ -124,7 +76,7 @@ func (con Controller) DeleteDream(g *gin.Context) {
 		g.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	err = con.Repo.deleteDream(uint(id))
+	err = con.Repo.DeleteDream(uint(id))
 	if err == ErrorNotFound {
 		g.AbortWithStatus(http.StatusNotFound)
 		return
