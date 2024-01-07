@@ -24,12 +24,12 @@ func (con Controller) AddTag(g *gin.Context) {
 		return
 	}
 
-	err = con.Repo.AddTagToDream(tagTitle, uint(dreamId))
+	id, err := con.Repo.AddTagToDream(tagTitle, uint(dreamId))
 	if err == ErrorNotFound {
 		g.AbortWithStatus(http.StatusNotFound)
 		return
 	}
-	g.Status(http.StatusOK)
+	g.JSON(http.StatusOK, id)
 }
 
 func (con Controller) RemoveTag(g *gin.Context) {

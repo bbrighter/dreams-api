@@ -24,16 +24,18 @@ func (body DreamRequestBody) dreamRequestBodyToDream() store.Dream {
 	}
 }
 
+type TagsResponse = []TagResponse
+
 type TagResponse struct {
 	ID    uint   `json:"id"`
 	Title string `json:"title"`
 }
 
 type DreamResponse struct {
-	ID          uint          `json:"id"`
-	Date        time.Time     `json:"date"`
-	Description string        `json:"description"`
-	Tags        []TagResponse `json:"tags"`
+	ID          uint         `json:"id"`
+	Date        time.Time    `json:"date"`
+	Description string       `json:"description"`
+	Tags        TagsResponse `json:"tags"`
 }
 
 type DreamsResponse struct {
@@ -48,7 +50,7 @@ func tagToTagResponse(t store.Tag) TagResponse {
 }
 
 func tagsToTagsResponse(t []store.Tag) []TagResponse {
-	var tags []TagResponse
+	var tags []TagResponse = []TagResponse{}
 	for _, tag := range t {
 		tags = append(tags, tagToTagResponse(tag))
 	}

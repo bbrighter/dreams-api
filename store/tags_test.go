@@ -28,17 +28,17 @@ func TestAddTagToDream(t *testing.T) {
 	var err error
 	CreateTestDream(t)
 
-	err = repo.AddTagToDream("tag", 1)
+	_, err = repo.AddTagToDream("tag", 1)
 	assert.NoError(t, err)
 
-	err = repo.AddTagToDream("tag", 1)
+	_, err = repo.AddTagToDream("tag", 1)
 	assert.NoError(t, err)
 
-	err = repo.AddTagToDream("tag", 2)
+	_, err = repo.AddTagToDream("tag", 2)
 	assert.Error(t, err)
 
 	CreateTestDream(t)
-	err = repo.AddTagToDream("tag", 2)
+	_, err = repo.AddTagToDream("tag", 2)
 	assert.NoError(t, err)
 }
 
