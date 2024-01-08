@@ -7,6 +7,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type TagsResponse = []TagResponse
+
+type TagResponse struct {
+	ID    uint   `json:"id"`
+	Title string `json:"title"`
+}
+
 func (con Controller) GetTags(g *gin.Context) {
 	tags := tagsToTagsResponse(con.Repo.GetTags())
 	g.JSON(http.StatusOK, tags)
@@ -43,10 +50,11 @@ func (con Controller) RemoveTag(g *gin.Context) {
 		g.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	err = con.Repo.RemoveTagFromDream(uint(tagId), uint(dreamId))
+
+	tags, err := con.Repo.RemoveTagFromDream(uint(tagId), uint(dreamId))
 	if err == ErrorNotFound {
 		g.AbortWithStatus(http.StatusNotFound)
 		return
 	}
-	g.Status(http.StatusOK)
+	g.JSON(http.StatusOK, tagsToTagsResponse(tags))
 }

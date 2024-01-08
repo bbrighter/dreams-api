@@ -99,5 +99,4 @@ func TestTagsToTagsResponse(t *testing.T) {
 
 	assert.Len(t, resp, 2)
 	assert.Equal(t, "Tag 1", resp[0].Title)
-
 }

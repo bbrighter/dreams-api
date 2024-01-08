@@ -1,17 +1,10 @@
 package controller
 
 import (
-	"time"
-
 	"github.com/bbrighter/dreams-api/store"
 )
 
 var ErrorNotFound = store.ErrorNotFound
-
-type DreamRequestBody struct {
-	Date        time.Time `json:"date"`
-	Description *string   `json:"description"`
-}
 
 func (body DreamRequestBody) dreamRequestBodyToDream() store.Dream {
 	var desc string
@@ -24,24 +17,6 @@ func (body DreamRequestBody) dreamRequestBodyToDream() store.Dream {
 	}
 }
 
-type TagsResponse = []TagResponse
-
-type TagResponse struct {
-	ID    uint   `json:"id"`
-	Title string `json:"title"`
-}
-
-type DreamResponse struct {
-	ID          uint         `json:"id"`
-	Date        time.Time    `json:"date"`
-	Description string       `json:"description"`
-	Tags        TagsResponse `json:"tags"`
-}
-
-type DreamsResponse struct {
-	Dreams []DreamResponse `json:"dreams"`
-}
-
 func tagToTagResponse(t store.Tag) TagResponse {
 	return TagResponse{
 		ID:    t.ID,
@@ -49,7 +24,7 @@ func tagToTagResponse(t store.Tag) TagResponse {
 	}
 }
 
-func tagsToTagsResponse(t []store.Tag) []TagResponse {
+func tagsToTagsResponse(t []store.Tag) TagsResponse {
 	var tags []TagResponse = []TagResponse{}
 	for _, tag := range t {
 		tags = append(tags, tagToTagResponse(tag))

@@ -24,14 +24,16 @@ func (repo Repo) AddTagToDream(tagTitle string, dreamId uint) (uint, error) {
 	return tag.ID, err
 }
 
-func (repo Repo) RemoveTagFromDream(tagId uint, dreamId uint) error {
+func (repo Repo) RemoveTagFromDream(tagId uint, dreamId uint) ([]Tag, error) {
+	var tags []Tag = []Tag{}
+
 	var dream Dream = Dream{ID: dreamId}
 	if rowsAffected := repo.db.First(&dream).RowsAffected; rowsAffected == 0 {
-		return ErrorNotFound
+		return tags, ErrorNotFound
 	}
 	var tag Tag = Tag{ID: tagId}
 	if rowsAffected := repo.db.First(&tag).RowsAffected; rowsAffected == 0 {
-		return ErrorNotFound
+		return tags, ErrorNotFound
 	}
 
 	repo.db.Model(&dream).Association("Tags").Delete(tag)
@@ -41,6 +43,7 @@ func (repo Repo) RemoveTagFromDream(tagId uint, dreamId uint) error {
 	if len(usedTag.Dreams) == 0 {
 		repo.db.Delete(tag)
 	}
+	repo.db.Find(&tags)
 
-	return nil
+	return tags, nil
 }

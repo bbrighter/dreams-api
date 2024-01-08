@@ -55,7 +55,7 @@ func TestRemoveTagFromDream(t *testing.T) {
 	dream = CreateTestTagAndDream(t)
 	tag = dream.Tags[0]
 
-	err = repo.RemoveTagFromDream(tag.ID, dream.ID)
+	_, err = repo.RemoveTagFromDream(tag.ID, dream.ID)
 
 	assert.NoError(t, err)
 	rowsAffected = repo.db.First(&dream).RowsAffected
@@ -72,7 +72,7 @@ func TestRemoveTagFromDream(t *testing.T) {
 	dream = CreateTestTagAndDream(t)
 	tag = dream.Tags[0]
 
-	err = repo.RemoveTagFromDream(tag.ID, dream.ID)
+	_, err = repo.RemoveTagFromDream(tag.ID, dream.ID)
 
 	assert.NoError(t, err)
 	rowsAffected = repo.db.First(&dream).RowsAffected
@@ -85,7 +85,7 @@ func TestRemoveTagFromDream(t *testing.T) {
 	// Remove non-existing tag from dream
 	dream = CreateTestTagAndDream(t)
 
-	err = repo.RemoveTagFromDream(100, dream.ID)
+	_, err = repo.RemoveTagFromDream(100, dream.ID)
 
 	assert.Error(t, err)
 
@@ -95,7 +95,7 @@ func TestRemoveTagFromDream(t *testing.T) {
 	dream = CreateTestTagAndDream(t)
 	tag = dream.Tags[0]
 
-	err = repo.RemoveTagFromDream(tag.ID, 200)
+	_, err = repo.RemoveTagFromDream(tag.ID, 200)
 
 	assert.Error(t, err)
 }

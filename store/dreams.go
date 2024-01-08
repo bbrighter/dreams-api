@@ -41,10 +41,11 @@ func (repo Repo) UpdateDream(dream Dream) error {
 	return tx.Error
 }
 
-func (repo Repo) DeleteDream(id uint) error {
+func (repo Repo) DeleteDream(id uint) ([]Dream, error) {
 	tx := repo.db.Delete(&Dream{ID: id})
 	if tx.RowsAffected == 0 {
-		return ErrorNotFound
+		return []Dream{}, ErrorNotFound
 	}
-	return tx.Error
+	var dreams []Dream = repo.GetDreams()
+	return dreams, nil
 }

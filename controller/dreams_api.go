@@ -3,13 +3,30 @@ package controller
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
+type DreamResponse struct {
+	ID          uint         `json:"id"`
+	Date        time.Time    `json:"date"`
+	Description string       `json:"description"`
+	Tags        TagsResponse `json:"tags"`
+}
+
+type DreamsResponse struct {
+	Dreams []DreamResponse `json:"dreams"`
+}
+
 func (con Controller) GetDreams(g *gin.Context) {
 	dreams := con.Repo.GetDreams()
 	g.JSON(http.StatusOK, dreamsToDreamsResponse(dreams))
+}
+
+type DreamRequestBody struct {
+	Date        time.Time `json:"date"`
+	Description *string   `json:"description"`
 }
 
 func (con Controller) CreateDream(g *gin.Context) {
@@ -76,7 +93,7 @@ func (con Controller) DeleteDream(g *gin.Context) {
 		g.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	err = con.Repo.DeleteDream(uint(id))
+	dreams, err := con.Repo.DeleteDream(uint(id))
 	if err == ErrorNotFound {
 		g.AbortWithStatus(http.StatusNotFound)
 		return
@@ -85,5 +102,5 @@ func (con Controller) DeleteDream(g *gin.Context) {
 		g.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	g.Status(http.StatusOK)
+	g.JSON(http.StatusOK, dreamsToDreamsResponse(dreams))
 }

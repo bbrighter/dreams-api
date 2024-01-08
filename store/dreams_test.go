@@ -103,11 +103,11 @@ func TestDeleteDream(t *testing.T) {
 	repo, teardown := SetupTest(t)
 	defer teardown(t)
 
-	err := repo.DeleteDream(1)
+	_, err := repo.DeleteDream(1)
 	assert.EqualError(t, err, "Not found")
 
 	CreateTestDream(t)
 
-	err = repo.DeleteDream(1)
+	_, err = repo.DeleteDream(1)
 	assert.NoError(t, err)
 }
