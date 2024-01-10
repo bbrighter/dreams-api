@@ -7,18 +7,29 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type TagsResponse = []TagResponse
-
-type TagResponse struct {
-	ID    uint   `json:"id"`
-	Title string `json:"title"`
+type TagsResponse struct {
+	Tags []TagResponse `json:"tags" validate:"required"`
 }
 
+type TagResponse struct {
+	ID    uint   `json:"id" validate:"required"`
+	Title string `json:"title" validate:"required"`
+}
+
+// @Description Get all tags
+// @Produce json
+// @Success 200 {object} TagsResponse
+// @Router /tags [get]
 func (con Controller) GetTags(g *gin.Context) {
 	tags := tagsToTagsResponse(con.Repo.GetTags())
 	g.JSON(http.StatusOK, tags)
 }
 
+// @Description Add a tag to a dream
+// @Produce json
+// @Success 200 {object} TagsResponse
+// @Router /dream/{dreamId}/tags [put]
+// @Param title query number true "Label of tag"
 func (con Controller) AddTag(g *gin.Context) {
 	dreamId, err := strconv.Atoi(g.Param("id"))
 	if err != nil {
@@ -31,14 +42,18 @@ func (con Controller) AddTag(g *gin.Context) {
 		return
 	}
 
-	id, err := con.Repo.AddTagToDream(tagTitle, uint(dreamId))
+	tags, err := con.Repo.AddTagToDream(tagTitle, uint(dreamId))
 	if err == ErrorNotFound {
 		g.AbortWithStatus(http.StatusNotFound)
 		return
 	}
-	g.JSON(http.StatusOK, id)
+	g.JSON(http.StatusOK, tagsToTagsResponse(tags))
 }
 
+// @Description Remove a tag to a dream
+// @Produce json
+// @Success 200 {object} TagsResponse
+// @Router /dream/{dreamId}/tags/{tagId} [delete]
 func (con Controller) RemoveTag(g *gin.Context) {
 	dreamId, err := strconv.Atoi(g.Param("id"))
 	if err != nil {

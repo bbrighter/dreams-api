@@ -12,16 +12,19 @@ func (repo Repo) GetTags() []Tag {
 	return tags
 }
 
-func (repo Repo) AddTagToDream(tagTitle string, dreamId uint) (uint, error) {
+func (repo Repo) AddTagToDream(tagTitle string, dreamId uint) ([]Tag, error) {
 	var dream Dream = Dream{ID: dreamId}
 	if rowsAffected := repo.db.First(&dream).RowsAffected; rowsAffected == 0 {
-		return 0, ErrorNotFound
+		return nil, ErrorNotFound
 	}
 
 	var tag Tag = Tag{Title: tagTitle, Dreams: []Dream{dream}}
 	repo.db.Where(&Tag{Title: tagTitle}).First(&tag)
 	err := repo.db.Save(&tag).Error
-	return tag.ID, err
+
+	var tags []Tag
+	repo.db.Find(&tags)
+	return tags, err
 }
 
 func (repo Repo) RemoveTagFromDream(tagId uint, dreamId uint) ([]Tag, error) {

@@ -24,7 +24,7 @@ func tagToTagResponse(t store.Tag) TagResponse {
 	}
 }
 
-func tagsToTagsResponse(t []store.Tag) TagsResponse {
+func tagsToTagsResponse(t []store.Tag) []TagResponse {
 	var tags []TagResponse = []TagResponse{}
 	for _, tag := range t {
 		tags = append(tags, tagToTagResponse(tag))

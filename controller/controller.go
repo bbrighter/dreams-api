@@ -1,9 +1,16 @@
 package controller
 
 import (
+	docs "github.com/bbrighter/dreams-api/docs"
 	"github.com/bbrighter/dreams-api/store"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
+
+// @title Dreams API
+// @version 1.0
+// @BasePath /
 
 type Controller struct {
 	Repo store.Repo
@@ -32,6 +39,10 @@ func CORSMiddleware() gin.HandlerFunc {
 
 func SetupRouter(con Controller) *gin.Engine {
 	router := gin.New()
+	docs.SwaggerInfo.BasePath = "/"
+	docs.SwaggerInfo.Version = "1.0"
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	router.Use(CORSMiddleware())
 
 	dreamsGroup := router.Group("/dreams")

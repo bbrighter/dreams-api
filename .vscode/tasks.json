@@ -46,6 +46,11 @@
             "command": "go tool cover -html cover.out",
             "dependsOn": "Test",
             "icon": {"id": "light-bulb"},
+        },
+        {
+            "label": "Create OpenAPI Spec",
+            "type": "shell",
+            "command": "swag init",
         }
     ]
 }

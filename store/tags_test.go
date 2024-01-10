@@ -26,20 +26,24 @@ func TestAddTagToDream(t *testing.T) {
 	defer teardown(t)
 
 	var err error
+	var tags []Tag
 	CreateTestDream(t)
 
-	_, err = repo.AddTagToDream("tag", 1)
+	tags, err = repo.AddTagToDream("tag", 1)
 	assert.NoError(t, err)
+	assert.Len(t, tags, 1)
 
-	_, err = repo.AddTagToDream("tag", 1)
+	tags, err = repo.AddTagToDream("tag", 1)
 	assert.NoError(t, err)
+	assert.Len(t, tags, 1)
 
-	_, err = repo.AddTagToDream("tag", 2)
+	tags, err = repo.AddTagToDream("tag", 2)
 	assert.Error(t, err)
 
 	CreateTestDream(t)
-	_, err = repo.AddTagToDream("tag", 2)
+	tags, err = repo.AddTagToDream("tag", 2)
 	assert.NoError(t, err)
+	assert.Len(t, tags, 1)
 }
 
 func TestRemoveTagFromDream(t *testing.T) {
