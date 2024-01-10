@@ -15,47 +15,6 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/dream/{dreamId}/tags": {
-            "put": {
-                "description": "Add a tag to a dream",
-                "produces": [
-                    "application/json"
-                ],
-                "parameters": [
-                    {
-                        "type": "number",
-                        "description": "Label of tag",
-                        "name": "title",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/controller.TagsResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/dream/{dreamId}/tags/{tagId}": {
-            "delete": {
-                "description": "Remove a tag to a dream",
-                "produces": [
-                    "application/json"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/controller.TagsResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/dreams": {
             "get": {
                 "description": "Get all dreams",
@@ -149,6 +108,47 @@ const docTemplate = `{
                 }
             }
         },
+        "/dreams/{dreamId}/tags": {
+            "put": {
+                "description": "Add a tag to a dream",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Label of tag",
+                        "name": "title",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.TagsResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/dreams/{dreamId}/tags/{tagId}": {
+            "delete": {
+                "description": "Remove a tag to a dream",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.TagsResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/tags": {
             "get": {
                 "description": "Get all tags",
@@ -170,8 +170,7 @@ const docTemplate = `{
         "controller.DreamRequestBody": {
             "type": "object",
             "required": [
-                "date",
-                "description"
+                "date"
             ],
             "properties": {
                 "date": {

@@ -28,8 +28,8 @@ func (con Controller) GetTags(g *gin.Context) {
 // @Description Add a tag to a dream
 // @Produce json
 // @Success 200 {object} TagsResponse
-// @Router /dream/{dreamId}/tags [put]
-// @Param title query number true "Label of tag"
+// @Router /dreams/{dreamId}/tags [put]
+// @Param title query string true "Label of tag"
 func (con Controller) AddTag(g *gin.Context) {
 	dreamId, err := strconv.Atoi(g.Param("id"))
 	if err != nil {
@@ -53,7 +53,7 @@ func (con Controller) AddTag(g *gin.Context) {
 // @Description Remove a tag to a dream
 // @Produce json
 // @Success 200 {object} TagsResponse
-// @Router /dream/{dreamId}/tags/{tagId} [delete]
+// @Router /dreams/{dreamId}/tags/{tagId} [delete]
 func (con Controller) RemoveTag(g *gin.Context) {
 	dreamId, err := strconv.Atoi(g.Param("id"))
 	if err != nil {

@@ -24,20 +24,24 @@ func tagToTagResponse(t store.Tag) TagResponse {
 	}
 }
 
-func tagsToTagsResponse(t []store.Tag) []TagResponse {
+func tagsToTagsResponse(t []store.Tag) TagsResponse {
 	var tags []TagResponse = []TagResponse{}
 	for _, tag := range t {
 		tags = append(tags, tagToTagResponse(tag))
 	}
-	return tags
+	return TagsResponse{Tags: tags}
 }
 
 func dreamToDreamResponse(d store.Dream) DreamResponse {
+	var tags []TagResponse = []TagResponse{}
+	for _, tag := range d.Tags {
+		tags = append(tags, tagToTagResponse(tag))
+	}
 	return DreamResponse{
 		ID:          d.ID,
 		Date:        d.Date,
 		Description: d.Description,
-		Tags:        tagsToTagsResponse(d.Tags),
+		Tags:        tags,
 	}
 }
 

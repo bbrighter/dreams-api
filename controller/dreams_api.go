@@ -30,7 +30,7 @@ func (con Controller) GetDreams(g *gin.Context) {
 
 type DreamRequestBody struct {
 	Date        time.Time `json:"date" validate:"required"`
-	Description *string   `json:"description" validate:"required"`
+	Description *string   `json:"description"`
 }
 
 // @Description Create a new dream

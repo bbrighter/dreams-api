@@ -7,7 +7,6 @@ definitions:
         type: string
     required:
     - date
-    - description
     type: object
   controller.DreamResponse:
     properties:
@@ -58,32 +57,6 @@ definitions:
 info:
   contact: {}
 paths:
-  /dream/{dreamId}/tags:
-    put:
-      description: Add a tag to a dream
-      parameters:
-      - description: Label of tag
-        in: query
-        name: title
-        required: true
-        type: number
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/controller.TagsResponse'
-  /dream/{dreamId}/tags/{tagId}:
-    delete:
-      description: Remove a tag to a dream
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/controller.TagsResponse'
   /dreams:
     get:
       description: Get all dreams
@@ -143,6 +116,32 @@ paths:
       responses:
         "200":
           description: OK
+  /dreams/{dreamId}/tags:
+    put:
+      description: Add a tag to a dream
+      parameters:
+      - description: Label of tag
+        in: query
+        name: title
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.TagsResponse'
+  /dreams/{dreamId}/tags/{tagId}:
+    delete:
+      description: Remove a tag to a dream
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.TagsResponse'
   /tags:
     get:
       description: Get all tags
