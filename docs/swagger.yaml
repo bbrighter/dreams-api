@@ -1,0 +1,155 @@
+definitions:
+  controller.DreamRequestBody:
+    properties:
+      date:
+        type: string
+      description:
+        type: string
+    required:
+    - date
+    type: object
+  controller.DreamResponse:
+    properties:
+      date:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      tags:
+        items:
+          $ref: '#/definitions/controller.TagResponse'
+        type: array
+    required:
+    - date
+    - description
+    - id
+    - tags
+    type: object
+  controller.DreamsResponse:
+    properties:
+      dreams:
+        items:
+          $ref: '#/definitions/controller.DreamResponse'
+        type: array
+    required:
+    - dreams
+    type: object
+  controller.TagResponse:
+    properties:
+      id:
+        type: integer
+      title:
+        type: string
+    required:
+    - id
+    - title
+    type: object
+  controller.TagsResponse:
+    properties:
+      tags:
+        items:
+          $ref: '#/definitions/controller.TagResponse'
+        type: array
+    required:
+    - tags
+    type: object
+info:
+  contact: {}
+paths:
+  /dreams:
+    get:
+      description: Get all dreams
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of all dreams
+          schema:
+            $ref: '#/definitions/controller.DreamsResponse'
+    post:
+      consumes:
+      - application/json
+      description: Create a new dream
+      parameters:
+      - description: The dream which will be created
+        in: body
+        name: dreamRequestBody
+        required: true
+        schema:
+          $ref: '#/definitions/controller.DreamRequestBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: number
+  /dreams/{dreamId}:
+    delete:
+      description: Delete one dreams
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+    get:
+      description: Get one dreams
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: One dream
+          schema:
+            $ref: '#/definitions/controller.DreamResponse'
+    patch:
+      consumes:
+      - application/json
+      description: Update an existing dream
+      parameters:
+      - description: The dream which will be updated
+        in: body
+        name: dreamRequestBody
+        required: true
+        schema:
+          $ref: '#/definitions/controller.DreamRequestBody'
+      responses:
+        "200":
+          description: OK
+  /dreams/{dreamId}/tags:
+    put:
+      description: Add a tag to a dream
+      parameters:
+      - description: Label of tag
+        in: query
+        name: title
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.TagsResponse'
+  /dreams/{dreamId}/tags/{tagId}:
+    delete:
+      description: Remove a tag to a dream
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.TagsResponse'
+  /tags:
+    get:
+      description: Get all tags
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.TagsResponse'
+swagger: "2.0"

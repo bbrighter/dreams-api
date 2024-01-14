@@ -1,4 +1,4 @@
-package main
+package controller
 
 import (
 	"net/http"
@@ -8,58 +8,37 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type DreamRequestBody struct {
-	Date        time.Time `json:"date"`
-	Description *string   `json:"description"`
-}
-
-func (body DreamRequestBody) dreamRequestBodyToDream() Dream {
-	var desc string
-	if body.Description != nil {
-		desc = *body.Description
-	}
-	return Dream{
-		Date:        body.Date,
-		Description: desc,
-	}
-}
-
 type DreamResponse struct {
-	ID          uint      `json:"id"`
-	Date        time.Time `json:"date"`
-	Description string    `json:"description"`
+	ID          uint          `json:"id" validate:"required"`
+	Date        time.Time     `json:"date" validate:"required"`
+	Description string        `json:"description" validate:"required"`
+	Tags        []TagResponse `json:"tags" validate:"required"`
 }
 
 type DreamsResponse struct {
-	Dreams []DreamResponse `json:"dreams"`
+	Dreams []DreamResponse `json:"dreams" validate:"required"`
 }
 
-func dreamToDreamResponse(d Dream) DreamResponse {
-	return DreamResponse{
-		ID:          d.ID,
-		Date:        d.Date,
-		Description: d.Description,
-	}
-}
-
-func dreamsToDreamsResponse(dreams []Dream) DreamsResponse {
-	var respList = []DreamResponse{}
-	for _, d := range dreams {
-		dream := dreamToDreamResponse(d)
-		respList = append(respList, dream)
-	}
-	return DreamsResponse{Dreams: respList}
-}
-
+// @Description Get all dreams
+// @Produce json
+// @Success 200 {object} DreamsResponse "List of all dreams"
+// @Router /dreams [get]
 func (con Controller) GetDreams(g *gin.Context) {
-	dreams, err := con.Repo.getDreams()
-	if err != nil {
-		g.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
+	dreams := con.Repo.GetDreams()
 	g.JSON(http.StatusOK, dreamsToDreamsResponse(dreams))
 }
 
+type DreamRequestBody struct {
+	Date        time.Time `json:"date" validate:"required"`
+	Description *string   `json:"description"`
+}
+
+// @Description Create a new dream
+// @Accept json
+// @Produce json
+// @Success 200 {number} ID
+// @Router /dreams [post]
+// @Param dreamRequestBody  body DreamRequestBody true "The dream which will be created"
 func (con Controller) CreateDream(g *gin.Context) {
 	var body DreamRequestBody
 	if err := g.BindJSON(&body); err != nil {
@@ -70,7 +49,7 @@ func (con Controller) CreateDream(g *gin.Context) {
 		g.AbortWithError(http.StatusBadRequest, ErrorParameterMissing("date"))
 		return
 	}
-	id, err := con.Repo.createDream(body.dreamRequestBodyToDream())
+	id, err := con.Repo.CreateDream(body.dreamRequestBodyToDream())
 	if err != nil {
 		g.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -78,6 +57,11 @@ func (con Controller) CreateDream(g *gin.Context) {
 	g.JSON(http.StatusCreated, id)
 }
 
+// @Description Update an existing dream
+// @Accept json
+// @Success 200
+// @Router /dreams/{dreamId} [patch]
+// @Param dreamRequestBody body DreamRequestBody true "The dream which will be updated"
 func (con Controller) UpdateDream(g *gin.Context) {
 	var body DreamRequestBody
 	if err := g.BindJSON(&body); err != nil {
@@ -93,20 +77,24 @@ func (con Controller) UpdateDream(g *gin.Context) {
 	}
 	dream.ID = uint(id)
 
-	if err := con.Repo.updateDream(dream); err != nil {
+	if err := con.Repo.UpdateDream(dream); err != nil {
 		g.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 	g.Status(http.StatusOK)
 }
 
+// @Description Get one dreams
+// @Produce json
+// @Success 200 {object} DreamResponse "One dream"
+// @Router /dreams/{dreamId} [get]
 func (con Controller) GetDream(g *gin.Context) {
 	id, err := strconv.Atoi(g.Param("id"))
 	if err != nil {
 		g.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	dream, err := con.Repo.getDream(uint(id))
+	dream, err := con.Repo.GetDream(uint(id))
 	if err == ErrorNotFound {
 		g.AbortWithStatus(http.StatusNotFound)
 		return
@@ -118,13 +106,17 @@ func (con Controller) GetDream(g *gin.Context) {
 	g.JSON(http.StatusOK, dreamToDreamResponse(dream))
 }
 
+// @Description Delete one dreams
+// @Produce json
+// @Success 200
+// @Router /dreams/{dreamId} [delete]
 func (con Controller) DeleteDream(g *gin.Context) {
 	id, err := strconv.Atoi(g.Param("id"))
 	if err != nil {
 		g.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	err = con.Repo.deleteDream(uint(id))
+	err = con.Repo.DeleteDream(uint(id))
 	if err == ErrorNotFound {
 		g.AbortWithStatus(http.StatusNotFound)
 		return

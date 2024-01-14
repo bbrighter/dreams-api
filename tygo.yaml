@@ -1,5 +1,5 @@
 packages:
-  - path: "github.com/bbrighter/dream-api"
+  - path: "github.com/bbrighter/dreams-api/controller"
     output_path: "./interface.ts"
     type_mappings:
       time.Time: "string /* RFC3339 */"

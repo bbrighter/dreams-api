@@ -1,4 +1,4 @@
-package main
+package store
 
 import (
 	"log"
@@ -10,6 +10,7 @@ import (
 
 const (
 	initialMigration = "20231218_Initial"
+	migration1       = "20240105_Tags"
 )
 
 var migrations = []*gormigrate.Migration{
@@ -43,14 +44,54 @@ var migrations = []*gormigrate.Migration{
 			return nil
 		},
 	},
+	{
+		ID: migration1,
+		Migrate: func(tx *gorm.DB) error {
+			type Tag struct {
+				ID     uint
+				Title  string
+				Dreams []Dream `gorm:"many2many:tags_dreams;"`
+			}
+			type Dream struct {
+				ID          uint
+				Date        time.Time
+				Description string
+				Tags        []Tag `gorm:"many2many:tags_dreams;"`
+			}
+			if err := tx.Migrator().DropTable(Tag{}); err != nil {
+				return err
+			}
+			return tx.AutoMigrate(
+				Dream{},
+				Tag{},
+			)
+		},
+		Rollback: func(tx *gorm.DB) error {
+			type Tag struct {
+				ID      uint
+				Title   string
+				DreamID uint
+			}
+			if err := tx.Migrator().DropTable("tags"); err != nil {
+				return err
+			}
+			if err := tx.AutoMigrate(Tag{}); err != nil {
+				return err
+			}
+			if err := tx.Migrator().DropTable("tags_dreams"); err != nil {
+				return err
+			}
+			return nil
+		},
+	},
 }
 
 func migrationFactory(db *gorm.DB) *gormigrate.Gormigrate {
 	return gormigrate.New(db, gormigrate.DefaultOptions, migrations)
 }
 
-func Migration(db *gorm.DB) error {
-	m := migrationFactory(db)
+func Migration(repo Repo) error {
+	m := migrationFactory(repo.db)
 	if err := m.Migrate(); err != nil {
 		log.Fatalf("Could not migrate")
 		return err
