@@ -97,6 +97,6 @@ func TestTagsToTagsResponse(t *testing.T) {
 
 	resp := tagsToTagsResponse(tags)
 
-	assert.Len(t, resp, 2)
+	assert.Len(t, resp.Tags, 2)
 	assert.Equal(t, "Tag 1", resp.Tags[0].Title)
 }

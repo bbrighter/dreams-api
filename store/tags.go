@@ -40,13 +40,19 @@ func (repo Repo) RemoveTagFromDream(tagId uint, dreamId uint) ([]Tag, error) {
 	}
 
 	repo.db.Model(&dream).Association("Tags").Delete(tag)
-
-	var usedTag Tag
-	repo.db.Where(&Tag{Title: tag.Title}).Preload("Dreams").Find(&usedTag)
-	if len(usedTag.Dreams) == 0 {
-		repo.db.Delete(tag)
-	}
-	repo.db.Find(&tags)
+	tags = repo.removeTagsIfNeeded([]Tag{tag})
 
 	return tags, nil
+}
+
+func (repo Repo) removeTagsIfNeeded(tags []Tag) []Tag {
+	for _, tag := range tags {
+		var usedTag Tag
+		repo.db.Where(&Tag{Title: tag.Title}).Preload("Dreams").Find(&usedTag)
+		if len(usedTag.Dreams) == 0 {
+			repo.db.Delete(tag)
+		}
+	}
+	repo.db.Find(&tags)
+	return tags
 }

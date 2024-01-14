@@ -2,6 +2,8 @@ package store
 
 import (
 	"time"
+
+	"gorm.io/gorm/clause"
 )
 
 type Dream struct {
@@ -41,11 +43,14 @@ func (repo Repo) UpdateDream(dream Dream) error {
 	return tx.Error
 }
 
-func (repo Repo) DeleteDream(id uint) ([]Dream, error) {
-	tx := repo.db.Delete(&Dream{ID: id})
-	if tx.RowsAffected == 0 {
-		return []Dream{}, ErrorNotFound
+func (repo Repo) DeleteDream(id uint) error {
+	var dream Dream = Dream{ID: id}
+	if rowsAffected := repo.db.Preload(clause.Associations).
+		Find(&dream).RowsAffected; rowsAffected == 0 {
+		return ErrorNotFound
 	}
-	var dreams []Dream = repo.GetDreams()
-	return dreams, nil
+	repo.db.Delete(&dream)
+	repo.removeTagsIfNeeded(dream.Tags)
+
+	return nil
 }

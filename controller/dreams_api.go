@@ -116,7 +116,7 @@ func (con Controller) DeleteDream(g *gin.Context) {
 		g.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	_, err = con.Repo.DeleteDream(uint(id))
+	err = con.Repo.DeleteDream(uint(id))
 	if err == ErrorNotFound {
 		g.AbortWithStatus(http.StatusNotFound)
 		return

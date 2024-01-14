@@ -103,11 +103,25 @@ func TestDeleteDream(t *testing.T) {
 	repo, teardown := SetupTest(t)
 	defer teardown(t)
 
-	_, err := repo.DeleteDream(1)
+	err := repo.DeleteDream(1)
 	assert.EqualError(t, err, "Not found")
 
 	CreateTestDream(t)
 
-	_, err = repo.DeleteDream(1)
+	err = repo.DeleteDream(1)
 	assert.NoError(t, err)
+}
+
+func TestDeleteDreamAlsoDeletesTag(t *testing.T) {
+	repo, teardown := SetupTest(t)
+	defer teardown(t)
+	dream := CreateTestTagAndDream(t)
+
+	err := repo.DeleteDream(dream.ID)
+
+	assert.NoError(t, err)
+	var tags []Tag
+	repo.db.Find(&tags)
+	assert.Len(t, tags, 0)
+
 }
