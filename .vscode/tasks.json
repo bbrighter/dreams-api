@@ -8,12 +8,6 @@
             "detail": "Create a build for Windows only. Exe is within this folder",
         },
         {
-            "label": "Create TS types",
-            "type": "shell",
-            "command": ".\\typescript-typechecker.exe generate",
-            "icon": {"id": "type-hierarchy"}
-        },
-        {
             "label": "Build for Rasperry",
             "type": "shell",
             "group": "build",

@@ -61,7 +61,7 @@ const docTemplate = `{
         },
         "/dreams/{dreamId}": {
             "get": {
-                "description": "Get one dreams",
+                "description": "Get one dream",
                 "produces": [
                     "application/json"
                 ],
@@ -101,6 +101,35 @@ const docTemplate = `{
                         }
                     }
                 ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/dreams/{dreamId}/persons": {
+            "put": {
+                "description": "Add a person to a dream",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of person",
+                        "name": "name",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/dreams/{dreamId}/persons/{personId}": {
+            "delete": {
+                "description": "Delete a person from a dream",
                 "responses": {
                     "200": {
                         "description": "OK"
@@ -167,6 +196,21 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "controller.DreamMetaResponse": {
+            "type": "object",
+            "required": [
+                "date",
+                "id"
+            ],
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
         "controller.DreamRequestBody": {
             "type": "object",
             "required": [
@@ -187,6 +231,7 @@ const docTemplate = `{
                 "date",
                 "description",
                 "id",
+                "persons",
                 "tags"
             ],
             "properties": {
@@ -198,6 +243,12 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "persons": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controller.PersonResponse"
+                    }
                 },
                 "tags": {
                     "type": "array",
@@ -216,8 +267,19 @@ const docTemplate = `{
                 "dreams": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/controller.DreamResponse"
+                        "$ref": "#/definitions/controller.DreamMetaResponse"
                     }
+                }
+            }
+        },
+        "controller.PersonResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },

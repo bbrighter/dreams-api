@@ -1,4 +1,14 @@
 definitions:
+  controller.DreamMetaResponse:
+    properties:
+      date:
+        type: string
+      id:
+        type: integer
+    required:
+    - date
+    - id
+    type: object
   controller.DreamRequestBody:
     properties:
       date:
@@ -16,6 +26,10 @@ definitions:
         type: string
       id:
         type: integer
+      persons:
+        items:
+          $ref: '#/definitions/controller.PersonResponse'
+        type: array
       tags:
         items:
           $ref: '#/definitions/controller.TagResponse'
@@ -24,16 +38,24 @@ definitions:
     - date
     - description
     - id
+    - persons
     - tags
     type: object
   controller.DreamsResponse:
     properties:
       dreams:
         items:
-          $ref: '#/definitions/controller.DreamResponse'
+          $ref: '#/definitions/controller.DreamMetaResponse'
         type: array
     required:
     - dreams
+    type: object
+  controller.PersonResponse:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
     type: object
   controller.TagResponse:
     properties:
@@ -94,7 +116,7 @@ paths:
         "200":
           description: OK
     get:
-      description: Get one dreams
+      description: Get one dream
       produces:
       - application/json
       responses:
@@ -113,6 +135,24 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/controller.DreamRequestBody'
+      responses:
+        "200":
+          description: OK
+  /dreams/{dreamId}/persons:
+    put:
+      description: Add a person to a dream
+      parameters:
+      - description: Name of person
+        in: query
+        name: name
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+  /dreams/{dreamId}/persons/{personId}:
+    delete:
+      description: Delete a person from a dream
       responses:
         "200":
           description: OK

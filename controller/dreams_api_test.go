@@ -42,7 +42,7 @@ func TestCreateDreamAPI(t *testing.T) {
 
 func TestUpdateDreamAPI(t *testing.T) {
 	teardown, router := setupAPITest(t)
-	createTestDream(t)
+	CreateOnlyTestDream(t)
 	defer teardown(t)
 
 	var body DreamRequestBody
@@ -64,7 +64,7 @@ func TestGetDreamAPI(t *testing.T) {
 
 	handler := router.ServeHTTP
 
-	createTestDream(t)
+	CreateOnlyTestDream(t)
 	assert.HTTPSuccess(t, handler, http.MethodGet, "/dreams/1", nil)
 
 	// Error handling
@@ -77,7 +77,7 @@ func TestGetDreamAPI(t *testing.T) {
 func TestDeleteDreamAPI(t *testing.T) {
 	teardown, router := setupAPITest(t)
 	defer teardown(t)
-	createTestDream(t)
+	CreateOnlyTestDream(t)
 
 	handler := router.ServeHTTP
 	assert.HTTPSuccess(t, handler, http.MethodDelete, "/dreams/1", nil)

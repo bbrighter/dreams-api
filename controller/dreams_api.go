@@ -8,15 +8,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type DreamMetaResponse struct {
+	ID   uint      `json:"id" validate:"required"`
+	Date time.Time `json:"date" validate:"required"`
+}
+
 type DreamResponse struct {
-	ID          uint          `json:"id" validate:"required"`
-	Date        time.Time     `json:"date" validate:"required"`
-	Description string        `json:"description" validate:"required"`
-	Tags        []TagResponse `json:"tags" validate:"required"`
+	DreamMetaResponse
+	Description string           `json:"description" validate:"required"`
+	Tags        []TagResponse    `json:"tags" validate:"required"`
+	Persons     []PersonResponse `json:"persons" validate:"required"`
 }
 
 type DreamsResponse struct {
-	Dreams []DreamResponse `json:"dreams" validate:"required"`
+	Dreams []DreamMetaResponse `json:"dreams" validate:"required"`
 }
 
 // @Description Get all dreams
@@ -84,7 +89,7 @@ func (con Controller) UpdateDream(g *gin.Context) {
 	g.Status(http.StatusOK)
 }
 
-// @Description Get one dreams
+// @Description Get one dream
 // @Produce json
 // @Success 200 {object} DreamResponse "One dream"
 // @Router /dreams/{dreamId} [get]

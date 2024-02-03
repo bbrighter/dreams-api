@@ -53,6 +53,8 @@ func SetupRouter(con Controller) *gin.Engine {
 	dreamsGroup.PATCH("/:id", con.UpdateDream)
 	dreamsGroup.PUT("/:id/tags", con.AddTag)
 	dreamsGroup.DELETE("/:id/tags/:tagId", con.RemoveTag)
+	dreamsGroup.PUT("/:id/persons", con.PutPersonToDream)
+	dreamsGroup.DELETE("/:id/persons/:personId", con.RemovePersonFromDream)
 
 	tagsGroup := router.Group("/tags")
 	tagsGroup.GET("", con.GetTags)
