@@ -22,7 +22,6 @@ func main() {
 	}
 
 	r := controller.SetupRouter(con)
-	store.Rollback(repo)
 
 	r.Run(ipAddress + ":5005")
 }

@@ -117,3 +117,15 @@ func TestPersonToPersonResponse(t *testing.T) {
 	assert.EqualValues(t, resp.ID, 1)
 	assert.Equal(t, resp.Name, "Name")
 }
+
+func TestPersonsToPersonsResponse(t *testing.T) {
+	t.Parallel()
+
+	person1 := store.Person{ID: 1, Name: "Name", Dreams: []store.Dream{{ID: 1}}}
+	person2 := store.Person{ID: 2, Name: "Name 2", Dreams: []store.Dream{{ID: 1}}}
+	persons := []store.Person{person1, person2}
+
+	resp := personsToPersonsResponse(persons)
+
+	assert.Len(t, resp.Persons, 2)
+}

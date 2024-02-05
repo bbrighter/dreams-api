@@ -111,6 +111,9 @@ const docTemplate = `{
         "/dreams/{dreamId}/persons": {
             "put": {
                 "description": "Add a person to a dream",
+                "produces": [
+                    "application/json"
+                ],
                 "parameters": [
                     {
                         "type": "string",
@@ -122,7 +125,10 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "type": "number"
+                        }
                     }
                 }
             }
@@ -130,9 +136,15 @@ const docTemplate = `{
         "/dreams/{dreamId}/persons/{personId}": {
             "delete": {
                 "description": "Delete a person from a dream",
+                "produces": [
+                    "application/json"
+                ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.PersonsResponse"
+                        }
                     }
                 }
             }
@@ -173,6 +185,25 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/controller.TagsResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/persons": {
+            "get": {
+                "description": "Get all persons",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/controller.PersonResponse"
+                            }
                         }
                     }
                 }
@@ -274,12 +305,30 @@ const docTemplate = `{
         },
         "controller.PersonResponse": {
             "type": "object",
+            "required": [
+                "id",
+                "name"
+            ],
             "properties": {
                 "id": {
                     "type": "integer"
                 },
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "controller.PersonsResponse": {
+            "type": "object",
+            "required": [
+                "persons"
+            ],
+            "properties": {
+                "persons": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controller.PersonResponse"
+                    }
                 }
             }
         },

@@ -8,6 +8,17 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestGetPersons(t *testing.T) {
+	teardown, router := setupAPITest(t)
+	defer teardown(t)
+
+	createTestDream(t, 0, 10)
+
+	handler := router.ServeHTTP
+
+	assert.HTTPSuccess(t, handler, http.MethodGet, "/persons", nil)
+}
+
 func TestPutPersonToDream(t *testing.T) {
 	teardown, router := setupAPITest(t)
 	defer teardown(t)

@@ -58,5 +58,8 @@ func SetupRouter(con Controller) *gin.Engine {
 
 	tagsGroup := router.Group("/tags")
 	tagsGroup.GET("", con.GetTags)
+
+	personsGroup := router.Group("/persons")
+	personsGroup.GET("", con.GetPersons)
 	return router
 }

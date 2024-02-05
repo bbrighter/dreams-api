@@ -39,6 +39,14 @@ func personToPersonResponse(p store.Person) PersonResponse {
 	}
 }
 
+func personsToPersonsResponse(p []store.Person) PersonsResponse {
+	var persons []PersonResponse = []PersonResponse{}
+	for _, person := range p {
+		persons = append(persons, personToPersonResponse(person))
+	}
+	return PersonsResponse{Persons: persons}
+}
+
 func dreamToDreamMetaResponse(d store.Dream) DreamMetaResponse {
 	return DreamMetaResponse{
 		ID:   d.ID,

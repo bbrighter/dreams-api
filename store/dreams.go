@@ -16,13 +16,13 @@ type Dream struct {
 
 func (repo Repo) GetDreams() []Dream {
 	var dreams []Dream
-	repo.db.Model(&Dream{}).Preload("Tags").Find(&dreams)
+	repo.db.Model(&Dream{}).Find(&dreams)
 	return dreams
 }
 
 func (repo Repo) GetDream(id uint) (Dream, error) {
 	var dream Dream = Dream{ID: id}
-	tx := repo.db.Model(&Dream{}).Preload("Tags").First(&dream)
+	tx := repo.db.Model(&Dream{}).Preload(clause.Associations).First(&dream)
 	if tx.RowsAffected == 0 {
 		return dream, ErrorNotFound
 	}
