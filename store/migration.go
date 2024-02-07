@@ -11,6 +11,7 @@ import (
 const (
 	initialMigration = "20231218_Initial"
 	migration1       = "20240105_Tags"
+	migration2       = "20240131_Persons"
 )
 
 var migrations = []*gormigrate.Migration{
@@ -84,6 +85,33 @@ var migrations = []*gormigrate.Migration{
 			return nil
 		},
 	},
+	{
+		ID: migration2,
+		Migrate: func(tx *gorm.DB) error {
+			type Person struct {
+				ID     uint
+				Name   string
+				Dreams []Dream `gorm:"many2many:people_dreams;"`
+			}
+			type Dream struct {
+				ID          uint
+				Date        time.Time
+				Description string
+				Tags        []Tag    `gorm:"many2many:tags_dreams;"`
+				Persons     []Person `gorm:"many2many:people_dreams;"`
+			}
+			return tx.Migrator().AutoMigrate(Person{}, Dream{})
+		},
+		Rollback: func(tx *gorm.DB) error {
+			if err := tx.Migrator().DropTable("people_dreams"); err != nil {
+				return err
+			}
+			if err := tx.Migrator().DropTable("people"); err != nil {
+				return err
+			}
+			return nil
+		},
+	},
 }
 
 func migrationFactory(db *gorm.DB) *gormigrate.Gormigrate {
@@ -110,8 +138,8 @@ func RollbackTo(db *gorm.DB, rollbackTo string) error {
 	return nil
 }
 
-func Rollback(db *gorm.DB) error {
-	m := migrationFactory(db)
+func Rollback(repo Repo) error {
+	m := migrationFactory(repo.db)
 	if err := m.RollbackLast(); err != nil {
 		log.Fatalf("Could not rollback")
 		return err

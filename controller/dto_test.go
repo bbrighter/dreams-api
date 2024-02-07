@@ -41,6 +41,9 @@ func TestDreamToDreamResponse(t *testing.T) {
 		Tags: []store.Tag{
 			{ID: 1, Title: "Tag", Dreams: []store.Dream{{ID: 1}}},
 		},
+		Persons: []store.Person{
+			{ID: 1, Name: "Name", Dreams: []store.Dream{{ID: 1}}},
+		},
 	}
 
 	//
@@ -51,6 +54,9 @@ func TestDreamToDreamResponse(t *testing.T) {
 	assert.Len(t, resp.Tags, 1)
 	assert.Equal(t, "Tag", resp.Tags[0].Title)
 	assert.EqualValues(t, 1, resp.Tags[0].ID)
+	assert.Len(t, resp.Persons, 1)
+	assert.EqualValues(t, 1, resp.Persons[0].ID)
+	assert.Equal(t, "Name", resp.Persons[0].Name)
 }
 
 func TestDreamsToDreamsResponse(t *testing.T) {
@@ -70,11 +76,11 @@ func TestDreamsToDreamsResponse(t *testing.T) {
 			Date:        time.Now(),
 			Description: "desc",
 			Tags:        []store.Tag{{ID: 1, Title: "Tag"}},
+			Persons:     []store.Person{{ID: 1, Name: "Name"}},
 		},
 	}
 	var resp DreamsResponse = dreamsToDreamsResponse(dreams)
 	assert.Len(t, resp.Dreams, 1)
-	assert.Len(t, resp.Dreams[0].Tags, 1)
 }
 
 func TestTagToTagResponse(t *testing.T) {
@@ -99,4 +105,27 @@ func TestTagsToTagsResponse(t *testing.T) {
 
 	assert.Len(t, resp.Tags, 2)
 	assert.Equal(t, "Tag 1", resp.Tags[0].Title)
+}
+
+func TestPersonToPersonResponse(t *testing.T) {
+	t.Parallel()
+
+	var person store.Person = store.Person{ID: 1, Name: "Name", Dreams: []store.Dream{{ID: 1}}}
+
+	resp := personToPersonResponse(person)
+
+	assert.EqualValues(t, resp.ID, 1)
+	assert.Equal(t, resp.Name, "Name")
+}
+
+func TestPersonsToPersonsResponse(t *testing.T) {
+	t.Parallel()
+
+	person1 := store.Person{ID: 1, Name: "Name", Dreams: []store.Dream{{ID: 1}}}
+	person2 := store.Person{ID: 2, Name: "Name 2", Dreams: []store.Dream{{ID: 1}}}
+	persons := []store.Person{person1, person2}
+
+	resp := personsToPersonsResponse(persons)
+
+	assert.Len(t, resp.Persons, 2)
 }

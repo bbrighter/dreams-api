@@ -20,6 +20,7 @@ func main() {
 	if err := store.Migration(repo); err != nil {
 		log.Fatal(err)
 	}
+
 	r := controller.SetupRouter(con)
 
 	r.Run(ipAddress + ":5005")

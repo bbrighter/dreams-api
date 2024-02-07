@@ -61,7 +61,7 @@ const docTemplate = `{
         },
         "/dreams/{dreamId}": {
             "get": {
-                "description": "Get one dreams",
+                "description": "Get one dream",
                 "produces": [
                     "application/json"
                 ],
@@ -108,6 +108,47 @@ const docTemplate = `{
                 }
             }
         },
+        "/dreams/{dreamId}/persons": {
+            "put": {
+                "description": "Add a person to a dream",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of person",
+                        "name": "name",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                }
+            }
+        },
+        "/dreams/{dreamId}/persons/{personId}": {
+            "delete": {
+                "description": "Delete a person from a dream",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.PersonsResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/dreams/{dreamId}/tags": {
             "put": {
                 "description": "Add a tag to a dream",
@@ -149,6 +190,25 @@ const docTemplate = `{
                 }
             }
         },
+        "/persons": {
+            "get": {
+                "description": "Get all persons",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/controller.PersonResponse"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/tags": {
             "get": {
                 "description": "Get all tags",
@@ -167,6 +227,21 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "controller.DreamMetaResponse": {
+            "type": "object",
+            "required": [
+                "date",
+                "id"
+            ],
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
         "controller.DreamRequestBody": {
             "type": "object",
             "required": [
@@ -187,6 +262,7 @@ const docTemplate = `{
                 "date",
                 "description",
                 "id",
+                "persons",
                 "tags"
             ],
             "properties": {
@@ -198,6 +274,12 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "persons": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controller.PersonResponse"
+                    }
                 },
                 "tags": {
                     "type": "array",
@@ -216,7 +298,36 @@ const docTemplate = `{
                 "dreams": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/controller.DreamResponse"
+                        "$ref": "#/definitions/controller.DreamMetaResponse"
+                    }
+                }
+            }
+        },
+        "controller.PersonResponse": {
+            "type": "object",
+            "required": [
+                "id",
+                "name"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.PersonsResponse": {
+            "type": "object",
+            "required": [
+                "persons"
+            ],
+            "properties": {
+                "persons": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controller.PersonResponse"
                     }
                 }
             }

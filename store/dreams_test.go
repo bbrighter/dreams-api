@@ -19,22 +19,22 @@ func TestGetDreams(t *testing.T) {
 	assert.Len(t, dreams, 0)
 
 	// Test one dream exists
-	CreateTestDream(t)
+	CreateTestDream(0, 0, t)
 
 	dreams = repo.GetDreams()
 
 	assert.Len(t, dreams, 1)
 
 	// Test one dream and tag exists
-	CreateTestTagAndDream(t)
+	dream := CreateTestDream(1, 0, t)
 
 	dreams = repo.GetDreams()
 
 	assert.Len(t, dreams, 2)
-	dream := dreams[1]
-	assert.Len(t, dream.Tags, 1)
-	tag := dream.Tags[0]
-	assert.Equal(t, "Tag", tag.Title)
+	d := dreams[1]
+	assert.Len(t, d.Tags, 1)
+	tag := d.Tags[0]
+	assert.Equal(t, dream.Tags[0].Title, tag.Title)
 }
 
 func TestGetDream(t *testing.T) {
@@ -46,17 +46,17 @@ func TestGetDream(t *testing.T) {
 
 	// Dream doesn't exist
 	_, err = repo.GetDream(1)
-	assert.EqualError(t, err, "Not found")
+	assert.EqualError(t, err, "not found")
 
 	// Dream exists
-	CreateTestDream(t)
+	o := CreateTestDream(0, 0, t)
 
 	dream, err = repo.GetDream(1)
 	assert.NoError(t, err)
-	assert.EqualValues(t, dream.Description, "desc")
+	assert.EqualValues(t, dream.Description, o.Description)
 
 	// Dream exists and has tag
-	CreateTestTagAndDream(t)
+	CreateTestDream(1, 0, t)
 
 	dream, err = repo.GetDream(2)
 	assert.NoError(t, err)
@@ -85,7 +85,7 @@ func TestCreateDream(t *testing.T) {
 func TestUpdateDream(t *testing.T) {
 	repo, teardown := SetupTest(t)
 	defer teardown(t)
-	CreateTestDream(t)
+	CreateTestDream(0, 0, t)
 
 	var err error
 
@@ -104,9 +104,9 @@ func TestDeleteDream(t *testing.T) {
 	defer teardown(t)
 
 	err := repo.DeleteDream(1)
-	assert.EqualError(t, err, "Not found")
+	assert.EqualError(t, err, "not found")
 
-	CreateTestDream(t)
+	CreateTestDream(0, 0, t)
 
 	err = repo.DeleteDream(1)
 	assert.NoError(t, err)
@@ -115,7 +115,7 @@ func TestDeleteDream(t *testing.T) {
 func TestDeleteDreamAlsoDeletesTag(t *testing.T) {
 	repo, teardown := SetupTest(t)
 	defer teardown(t)
-	dream := CreateTestTagAndDream(t)
+	dream := CreateTestDream(1, 0, t)
 
 	err := repo.DeleteDream(dream.ID)
 

@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Pallinder/go-randomdata"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 )
@@ -19,44 +20,70 @@ func SetupTest(t *testing.T) (Repo, func(t *testing.T)) {
 
 	deferedFunc := func(t *testing.T) {
 		var err error
-		err = repo.db.Migrator().DropTable("dreams")
-		assert.NoError(t, err)
-		err = repo.db.Migrator().DropTable("tags")
-		assert.NoError(t, err)
-		err = repo.db.Migrator().DropTable("tags_dreams")
-		assert.NoError(t, err)
-		err = repo.db.Migrator().DropTable("migrations")
-		assert.NoError(t, err)
+		var typeTables []interface{} = []interface{}{
+			Dream{},
+			Person{},
+			Tag{},
+		}
+		for _, table := range typeTables {
+			err = repo.db.Migrator().DropTable(&table)
+			assert.NoError(t, err)
+		}
+		var fixedTables []string = []string{
+			"migrations",
+			"tags_dreams",
+			"people_dreams",
+		}
+		for _, table := range fixedTables {
+			err = repo.db.Migrator().DropTable(table)
+			assert.NoError(t, err)
+		}
 	}
 	return repo, deferedFunc
 }
 
-func CreateTestDream(t *testing.T) Dream {
-	var dream Dream = Dream{Date: time.Now(), Description: "desc"}
+func CreateTestDream(numberOfTags int, numberOfPersons int, t *testing.T) Dream {
+	var tags []Tag
+	i := 0
+	for i < numberOfTags {
+		tag := Tag{Title: randomdata.Noun()}
+		tags = append(tags, tag)
+		i++
+	}
+	var persons []Person
+	j := 0
+	for j < numberOfPersons {
+		person := Person{Name: randomdata.FirstName(0)}
+		persons = append(persons, person)
+		j++
+	}
+	var dream Dream = Dream{
+		Date:        time.Now(),
+		Description: randomdata.RandStringRunes(100),
+		Tags:        tags,
+		Persons:     persons,
+	}
+
 	repo := initTestRepo()
 	err := repo.db.Create(&dream).Error
-	assert.NoError(t, err, "Creation of example dream failed")
+	assert.NoError(t, err)
 	return dream
 }
 
 func CreateTestTag(t *testing.T) Tag {
-	var tag Tag = Tag{Title: "Tag"}
+	var tag Tag = Tag{Title: randomdata.Noun()}
 	repo := initTestRepo()
 	err := repo.db.Create(&tag).Error
 	assert.NoError(t, err)
 	return tag
 }
 
-func CreateTestTagAndDream(t *testing.T) Dream {
+func AddTestPersonToDream(dream *Dream, t *testing.T) {
 	repo := initTestRepo()
-	dream := Dream{
-		Date:        time.Now(),
-		Description: "desc with tag",
-		Tags:        []Tag{{Title: "Tag"}},
-	}
-	err := repo.db.Create(&dream).Error
-	assert.NoError(t, err)
-	return dream
+
+	var person Person = Person{Name: randomdata.FirstName(0)}
+	dream.Persons = append(dream.Persons, person)
+	repo.db.Save(&dream)
 }
 
 func CleanTestEntries(t *testing.T) {

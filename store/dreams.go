@@ -10,18 +10,19 @@ type Dream struct {
 	ID          uint
 	Date        time.Time
 	Description string
-	Tags        []Tag `gorm:"many2many:tags_dreams;"`
+	Tags        []Tag    `gorm:"many2many:tags_dreams;"`
+	Persons     []Person `gorm:"many2many:people_dreams;"`
 }
 
 func (repo Repo) GetDreams() []Dream {
 	var dreams []Dream
-	repo.db.Model(&Dream{}).Preload("Tags").Find(&dreams)
+	repo.db.Model(&Dream{}).Find(&dreams)
 	return dreams
 }
 
 func (repo Repo) GetDream(id uint) (Dream, error) {
 	var dream Dream = Dream{ID: id}
-	tx := repo.db.Model(&Dream{}).Preload("Tags").First(&dream)
+	tx := repo.db.Model(&Dream{}).Preload(clause.Associations).First(&dream)
 	if tx.RowsAffected == 0 {
 		return dream, ErrorNotFound
 	}
@@ -49,7 +50,7 @@ func (repo Repo) DeleteDream(id uint) error {
 		Find(&dream).RowsAffected; rowsAffected == 0 {
 		return ErrorNotFound
 	}
-	repo.db.Delete(&dream)
+	repo.db.Select(clause.Associations).Delete(&dream)
 	repo.removeTagsIfNeeded(dream.Tags)
 
 	return nil

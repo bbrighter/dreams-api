@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 
 	"github.com/bbrighter/dreams-api/store"
@@ -19,18 +20,23 @@ func setupAPITest(t *testing.T) (func(t *testing.T), *gin.Engine) {
 	return deferedFunction, router
 }
 
-func createTestDream(t *testing.T) uint {
-	dream := store.CreateTestDream(t)
-	return dream.ID
+func createTestDream(t *testing.T, numberOfTags int, numberOfPersons int) (string, []string, []string) {
+	dream := store.CreateTestDream(numberOfTags, numberOfPersons, t)
+	dreamId := strconv.FormatUint(uint64(dream.ID), 10)
+	tagIds := []string{}
+	for _, t := range dream.Tags {
+		tagIds = append(tagIds, strconv.FormatUint(uint64(t.ID), 10))
+	}
+	personIds := []string{}
+	for _, p := range dream.Persons {
+		personIds = append(personIds, strconv.FormatUint(uint64(p.ID), 10))
+	}
+	return dreamId, tagIds, personIds
 }
 
-func createTestTagAndDream(t *testing.T) (uint, uint) {
-	dream := store.CreateTestTagAndDream(t)
-	return dream.ID, dream.Tags[0].ID
-}
-
-func cleanTestEntries(t *testing.T) {
-	store.CleanTestEntries(t)
+func CreateOnlyTestDream(t *testing.T) string {
+	id, _, _ := createTestDream(t, 0, 0)
+	return id
 }
 
 func makeRequest(method, url string, body interface{}, router *gin.Engine) *httptest.ResponseRecorder {
