@@ -10,8 +10,8 @@ type Dream struct {
 	ID          uint
 	Date        time.Time
 	Description string
-	Tags        []Tag    `gorm:"many2many:tags_dreams;"`
-	Persons     []Person `gorm:"many2many:people_dreams;"`
+	Categories  []Category `gorm:"many2many:categories_dreams;"`
+	Persons     []Person   `gorm:"many2many:people_dreams;"`
 }
 
 func (repo Repo) GetDreams() []Dream {
@@ -51,7 +51,7 @@ func (repo Repo) DeleteDream(id uint) error {
 		return ErrorNotFound
 	}
 	repo.db.Select(clause.Associations).Delete(&dream)
-	repo.removeTagsIfNeeded(dream.Tags)
+	repo.removeCategoriesIfNeeded(dream.Categories)
 
 	return nil
 }

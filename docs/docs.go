@@ -15,6 +15,22 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/categories": {
+            "get": {
+                "description": "Get all categories",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.CategoriesResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/dreams": {
             "get": {
                 "description": "Get all dreams",
@@ -108,6 +124,47 @@ const docTemplate = `{
                 }
             }
         },
+        "/dreams/{dreamId}/categories": {
+            "put": {
+                "description": "Add a category to a dream",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of a category",
+                        "name": "name",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.CategoriesResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/dreams/{dreamId}/categories/{categoryId}": {
+            "delete": {
+                "description": "Remove a category from a dream",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.CategoriesResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/dreams/{dreamId}/persons": {
             "put": {
                 "description": "Add a person to a dream",
@@ -149,47 +206,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/dreams/{dreamId}/tags": {
-            "put": {
-                "description": "Add a tag to a dream",
-                "produces": [
-                    "application/json"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Label of tag",
-                        "name": "title",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/controller.TagsResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/dreams/{dreamId}/tags/{tagId}": {
-            "delete": {
-                "description": "Remove a tag to a dream",
-                "produces": [
-                    "application/json"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/controller.TagsResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/persons": {
             "get": {
                 "description": "Get all persons",
@@ -208,25 +224,38 @@ const docTemplate = `{
                     }
                 }
             }
-        },
-        "/tags": {
-            "get": {
-                "description": "Get all tags",
-                "produces": [
-                    "application/json"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/controller.TagsResponse"
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
+        "controller.CategoriesResponse": {
+            "type": "object",
+            "required": [
+                "categories"
+            ],
+            "properties": {
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controller.CategoryResponse"
+                    }
+                }
+            }
+        },
+        "controller.CategoryResponse": {
+            "type": "object",
+            "required": [
+                "id",
+                "name"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "controller.DreamMetaResponse": {
             "type": "object",
             "required": [
@@ -259,13 +288,19 @@ const docTemplate = `{
         "controller.DreamResponse": {
             "type": "object",
             "required": [
+                "categories",
                 "date",
                 "description",
                 "id",
-                "persons",
-                "tags"
+                "persons"
             ],
             "properties": {
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controller.CategoryResponse"
+                    }
+                },
                 "date": {
                     "type": "string"
                 },
@@ -279,12 +314,6 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/controller.PersonResponse"
-                    }
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/controller.TagResponse"
                     }
                 }
             }
@@ -328,35 +357,6 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/controller.PersonResponse"
-                    }
-                }
-            }
-        },
-        "controller.TagResponse": {
-            "type": "object",
-            "required": [
-                "id",
-                "title"
-            ],
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "title": {
-                    "type": "string"
-                }
-            }
-        },
-        "controller.TagsResponse": {
-            "type": "object",
-            "required": [
-                "tags"
-            ],
-            "properties": {
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/controller.TagResponse"
                     }
                 }
             }

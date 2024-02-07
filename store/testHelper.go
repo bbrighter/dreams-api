@@ -23,7 +23,7 @@ func SetupTest(t *testing.T) (Repo, func(t *testing.T)) {
 		var typeTables []interface{} = []interface{}{
 			Dream{},
 			Person{},
-			Tag{},
+			Category{},
 		}
 		for _, table := range typeTables {
 			err = repo.db.Migrator().DropTable(&table)
@@ -31,7 +31,7 @@ func SetupTest(t *testing.T) (Repo, func(t *testing.T)) {
 		}
 		var fixedTables []string = []string{
 			"migrations",
-			"tags_dreams",
+			"categories_dreams",
 			"people_dreams",
 		}
 		for _, table := range fixedTables {
@@ -42,12 +42,12 @@ func SetupTest(t *testing.T) (Repo, func(t *testing.T)) {
 	return repo, deferedFunc
 }
 
-func CreateTestDream(numberOfTags int, numberOfPersons int, t *testing.T) Dream {
-	var tags []Tag
+func CreateTestDream(numberOfCategories int, numberOfPersons int, t *testing.T) Dream {
+	var categories []Category
 	i := 0
-	for i < numberOfTags {
-		tag := Tag{Title: randomdata.Noun()}
-		tags = append(tags, tag)
+	for i < numberOfCategories {
+		category := Category{Name: randomdata.Noun()}
+		categories = append(categories, category)
 		i++
 	}
 	var persons []Person
@@ -60,7 +60,7 @@ func CreateTestDream(numberOfTags int, numberOfPersons int, t *testing.T) Dream 
 	var dream Dream = Dream{
 		Date:        time.Now(),
 		Description: randomdata.RandStringRunes(100),
-		Tags:        tags,
+		Categories:  categories,
 		Persons:     persons,
 	}
 
@@ -70,12 +70,12 @@ func CreateTestDream(numberOfTags int, numberOfPersons int, t *testing.T) Dream 
 	return dream
 }
 
-func CreateTestTag(t *testing.T) Tag {
-	var tag Tag = Tag{Title: randomdata.Noun()}
+func CreateTestCategory(t *testing.T) Category {
+	var category Category = Category{Name: randomdata.Noun()}
 	repo := initTestRepo()
-	err := repo.db.Create(&tag).Error
+	err := repo.db.Create(&category).Error
 	assert.NoError(t, err)
-	return tag
+	return category
 }
 
 func AddTestPersonToDream(dream *Dream, t *testing.T) {
@@ -91,9 +91,9 @@ func CleanTestEntries(t *testing.T) {
 	tx := repo.db.Session(&gorm.Session{AllowGlobalUpdate: true})
 	err := tx.Delete(&Dream{}).Error
 	assert.NoError(t, err)
-	err = tx.Delete(&Tag{}).Error
+	err = tx.Delete(&Category{}).Error
 	assert.NoError(t, err)
-	err = tx.Table("tags_dreams").Delete("tags_dreams").Error
+	err = tx.Table("categories_dreams").Delete("categories_dreams").Error
 	assert.NoError(t, err)
 
 }
