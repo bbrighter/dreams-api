@@ -17,19 +17,19 @@ func (body DreamRequestBody) dreamRequestBodyToDream() store.Dream {
 	}
 }
 
-func tagToTagResponse(t store.Tag) TagResponse {
-	return TagResponse{
-		ID:    t.ID,
-		Title: t.Title,
+func categoryToCategoryResponse(t store.Category) CategoryResponse {
+	return CategoryResponse{
+		ID:   t.ID,
+		Name: t.Name,
 	}
 }
 
-func tagsToTagsResponse(t []store.Tag) TagsResponse {
-	var tags []TagResponse = []TagResponse{}
-	for _, tag := range t {
-		tags = append(tags, tagToTagResponse(tag))
+func categoriesToCategoriesResponse(c []store.Category) CategoriesResponse {
+	var categories []CategoryResponse = []CategoryResponse{}
+	for _, category := range c {
+		categories = append(categories, categoryToCategoryResponse(category))
 	}
-	return TagsResponse{Tags: tags}
+	return CategoriesResponse{Categories: categories}
 }
 
 func personToPersonResponse(p store.Person) PersonResponse {
@@ -56,9 +56,9 @@ func dreamToDreamMetaResponse(d store.Dream) DreamMetaResponse {
 
 func dreamToDreamResponse(d store.Dream) DreamResponse {
 	var dreamMetaResponse DreamMetaResponse = dreamToDreamMetaResponse(d)
-	var tags []TagResponse = []TagResponse{}
-	for _, tag := range d.Tags {
-		tags = append(tags, tagToTagResponse(tag))
+	var categories []CategoryResponse = []CategoryResponse{}
+	for _, category := range d.Categories {
+		categories = append(categories, categoryToCategoryResponse(category))
 	}
 	var persons []PersonResponse = []PersonResponse{}
 	for _, person := range d.Persons {
@@ -67,7 +67,7 @@ func dreamToDreamResponse(d store.Dream) DreamResponse {
 	return DreamResponse{
 		DreamMetaResponse: dreamMetaResponse,
 		Description:       d.Description,
-		Tags:              tags,
+		Categories:        categories,
 		Persons:           persons,
 	}
 }

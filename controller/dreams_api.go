@@ -15,9 +15,9 @@ type DreamMetaResponse struct {
 
 type DreamResponse struct {
 	DreamMetaResponse
-	Description string           `json:"description" validate:"required"`
-	Tags        []TagResponse    `json:"tags" validate:"required"`
-	Persons     []PersonResponse `json:"persons" validate:"required"`
+	Description string             `json:"description" validate:"required"`
+	Categories  []CategoryResponse `json:"categories" validate:"required"`
+	Persons     []PersonResponse   `json:"persons" validate:"required"`
 }
 
 type DreamsResponse struct {

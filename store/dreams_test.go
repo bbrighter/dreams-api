@@ -26,15 +26,14 @@ func TestGetDreams(t *testing.T) {
 	assert.Len(t, dreams, 1)
 
 	// Test one dream and tag exists
-	dream := CreateTestDream(1, 0, t)
+	CreateTestDream(1, 1, t)
 
 	dreams = repo.GetDreams()
 
 	assert.Len(t, dreams, 2)
 	d := dreams[1]
-	assert.Len(t, d.Tags, 1)
-	tag := d.Tags[0]
-	assert.Equal(t, dream.Tags[0].Title, tag.Title)
+	assert.Len(t, d.Categories, 0)
+	assert.Len(t, d.Persons, 0)
 }
 
 func TestGetDream(t *testing.T) {
@@ -60,7 +59,7 @@ func TestGetDream(t *testing.T) {
 
 	dream, err = repo.GetDream(2)
 	assert.NoError(t, err)
-	assert.Len(t, dream.Tags, 1)
+	assert.Len(t, dream.Categories, 1)
 
 }
 
@@ -120,7 +119,7 @@ func TestDeleteDreamAlsoDeletesTag(t *testing.T) {
 	err := repo.DeleteDream(dream.ID)
 
 	assert.NoError(t, err)
-	var tags []Tag
+	var tags []Category
 	repo.db.Find(&tags)
 	assert.Len(t, tags, 0)
 

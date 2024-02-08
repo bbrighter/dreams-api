@@ -12,6 +12,7 @@ const (
 	initialMigration = "20231218_Initial"
 	migration1       = "20240105_Tags"
 	migration2       = "20240131_Persons"
+	migration3       = "20240207_RenameTags"
 )
 
 var migrations = []*gormigrate.Migration{
@@ -88,6 +89,11 @@ var migrations = []*gormigrate.Migration{
 	{
 		ID: migration2,
 		Migrate: func(tx *gorm.DB) error {
+			type Tag struct {
+				ID     uint
+				Title  string
+				Dreams []Dream `gorm:"many2many:tags_dreams;"`
+			}
 			type Person struct {
 				ID     uint
 				Name   string
@@ -107,6 +113,55 @@ var migrations = []*gormigrate.Migration{
 				return err
 			}
 			if err := tx.Migrator().DropTable("people"); err != nil {
+				return err
+			}
+			return nil
+		},
+	},
+	{
+		ID: migration3,
+		Migrate: func(tx *gorm.DB) error {
+			type Tag struct {
+				ID     uint
+				Title  string
+				Dreams []Dream `gorm:"many2many:tags_dreams;"`
+			}
+			if err := tx.Migrator().RenameColumn(&Tag{}, "title", "name"); err != nil {
+				return err
+			}
+			if err := tx.Migrator().RenameTable("tags", "categories"); err != nil {
+				return err
+			}
+			if err := tx.Migrator().RenameTable("tags_dreams", "categories_dreams"); err != nil {
+				return err
+			}
+			type CategoriesDream struct {
+				TagId uint
+			}
+			if err := tx.Migrator().RenameColumn(&CategoriesDream{}, "tag_id", "category_id"); err != nil {
+				return err
+			}
+			return nil
+		},
+		Rollback: func(tx *gorm.DB) error {
+			type Category struct {
+				ID     uint
+				Name   string
+				Dreams []Dream `gorm:"many2many:categories_dreams;"`
+			}
+			if err := tx.Migrator().RenameColumn(&Category{}, "name", "title"); err != nil {
+				return err
+			}
+			if err := tx.Migrator().RenameTable("categories", "tags"); err != nil {
+				return err
+			}
+			if err := tx.Migrator().RenameTable("categories_dreams", "tags_dreams"); err != nil {
+				return err
+			}
+			type TagsDream struct {
+				TagId uint
+			}
+			if err := tx.Migrator().RenameColumn(&TagsDream{}, "category_id", "tag_id"); err != nil {
 				return err
 			}
 			return nil

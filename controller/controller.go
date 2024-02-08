@@ -9,7 +9,7 @@ import (
 )
 
 // @title Dreams API
-// @version 1.0
+// @version 2.0
 // @BasePath /
 
 type Controller struct {
@@ -51,13 +51,13 @@ func SetupRouter(con Controller) *gin.Engine {
 	dreamsGroup.GET("/:id", con.GetDream)
 	dreamsGroup.DELETE("/:id", con.DeleteDream)
 	dreamsGroup.PATCH("/:id", con.UpdateDream)
-	dreamsGroup.PUT("/:id/tags", con.AddTag)
-	dreamsGroup.DELETE("/:id/tags/:tagId", con.RemoveTag)
+	dreamsGroup.PUT("/:id/categories", con.AddCategory)
+	dreamsGroup.DELETE("/:id/categories/:categoryId", con.RemoveCategory)
 	dreamsGroup.PUT("/:id/persons", con.PutPersonToDream)
 	dreamsGroup.DELETE("/:id/persons/:personId", con.RemovePersonFromDream)
 
-	tagsGroup := router.Group("/tags")
-	tagsGroup.GET("", con.GetTags)
+	categoriesGroup := router.Group("/categories")
+	categoriesGroup.GET("", con.GetCategories)
 
 	personsGroup := router.Group("/persons")
 	personsGroup.GET("", con.GetPersons)

@@ -20,18 +20,18 @@ func setupAPITest(t *testing.T) (func(t *testing.T), *gin.Engine) {
 	return deferedFunction, router
 }
 
-func createTestDream(t *testing.T, numberOfTags int, numberOfPersons int) (string, []string, []string) {
-	dream := store.CreateTestDream(numberOfTags, numberOfPersons, t)
+func createTestDream(t *testing.T, numberOfCategories int, numberOfPersons int) (string, []string, []string) {
+	dream := store.CreateTestDream(numberOfCategories, numberOfPersons, t)
 	dreamId := strconv.FormatUint(uint64(dream.ID), 10)
-	tagIds := []string{}
-	for _, t := range dream.Tags {
-		tagIds = append(tagIds, strconv.FormatUint(uint64(t.ID), 10))
+	categoryIds := []string{}
+	for _, c := range dream.Categories {
+		categoryIds = append(categoryIds, strconv.FormatUint(uint64(c.ID), 10))
 	}
 	personIds := []string{}
 	for _, p := range dream.Persons {
 		personIds = append(personIds, strconv.FormatUint(uint64(p.ID), 10))
 	}
-	return dreamId, tagIds, personIds
+	return dreamId, categoryIds, personIds
 }
 
 func CreateOnlyTestDream(t *testing.T) string {

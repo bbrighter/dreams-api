@@ -38,8 +38,8 @@ func TestDreamToDreamResponse(t *testing.T) {
 		ID:          1,
 		Date:        time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
 		Description: "desc",
-		Tags: []store.Tag{
-			{ID: 1, Title: "Tag", Dreams: []store.Dream{{ID: 1}}},
+		Categories: []store.Category{
+			{ID: 1, Name: "Category", Dreams: []store.Dream{{ID: 1}}},
 		},
 		Persons: []store.Person{
 			{ID: 1, Name: "Name", Dreams: []store.Dream{{ID: 1}}},
@@ -51,9 +51,9 @@ func TestDreamToDreamResponse(t *testing.T) {
 	assert.EqualValues(t, 1, resp.ID)
 	assert.Equal(t, "desc", resp.Description)
 	assert.Equal(t, time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), resp.Date)
-	assert.Len(t, resp.Tags, 1)
-	assert.Equal(t, "Tag", resp.Tags[0].Title)
-	assert.EqualValues(t, 1, resp.Tags[0].ID)
+	assert.Len(t, resp.Categories, 1)
+	assert.Equal(t, "Category", resp.Categories[0].Name)
+	assert.EqualValues(t, 1, resp.Categories[0].ID)
 	assert.Len(t, resp.Persons, 1)
 	assert.EqualValues(t, 1, resp.Persons[0].ID)
 	assert.Equal(t, "Name", resp.Persons[0].Name)
@@ -75,7 +75,7 @@ func TestDreamsToDreamsResponse(t *testing.T) {
 			ID:          1,
 			Date:        time.Now(),
 			Description: "desc",
-			Tags:        []store.Tag{{ID: 1, Title: "Tag"}},
+			Categories:  []store.Category{{ID: 1, Name: "Category"}},
 			Persons:     []store.Person{{ID: 1, Name: "Name"}},
 		},
 	}
@@ -83,28 +83,28 @@ func TestDreamsToDreamsResponse(t *testing.T) {
 	assert.Len(t, resp.Dreams, 1)
 }
 
-func TestTagToTagResponse(t *testing.T) {
+func TestCategoryToCategoryResponse(t *testing.T) {
 	t.Parallel()
-	var tag store.Tag = store.Tag{ID: 1, Title: "Tag", Dreams: []store.Dream{{ID: 1}}}
+	var category store.Category = store.Category{ID: 1, Name: "Category", Dreams: []store.Dream{{ID: 1}}}
 
-	resp := tagToTagResponse(tag)
+	resp := categoryToCategoryResponse(category)
 
-	assert.Equal(t, "Tag", resp.Title)
+	assert.Equal(t, "Category", resp.Name)
 	assert.EqualValues(t, 1, resp.ID)
 }
 
-func TestTagsToTagsResponse(t *testing.T) {
+func TestCategoiessToCategoriesResponse(t *testing.T) {
 	t.Parallel()
 
-	var tags []store.Tag
-	var tag1 store.Tag = store.Tag{ID: 1, Title: "Tag 1", Dreams: []store.Dream{{ID: 1}}}
-	var tag2 store.Tag = store.Tag{ID: 2, Title: "Tag 2", Dreams: []store.Dream{{ID: 1}}}
-	tags = append(tags, tag1, tag2)
+	var categories []store.Category
+	var category1 store.Category = store.Category{ID: 1, Name: "Category 1", Dreams: []store.Dream{{ID: 1}}}
+	var category2 store.Category = store.Category{ID: 2, Name: "Category 2", Dreams: []store.Dream{{ID: 1}}}
+	categories = append(categories, category1, category2)
 
-	resp := tagsToTagsResponse(tags)
+	resp := categoriesToCategoriesResponse(categories)
 
-	assert.Len(t, resp.Tags, 2)
-	assert.Equal(t, "Tag 1", resp.Tags[0].Title)
+	assert.Len(t, resp.Categories, 2)
+	assert.Equal(t, "Category 1", resp.Categories[0].Name)
 }
 
 func TestPersonToPersonResponse(t *testing.T) {

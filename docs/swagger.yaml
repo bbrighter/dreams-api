@@ -1,4 +1,23 @@
 definitions:
+  controller.CategoriesResponse:
+    properties:
+      categories:
+        items:
+          $ref: '#/definitions/controller.CategoryResponse'
+        type: array
+    required:
+    - categories
+    type: object
+  controller.CategoryResponse:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    required:
+    - id
+    - name
+    type: object
   controller.DreamMetaResponse:
     properties:
       date:
@@ -20,6 +39,10 @@ definitions:
     type: object
   controller.DreamResponse:
     properties:
+      categories:
+        items:
+          $ref: '#/definitions/controller.CategoryResponse'
+        type: array
       date:
         type: string
       description:
@@ -30,16 +53,12 @@ definitions:
         items:
           $ref: '#/definitions/controller.PersonResponse'
         type: array
-      tags:
-        items:
-          $ref: '#/definitions/controller.TagResponse'
-        type: array
     required:
+    - categories
     - date
     - description
     - id
     - persons
-    - tags
     type: object
   controller.DreamsResponse:
     properties:
@@ -69,28 +88,19 @@ definitions:
     required:
     - persons
     type: object
-  controller.TagResponse:
-    properties:
-      id:
-        type: integer
-      title:
-        type: string
-    required:
-    - id
-    - title
-    type: object
-  controller.TagsResponse:
-    properties:
-      tags:
-        items:
-          $ref: '#/definitions/controller.TagResponse'
-        type: array
-    required:
-    - tags
-    type: object
 info:
   contact: {}
 paths:
+  /categories:
+    get:
+      description: Get all categories
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.CategoriesResponse'
   /dreams:
     get:
       description: Get all dreams
@@ -150,6 +160,32 @@ paths:
       responses:
         "200":
           description: OK
+  /dreams/{dreamId}/categories:
+    put:
+      description: Add a category to a dream
+      parameters:
+      - description: Name of a category
+        in: query
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.CategoriesResponse'
+  /dreams/{dreamId}/categories/{categoryId}:
+    delete:
+      description: Remove a category from a dream
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.CategoriesResponse'
   /dreams/{dreamId}/persons:
     put:
       description: Add a person to a dream
@@ -176,32 +212,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/controller.PersonsResponse'
-  /dreams/{dreamId}/tags:
-    put:
-      description: Add a tag to a dream
-      parameters:
-      - description: Label of tag
-        in: query
-        name: title
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/controller.TagsResponse'
-  /dreams/{dreamId}/tags/{tagId}:
-    delete:
-      description: Remove a tag to a dream
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/controller.TagsResponse'
   /persons:
     get:
       description: Get all persons
@@ -214,14 +224,4 @@ paths:
             items:
               $ref: '#/definitions/controller.PersonResponse'
             type: array
-  /tags:
-    get:
-      description: Get all tags
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/controller.TagsResponse'
 swagger: "2.0"
