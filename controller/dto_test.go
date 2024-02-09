@@ -129,3 +129,15 @@ func TestPersonsToPersonsResponse(t *testing.T) {
 
 	assert.Len(t, resp.Persons, 2)
 }
+
+func TestCategoryCountsToCategoryCountResponse(t *testing.T) {
+	t.Parallel()
+
+	count1 := store.CategoryCount{CategoryID: 1, Count: 10}
+	count2 := store.CategoryCount{CategoryID: 2, Count: 20}
+	counts := []store.CategoryCount{count1, count2}
+
+	resp := categoryCountsToCategoryCountResponse(counts)
+
+	assert.Len(t, resp.Categories, 2)
+}

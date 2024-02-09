@@ -8,6 +8,25 @@ definitions:
     required:
     - categories
     type: object
+  controller.CategoryCount:
+    properties:
+      categoryId:
+        type: integer
+      count:
+        type: integer
+    required:
+    - categoryId
+    - count
+    type: object
+  controller.CategoryCountResponse:
+    properties:
+      categories:
+        items:
+          $ref: '#/definitions/controller.CategoryCount'
+        type: array
+    required:
+    - categories
+    type: object
   controller.CategoryResponse:
     properties:
       id:
@@ -224,4 +243,14 @@ paths:
             items:
               $ref: '#/definitions/controller.PersonResponse'
             type: array
+  /statistics:
+    get:
+      description: Get count per category
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Count by categoryId
+          schema:
+            $ref: '#/definitions/controller.CategoryCountResponse'
 swagger: "2.0"

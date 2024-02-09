@@ -224,6 +224,22 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/statistics": {
+            "get": {
+                "description": "Get count per category",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Count by categoryId",
+                        "schema": {
+                            "$ref": "#/definitions/controller.CategoryCountResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -237,6 +253,35 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/controller.CategoryResponse"
+                    }
+                }
+            }
+        },
+        "controller.CategoryCount": {
+            "type": "object",
+            "required": [
+                "categoryId",
+                "count"
+            ],
+            "properties": {
+                "categoryId": {
+                    "type": "integer"
+                },
+                "count": {
+                    "type": "integer"
+                }
+            }
+        },
+        "controller.CategoryCountResponse": {
+            "type": "object",
+            "required": [
+                "categories"
+            ],
+            "properties": {
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controller.CategoryCount"
                     }
                 }
             }
