@@ -6,20 +6,25 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type CategoryCount struct {
-	CategoryId uint `json:"categoryId" validate:"required"`
-	Count      int  `json:"count" validate:"required"`
+type Count struct {
+	ID    uint `json:"id" validate:"required"`
+	Count int  `json:"count" validate:"required"`
 }
 
-type CategoryCountResponse struct {
-	Categories []CategoryCount `json:"categories" validate:"required"`
+type CountsResponse struct {
+	Categories []Count `json:"categories" validate:"required"`
+	Persons    []Count `json:"persons" validate:"required"`
 }
 
-// @Description Get count per category
+// @Description Get count per category and person
 // @Produce json
-// @Success 200 {object} CategoryCountResponse "Count by categoryId"
+// @Success 200 {object} CountsResponse "Counts by category and persons"
 // @Router /statistics [get]
 func (con Controller) GetCountCategories(g *gin.Context) {
-	count := con.Repo.CountCategories()
-	g.JSON(http.StatusOK, categoryCountsToCategoryCountResponse(count))
+	categoryCount := con.Repo.CountCategories()
+	personCount := con.Repo.CountPersons()
+	var countsResponse CountsResponse
+	countsResponse.Categories = countsToCounts(categoryCount)
+	countsResponse.Persons = countsToCounts(personCount)
+	g.JSON(http.StatusOK, countsResponse)
 }

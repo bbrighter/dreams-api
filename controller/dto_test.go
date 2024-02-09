@@ -133,11 +133,15 @@ func TestPersonsToPersonsResponse(t *testing.T) {
 func TestCategoryCountsToCategoryCountResponse(t *testing.T) {
 	t.Parallel()
 
-	count1 := store.CategoryCount{CategoryID: 1, Count: 10}
-	count2 := store.CategoryCount{CategoryID: 2, Count: 20}
-	counts := []store.CategoryCount{count1, count2}
+	count1 := store.Count{ID: 1, Count: 10}
+	count2 := store.Count{ID: 2, Count: 20}
+	counts := []store.Count{count1, count2}
 
-	resp := categoryCountsToCategoryCountResponse(counts)
+	resp := countsToCounts(counts)
 
-	assert.Len(t, resp.Categories, 2)
+	assert.Len(t, resp, 2)
+	assert.EqualValues(t, 1, resp[0].ID)
+	assert.EqualValues(t, 10, resp[0].Count)
+	assert.EqualValues(t, 2, resp[1].ID)
+	assert.EqualValues(t, 20, resp[1].Count)
 }

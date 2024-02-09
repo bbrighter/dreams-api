@@ -81,14 +81,14 @@ func dreamsToDreamsResponse(dreams []store.Dream) DreamsResponse {
 	return DreamsResponse{Dreams: respList}
 }
 
-func categoryCountsToCategoryCountResponse(count []store.CategoryCount) CategoryCountResponse {
-	var counts []CategoryCount
+func countsToCounts(count []store.Count) []Count {
+	var counts []Count
 	for _, c := range count {
-		cc := CategoryCount{
-			CategoryId: c.CategoryID,
-			Count:      c.Count,
+		cc := Count{
+			ID:    c.ID,
+			Count: c.Count,
 		}
 		counts = append(counts, cc)
 	}
-	return CategoryCountResponse{Categories: counts}
+	return counts
 }

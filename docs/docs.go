@@ -227,15 +227,15 @@ const docTemplate = `{
         },
         "/statistics": {
             "get": {
-                "description": "Get count per category",
+                "description": "Get count per category and person",
                 "produces": [
                     "application/json"
                 ],
                 "responses": {
                     "200": {
-                        "description": "Count by categoryId",
+                        "description": "Counts by category and persons",
                         "schema": {
-                            "$ref": "#/definitions/controller.CategoryCountResponse"
+                            "$ref": "#/definitions/controller.CountsResponse"
                         }
                     }
                 }
@@ -257,35 +257,6 @@ const docTemplate = `{
                 }
             }
         },
-        "controller.CategoryCount": {
-            "type": "object",
-            "required": [
-                "categoryId",
-                "count"
-            ],
-            "properties": {
-                "categoryId": {
-                    "type": "integer"
-                },
-                "count": {
-                    "type": "integer"
-                }
-            }
-        },
-        "controller.CategoryCountResponse": {
-            "type": "object",
-            "required": [
-                "categories"
-            ],
-            "properties": {
-                "categories": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/controller.CategoryCount"
-                    }
-                }
-            }
-        },
         "controller.CategoryResponse": {
             "type": "object",
             "required": [
@@ -298,6 +269,42 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "controller.Count": {
+            "type": "object",
+            "required": [
+                "count",
+                "id"
+            ],
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "controller.CountsResponse": {
+            "type": "object",
+            "required": [
+                "categories",
+                "persons"
+            ],
+            "properties": {
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controller.Count"
+                    }
+                },
+                "persons": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controller.Count"
+                    }
                 }
             }
         },
