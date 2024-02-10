@@ -224,6 +224,22 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/statistics": {
+            "get": {
+                "description": "Get count per category and person",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Counts by category and persons",
+                        "schema": {
+                            "$ref": "#/definitions/controller.CountsResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -253,6 +269,42 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "controller.Count": {
+            "type": "object",
+            "required": [
+                "count",
+                "id"
+            ],
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "controller.CountsResponse": {
+            "type": "object",
+            "required": [
+                "categories",
+                "persons"
+            ],
+            "properties": {
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controller.Count"
+                    }
+                },
+                "persons": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controller.Count"
+                    }
                 }
             }
         },

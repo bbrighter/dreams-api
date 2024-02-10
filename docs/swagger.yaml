@@ -18,6 +18,30 @@ definitions:
     - id
     - name
     type: object
+  controller.Count:
+    properties:
+      count:
+        type: integer
+      id:
+        type: integer
+    required:
+    - count
+    - id
+    type: object
+  controller.CountsResponse:
+    properties:
+      categories:
+        items:
+          $ref: '#/definitions/controller.Count'
+        type: array
+      persons:
+        items:
+          $ref: '#/definitions/controller.Count'
+        type: array
+    required:
+    - categories
+    - persons
+    type: object
   controller.DreamMetaResponse:
     properties:
       date:
@@ -224,4 +248,14 @@ paths:
             items:
               $ref: '#/definitions/controller.PersonResponse'
             type: array
+  /statistics:
+    get:
+      description: Get count per category and person
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Counts by category and persons
+          schema:
+            $ref: '#/definitions/controller.CountsResponse'
 swagger: "2.0"

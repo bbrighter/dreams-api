@@ -80,3 +80,15 @@ func dreamsToDreamsResponse(dreams []store.Dream) DreamsResponse {
 	}
 	return DreamsResponse{Dreams: respList}
 }
+
+func countsToCounts(count []store.Count) []Count {
+	var counts []Count
+	for _, c := range count {
+		cc := Count{
+			ID:    c.ID,
+			Count: c.Count,
+		}
+		counts = append(counts, cc)
+	}
+	return counts
+}
