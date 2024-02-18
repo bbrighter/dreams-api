@@ -27,7 +27,7 @@ func TestAddCategoryToDream(t *testing.T) {
 
 	var err error
 	var categories []Category
-	CreateTestDream(0, 0, t)
+	CreateTestDream(0, 0, true, t)
 
 	categories, err = repo.AddCategoryToDream("category", 1)
 	assert.NoError(t, err)
@@ -40,7 +40,7 @@ func TestAddCategoryToDream(t *testing.T) {
 	_, err = repo.AddCategoryToDream("category", 2)
 	assert.Error(t, err)
 
-	CreateTestDream(0, 0, t)
+	CreateTestDream(0, 0, true, t)
 	categories, err = repo.AddCategoryToDream("category", 2)
 	assert.NoError(t, err)
 	assert.Len(t, categories, 1)
@@ -56,7 +56,7 @@ func TestRemoveCategoryFromDream(t *testing.T) {
 	var category Category
 
 	// Remove category from dream
-	dream = CreateTestDream(1, 0, t)
+	dream = CreateTestDream(1, 0, true, t)
 	category = dream.Categories[0]
 
 	_, err = repo.RemoveCategoryFromDream(category.ID, dream.ID)
@@ -71,7 +71,7 @@ func TestRemoveCategoryFromDream(t *testing.T) {
 
 	CleanTestEntries(t)
 
-	dream = CreateTestDream(1, 0, t)
+	dream = CreateTestDream(1, 0, true, t)
 
 	_, err = repo.RemoveCategoryFromDream(100, dream.ID)
 
@@ -80,7 +80,7 @@ func TestRemoveCategoryFromDream(t *testing.T) {
 	CleanTestEntries(t)
 
 	// Remove category from non-existing dream
-	dream = CreateTestDream(1, 0, t)
+	dream = CreateTestDream(1, 0, true, t)
 	category = dream.Categories[0]
 
 	_, err = repo.RemoveCategoryFromDream(category.ID, 200)

@@ -21,8 +21,8 @@ type CountsResponse struct {
 // @Success 200 {object} CountsResponse "Counts by category and persons"
 // @Router /statistics [get]
 func (con Controller) GetCountCategories(g *gin.Context) {
-	categoryCount := con.Repo.CountCategories()
-	personCount := con.Repo.CountPersons()
+	categoryCount := con.Repo.CountCategories(false)
+	personCount := con.Repo.CountPersons(false)
 	var countsResponse CountsResponse
 	countsResponse.Categories = countsToCounts(categoryCount)
 	countsResponse.Persons = countsToCounts(personCount)

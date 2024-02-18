@@ -21,7 +21,7 @@ func setupAPITest(t *testing.T) (func(t *testing.T), *gin.Engine) {
 }
 
 func createTestDream(t *testing.T, numberOfCategories int, numberOfPersons int) (string, []string, []string) {
-	dream := store.CreateTestDream(numberOfCategories, numberOfPersons, t)
+	dream := store.CreateTestDream(numberOfCategories, numberOfPersons, true, t)
 	dreamId := strconv.FormatUint(uint64(dream.ID), 10)
 	categoryIds := []string{}
 	for _, c := range dream.Categories {

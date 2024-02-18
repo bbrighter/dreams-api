@@ -10,20 +10,30 @@ type Dream struct {
 	ID          uint
 	Date        time.Time
 	Description string
+	Visible     *bool      `gorm:"default:true"`
 	Categories  []Category `gorm:"many2many:categories_dreams;"`
 	Persons     []Person   `gorm:"many2many:people_dreams;"`
 }
 
-func (repo Repo) GetDreams() []Dream {
+func (repo Repo) GetDreams(showAll *bool) []Dream {
 	var dreams []Dream
-	repo.db.Model(&Dream{}).Find(&dreams)
+	tx := repo.db.Model(&Dream{})
+	if showAll != nil && !*showAll {
+		visible := true
+		tx.Where(&Dream{Visible: &visible})
+	}
+	tx.Find(&dreams)
 	return dreams
 }
 
-func (repo Repo) GetDream(id uint) (Dream, error) {
+func (repo Repo) GetDream(id uint, showAll *bool) (Dream, error) {
 	var dream Dream = Dream{ID: id}
-	tx := repo.db.Model(&Dream{}).Preload(clause.Associations).First(&dream)
-	if tx.RowsAffected == 0 {
+	tx := repo.db.Model(&Dream{}).Preload(clause.Associations)
+	if showAll != nil && !*showAll {
+		var visible bool = true
+		tx.Where(&Dream{Visible: &visible})
+	}
+	if tx.First(&dream).RowsAffected == 0 {
 		return dream, ErrorNotFound
 	}
 	return dream, tx.Error

@@ -2,7 +2,6 @@ package controller
 
 import (
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -29,7 +28,8 @@ type DreamsResponse struct {
 // @Success 200 {object} DreamsResponse "List of all dreams"
 // @Router /dreams [get]
 func (con Controller) GetDreams(g *gin.Context) {
-	dreams := con.Repo.GetDreams()
+	var showAll bool = false
+	dreams := con.Repo.GetDreams(&showAll)
 	g.JSON(http.StatusOK, dreamsToDreamsResponse(dreams))
 }
 
@@ -75,12 +75,12 @@ func (con Controller) UpdateDream(g *gin.Context) {
 	}
 	var dream = body.dreamRequestBodyToDream()
 
-	id, err := strconv.Atoi(g.Param("id"))
+	id, err := parseParamUint(g, "id")
 	if err != nil {
 		g.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	dream.ID = uint(id)
+	dream.ID = id
 
 	if err := con.Repo.UpdateDream(dream); err != nil {
 		g.AbortWithError(http.StatusInternalServerError, err)
@@ -94,12 +94,14 @@ func (con Controller) UpdateDream(g *gin.Context) {
 // @Success 200 {object} DreamResponse "One dream"
 // @Router /dreams/{dreamId} [get]
 func (con Controller) GetDream(g *gin.Context) {
-	id, err := strconv.Atoi(g.Param("id"))
+	id, err := parseParamUint(g, "id")
 	if err != nil {
 		g.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	dream, err := con.Repo.GetDream(uint(id))
+	var showAll bool = false
+	dream, err := con.Repo.GetDream(id, &showAll)
+
 	if err == ErrorNotFound {
 		g.AbortWithStatus(http.StatusNotFound)
 		return
@@ -116,12 +118,12 @@ func (con Controller) GetDream(g *gin.Context) {
 // @Success 200
 // @Router /dreams/{dreamId} [delete]
 func (con Controller) DeleteDream(g *gin.Context) {
-	id, err := strconv.Atoi(g.Param("id"))
+	id, err := parseParamUint(g, "id")
 	if err != nil {
 		g.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	err = con.Repo.DeleteDream(uint(id))
+	err = con.Repo.DeleteDream(id)
 	if err == ErrorNotFound {
 		g.AbortWithStatus(http.StatusNotFound)
 		return

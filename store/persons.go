@@ -43,7 +43,7 @@ func (repo Repo) RemovePersonFromDream(personId uint, dreamId uint) ([]Person, e
 	var usedPerson Person
 	repo.db.Where(&Person{Name: person.Name}).Preload("Dreams").Find(&usedPerson)
 	if len(usedPerson.Dreams) == 0 {
-		if err := repo.db.Debug().Delete(usedPerson).Error; err != nil {
+		if err := repo.db.Delete(usedPerson).Error; err != nil {
 			return persons, err
 		}
 	}
