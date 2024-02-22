@@ -53,6 +53,11 @@ func TestUpdateDreamAPI(t *testing.T) {
 	w = makeRequest(http.MethodPatch, "/dreams/1", body, router)
 	assert.Equal(t, 200, w.Result().StatusCode)
 
+	visible := false
+	body = DreamRequestBody{Description: &desc, Date: time.Now(), Visible: &visible}
+	w = makeRequest(http.MethodPatch, "/dreams/1", body, router)
+	assert.Equal(t, 200, w.Result().StatusCode)
+
 	// ID not uint
 	w = makeRequest(http.MethodPatch, "/dreams/abc", body, router)
 	assert.Equal(t, 400, w.Result().StatusCode)

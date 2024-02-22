@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -17,6 +18,7 @@ type DreamResponse struct {
 	Description string             `json:"description" validate:"required"`
 	Categories  []CategoryResponse `json:"categories" validate:"required"`
 	Persons     []PersonResponse   `json:"persons" validate:"required"`
+	Visible     bool               `json:"visible" validate:"required"`
 }
 
 type DreamsResponse struct {
@@ -26,9 +28,15 @@ type DreamsResponse struct {
 // @Description Get all dreams
 // @Produce json
 // @Success 200 {object} DreamsResponse "List of all dreams"
+// @Param showPrivateDreams query bool false "True if all dreams should be shown"
 // @Router /dreams [get]
 func (con Controller) GetDreams(g *gin.Context) {
 	var showAll bool = false
+	showPrivateDreamsString := g.Query("showPrivateDreams")
+	showPrivateDreams, err := strconv.ParseBool(showPrivateDreamsString)
+	if err == nil {
+		showAll = showPrivateDreams
+	}
 	dreams := con.Repo.GetDreams(&showAll)
 	g.JSON(http.StatusOK, dreamsToDreamsResponse(dreams))
 }
@@ -36,6 +44,7 @@ func (con Controller) GetDreams(g *gin.Context) {
 type DreamRequestBody struct {
 	Date        time.Time `json:"date" validate:"required"`
 	Description *string   `json:"description"`
+	Visible     *bool     `json:"visible"`
 }
 
 // @Description Create a new dream
@@ -99,7 +108,9 @@ func (con Controller) GetDream(g *gin.Context) {
 		g.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	var showAll bool = false
+
+	// Until auth is implemented: always show the dream, independent of visibilty
+	var showAll bool = true
 	dream, err := con.Repo.GetDream(id, &showAll)
 
 	if err == ErrorNotFound {

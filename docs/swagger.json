@@ -26,6 +26,14 @@
                 "produces": [
                     "application/json"
                 ],
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "True if all dreams should be shown",
+                        "name": "showPrivateDreams",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "List of all dreams",
@@ -323,6 +331,9 @@
                 },
                 "description": {
                     "type": "string"
+                },
+                "visible": {
+                    "type": "boolean"
                 }
             }
         },
@@ -333,7 +344,8 @@
                 "date",
                 "description",
                 "id",
-                "persons"
+                "persons",
+                "visible"
             ],
             "properties": {
                 "categories": {
@@ -356,6 +368,9 @@
                     "items": {
                         "$ref": "#/definitions/controller.PersonResponse"
                     }
+                },
+                "visible": {
+                    "type": "boolean"
                 }
             }
         },

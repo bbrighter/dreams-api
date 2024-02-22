@@ -58,6 +58,8 @@ definitions:
         type: string
       description:
         type: string
+      visible:
+        type: boolean
     required:
     - date
     type: object
@@ -77,12 +79,15 @@ definitions:
         items:
           $ref: '#/definitions/controller.PersonResponse'
         type: array
+      visible:
+        type: boolean
     required:
     - categories
     - date
     - description
     - id
     - persons
+    - visible
     type: object
   controller.DreamsResponse:
     properties:
@@ -128,6 +133,11 @@ paths:
   /dreams:
     get:
       description: Get all dreams
+      parameters:
+      - description: True if all dreams should be shown
+        in: query
+        name: showPrivateDreams
+        type: boolean
       produces:
       - application/json
       responses:

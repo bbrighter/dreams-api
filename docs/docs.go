@@ -37,6 +37,14 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "True if all dreams should be shown",
+                        "name": "showPrivateDreams",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "List of all dreams",
@@ -334,6 +342,9 @@ const docTemplate = `{
                 },
                 "description": {
                     "type": "string"
+                },
+                "visible": {
+                    "type": "boolean"
                 }
             }
         },
@@ -344,7 +355,8 @@ const docTemplate = `{
                 "date",
                 "description",
                 "id",
-                "persons"
+                "persons",
+                "visible"
             ],
             "properties": {
                 "categories": {
@@ -367,6 +379,9 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/controller.PersonResponse"
                     }
+                },
+                "visible": {
+                    "type": "boolean"
                 }
             }
         },

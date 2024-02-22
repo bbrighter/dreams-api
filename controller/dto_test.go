@@ -34,10 +34,12 @@ func TestDreamRequestBodyToDream(t *testing.T) {
 
 func TestDreamToDreamResponse(t *testing.T) {
 	t.Parallel()
+	visible := true
 	var dream store.Dream = store.Dream{
 		ID:          1,
 		Date:        time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
 		Description: "desc",
+		Visible:     &visible,
 		Categories: []store.Category{
 			{ID: 1, Name: "Category", Dreams: []store.Dream{{ID: 1}}},
 		},
@@ -50,6 +52,7 @@ func TestDreamToDreamResponse(t *testing.T) {
 	var resp DreamResponse = dreamToDreamResponse(dream)
 	assert.EqualValues(t, 1, resp.ID)
 	assert.Equal(t, "desc", resp.Description)
+	assert.Equal(t, true, resp.Visible)
 	assert.Equal(t, time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), resp.Date)
 	assert.Len(t, resp.Categories, 1)
 	assert.Equal(t, "Category", resp.Categories[0].Name)

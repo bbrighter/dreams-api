@@ -22,7 +22,7 @@ func (repo Repo) GetDreams(showAll *bool) []Dream {
 		visible := true
 		tx.Where(&Dream{Visible: &visible})
 	}
-	tx.Find(&dreams)
+	tx.Debug().Find(&dreams)
 	return dreams
 }
 
