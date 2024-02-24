@@ -73,6 +73,7 @@ func TestDreamsToDreamsResponse(t *testing.T) {
 	assert.Len(t, emptyResp.Dreams, 0)
 
 	// Non-empty input gives {dreams: [...]}
+	var visible bool = true
 	dreams = []store.Dream{
 		{
 			ID:          1,
@@ -80,6 +81,7 @@ func TestDreamsToDreamsResponse(t *testing.T) {
 			Description: "desc",
 			Categories:  []store.Category{{ID: 1, Name: "Category"}},
 			Persons:     []store.Person{{ID: 1, Name: "Name"}},
+			Visible:     &visible,
 		},
 	}
 	var resp DreamsResponse = dreamsToDreamsResponse(dreams)

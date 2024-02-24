@@ -20,7 +20,8 @@ type CountsResponse struct {
 // @Produce json
 // @Success 200 {object} CountsResponse "Counts by category and persons"
 // @Router /statistics [get]
-func (con Controller) GetCountCategories(g *gin.Context) {
+func GetCountCategories(g *gin.Context) {
+	con := GetCon(g)
 	categoryCount := con.Repo.CountCategories(false)
 	personCount := con.Repo.CountPersons(false)
 	var countsResponse CountsResponse

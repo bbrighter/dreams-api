@@ -140,3 +140,18 @@ func TestDeleteDreamAlsoDeletesTag(t *testing.T) {
 	assert.Len(t, tags, 0)
 
 }
+
+func TestToggleVisibility(t *testing.T) {
+	repo, teardown := SetupTest(t)
+	defer teardown(t)
+	dream := CreateTestDream(1, 0, true, t)
+
+	visible, err := repo.TogglePrivateDream(dream.ID)
+
+	assert.NoError(t, err)
+	assert.False(t, visible)
+
+	visible, err = repo.TogglePrivateDream(dream.ID)
+	assert.NoError(t, err)
+	assert.True(t, visible)
+}

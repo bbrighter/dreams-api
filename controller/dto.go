@@ -11,14 +11,9 @@ func (body DreamRequestBody) dreamRequestBodyToDream() store.Dream {
 	if body.Description != nil {
 		desc = *body.Description
 	}
-	var visible *bool
-	if body.Visible != nil {
-		visible = body.Visible
-	}
 	return store.Dream{
 		Date:        body.Date,
 		Description: desc,
-		Visible:     visible,
 	}
 }
 
@@ -54,8 +49,9 @@ func personsToPersonsResponse(p []store.Person) PersonsResponse {
 
 func dreamToDreamMetaResponse(d store.Dream) DreamMetaResponse {
 	return DreamMetaResponse{
-		ID:   d.ID,
-		Date: d.Date,
+		ID:      d.ID,
+		Date:    d.Date,
+		Visible: *d.Visible,
 	}
 }
 
@@ -74,7 +70,6 @@ func dreamToDreamResponse(d store.Dream) DreamResponse {
 		Description:       d.Description,
 		Categories:        categories,
 		Persons:           persons,
-		Visible:           *d.Visible,
 	}
 }
 

@@ -54,6 +54,21 @@ func (repo Repo) UpdateDream(dream Dream) error {
 	return tx.Error
 }
 
+func (repo Repo) TogglePrivateDream(id uint) (bool, error) {
+	var dream Dream = Dream{ID: id}
+	if rowsAffected := repo.db.First(&dream).RowsAffected; rowsAffected == 0 {
+		return false, ErrorNotFound
+	}
+	var visible bool = true
+	if dream.Visible != nil {
+		visible = *dream.Visible
+	}
+	if err := repo.db.Model(&dream).Update("Visible", !visible).Error; err != nil {
+		return false, err
+	}
+	return !visible, nil
+}
+
 func (repo Repo) DeleteDream(id uint) error {
 	var dream Dream = Dream{ID: id}
 	if rowsAffected := repo.db.Preload(clause.Associations).

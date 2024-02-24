@@ -19,7 +19,8 @@ type PersonsResponse struct {
 // @Produce json
 // @Success 200 {object} []PersonResponse
 // @Router /persons [get]
-func (con Controller) GetPersons(g *gin.Context) {
+func GetPersons(g *gin.Context) {
+	con := GetCon(g)
 	persons := con.Repo.GetAllPersons()
 	var personsResp []PersonResponse = []PersonResponse{}
 	for _, p := range persons {
@@ -31,9 +32,11 @@ func (con Controller) GetPersons(g *gin.Context) {
 // @Description Add a person to a dream
 // @Produce json
 // @Success 200 {number} id
+// @Failure 400
+// @Failure 404
 // @Router /dreams/{dreamId}/persons [put]
 // @Param name query string true "Name of person"
-func (con Controller) PutPersonToDream(g *gin.Context) {
+func PutPersonToDream(g *gin.Context) {
 	dreamId, err := parseParamUint(g, "id")
 	if err != nil {
 		g.AbortWithError(http.StatusBadRequest, err)
@@ -45,6 +48,7 @@ func (con Controller) PutPersonToDream(g *gin.Context) {
 		return
 	}
 
+	con := GetCon(g)
 	id, err := con.Repo.AddPersonToDream(name, dreamId)
 	if err == ErrorNotFound {
 		g.AbortWithStatus(http.StatusNotFound)
@@ -56,8 +60,10 @@ func (con Controller) PutPersonToDream(g *gin.Context) {
 // @Description Delete a person from a dream
 // @Produce json
 // @Success 200 {object} PersonsResponse
+// @Failure 400
+// @Failure 404
 // @Router /dreams/{dreamId}/persons/{personId} [delete]
-func (con Controller) RemovePersonFromDream(g *gin.Context) {
+func RemovePersonFromDream(g *gin.Context) {
 	dreamId, err := parseParamUint(g, "id")
 	if err != nil {
 		g.AbortWithError(http.StatusBadRequest, err)
@@ -69,6 +75,7 @@ func (con Controller) RemovePersonFromDream(g *gin.Context) {
 		return
 	}
 
+	con := GetCon(g)
 	persons, err := con.Repo.RemovePersonFromDream(personId, dreamId)
 	if err == ErrorNotFound {
 		g.AbortWithStatus(http.StatusNotFound)
