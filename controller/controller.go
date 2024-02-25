@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"flag"
+
 	docs "github.com/bbrighter/dreams-api/docs"
 	"github.com/bbrighter/dreams-api/store"
 	"github.com/gin-gonic/gin"
@@ -9,8 +11,6 @@ import (
 )
 
 // @title Dreams API
-// @version 2.0
-// @BasePath /
 
 type Controller struct {
 	Repo store.Repo
@@ -20,13 +20,12 @@ func InitController(repo store.Repo) Controller {
 	return Controller{Repo: repo}
 }
 
-func SetupRouter(con Controller) *gin.Engine {
+func setupRouter(con Controller) *gin.Engine {
 	router := gin.New()
-	docs.SwaggerInfo.BasePath = "/"
-	docs.SwaggerInfo.Version = "1.0"
+
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	router.Use(CORSMiddleware(), ConnectToRepository(con))
+	router.Use(ConnectToRepository(con), CORSMiddleware())
 
 	dreamsGroup := router.Group("/dreams")
 	dreamsGroup.GET("", GetDreams)
@@ -39,11 +38,10 @@ func SetupRouter(con Controller) *gin.Engine {
 	dreamsGroup.PUT("/:id/persons", PutPersonToDream)
 	dreamsGroup.DELETE("/:id/persons/:personId", RemovePersonFromDream)
 
-	privateGroup := router.Group("/private/dreams")
-	privateGroup.Use(AuthenticationMiddleware())
-	privateGroup.GET("", GetPrivateDreams)
-	privateGroup.GET("/:id", GetPrivateDream)
-	privateGroup.PATCH("/:id", TogglePrivateDream)
+	privateDreams := router.Group("/private/dreams", AuthenticationMiddleware())
+	privateDreams.GET("", GetPrivateDreams)
+	privateDreams.GET("/:id", GetPrivateDream)
+	privateDreams.PATCH("/:id", TogglePrivateDream)
 
 	categoriesGroup := router.Group("/categories")
 	categoriesGroup.GET("", GetCategories)
@@ -53,5 +51,22 @@ func SetupRouter(con Controller) *gin.Engine {
 
 	statisticsGroup := router.Group("/statistics")
 	statisticsGroup.GET("", GetCountCategories)
+	privateStatistics := router.Group("/private/statistics", AuthenticationMiddleware())
+	privateStatistics.GET("", GetPrivateCountCategories)
 	return router
+}
+
+func (con Controller) RunRouter() {
+	var ipAddress string
+	flag.StringVar(&ipAddress, "ipAddress", "localhost", "IP address to run")
+	flag.Parse()
+
+	var host = ipAddress + ":5005"
+	docs.SwaggerInfo.Host = host
+	docs.SwaggerInfo.BasePath = "/"
+	docs.SwaggerInfo.Version = "2.0"
+
+	var router *gin.Engine = setupRouter(con)
+
+	router.Run(host)
 }

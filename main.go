@@ -1,27 +1,21 @@
 package main
 
 import (
-	"flag"
 	"log"
 
 	"github.com/bbrighter/dreams-api/controller"
 	"github.com/bbrighter/dreams-api/store"
 )
 
-var ipAddress string
-
 func main() {
-	flag.StringVar(&ipAddress, "ipAddress", "localhost", "IP address to run")
-	flag.Parse()
+	var dbName string = "dreams.sqlite"
 
-	repo := store.InitRepo("dreams.sqlite")
-	con := controller.InitController(repo)
+	var repo store.Repo = store.InitRepo(dbName)
+	var con controller.Controller = controller.InitController(repo)
 
 	if err := store.Migration(repo); err != nil {
 		log.Fatal(err)
 	}
 
-	r := controller.SetupRouter(con)
-
-	r.Run(ipAddress + ":5005")
+	con.RunRouter()
 }

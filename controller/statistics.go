@@ -16,16 +16,33 @@ type CountsResponse struct {
 	Persons    []Count `json:"persons" validate:"required"`
 }
 
+func (con Controller) getCountCategories(showAll bool) CountsResponse {
+	categoryCount := con.Repo.CountCategories(showAll)
+	personCount := con.Repo.CountPersons(showAll)
+	var countsResponse CountsResponse
+	countsResponse.Categories = countsToCounts(categoryCount)
+	countsResponse.Persons = countsToCounts(personCount)
+	return countsResponse
+}
+
 // @Description Get count per category and person
 // @Produce json
 // @Success 200 {object} CountsResponse "Counts by category and persons"
 // @Router /statistics [get]
 func GetCountCategories(g *gin.Context) {
 	con := GetCon(g)
-	categoryCount := con.Repo.CountCategories(false)
-	personCount := con.Repo.CountPersons(false)
-	var countsResponse CountsResponse
-	countsResponse.Categories = countsToCounts(categoryCount)
-	countsResponse.Persons = countsToCounts(personCount)
+	var countsResponse CountsResponse = con.getCountCategories(false)
+	g.JSON(http.StatusOK, countsResponse)
+}
+
+// @Description Get count per category and person
+// @Produce json
+// @Success 200 {object} CountsResponse "Counts by category and persons"
+// @Failure 401
+// @Security BasicAuth
+// @Router /private/statistics [get]
+func GetPrivateCountCategories(g *gin.Context) {
+	con := GetCon(g)
+	var countsResponse CountsResponse = con.getCountCategories(true)
 	g.JSON(http.StatusOK, countsResponse)
 }

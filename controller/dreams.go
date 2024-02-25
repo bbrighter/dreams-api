@@ -29,7 +29,6 @@ type DreamsResponse struct {
 // @Description Get all dreams
 // @Produce json
 // @Success 200 {object} DreamsResponse "List of all dreams"
-// @Param showPrivateDreams query bool false "True if all dreams should be shown"
 // @Router /dreams [get]
 func GetDreams(g *gin.Context) {
 	con := GetCon(g)
@@ -153,13 +152,13 @@ func GetPrivateDream(g *gin.Context) {
 }
 
 // @Description Toggle visiblity of a dream
-// @Produce json
-// @Success 200 {bool} isPrivate
-// @Failure 400
-// @Failure 401
-// @Failure 404
-// @Security BasicAuth
-// @Router /private/dreams/{dreamId} [patch]
+// @Produce 	json
+// @Success 	200 {boolean} isPrivate
+// @Failure 	400
+// @Failure 	401
+// @Failure 	404
+// @Security 	BasicAuth
+// @Router 		/private/dreams/{dreamId} [patch]
 func TogglePrivateDream(g *gin.Context) {
 	id, err := parseParamUint(g, "id")
 	if err != nil {

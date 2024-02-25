@@ -37,14 +37,6 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "parameters": [
-                    {
-                        "type": "boolean",
-                        "description": "True if all dreams should be shown",
-                        "name": "showPrivateDreams",
-                        "in": "query"
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "List of all dreams",
@@ -351,7 +343,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "bool"
+                            "type": "boolean"
                         }
                     },
                     "400": {
@@ -362,6 +354,30 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found"
+                    }
+                }
+            }
+        },
+        "/private/statistics": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Get count per category and person",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Counts by category and persons",
+                        "schema": {
+                            "$ref": "#/definitions/controller.CountsResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
                     }
                 }
             }

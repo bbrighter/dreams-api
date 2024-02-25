@@ -16,7 +16,7 @@ import (
 func setupAPITest(t *testing.T) (func(t *testing.T), *gin.Engine) {
 	repo, deferedFunction := store.SetupTest(t)
 	var con Controller = InitController(repo)
-	var router *gin.Engine = SetupRouter(con)
+	var router *gin.Engine = setupRouter(con)
 
 	return deferedFunction, router
 }
