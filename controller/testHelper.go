@@ -3,6 +3,7 @@ package controller
 import (
 	"bytes"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -15,13 +16,13 @@ import (
 func setupAPITest(t *testing.T) (func(t *testing.T), *gin.Engine) {
 	repo, deferedFunction := store.SetupTest(t)
 	var con Controller = InitController(repo)
-	var router *gin.Engine = SetupRouter(con)
+	var router *gin.Engine = setupRouter(con)
 
 	return deferedFunction, router
 }
 
 func createTestDream(t *testing.T, numberOfCategories int, numberOfPersons int) (string, []string, []string) {
-	dream := store.CreateTestDream(numberOfCategories, numberOfPersons, t)
+	dream := store.CreateTestDream(numberOfCategories, numberOfPersons, true, t)
 	dreamId := strconv.FormatUint(uint64(dream.ID), 10)
 	categoryIds := []string{}
 	for _, c := range dream.Categories {
@@ -39,10 +40,27 @@ func CreateOnlyTestDream(t *testing.T) string {
 	return id
 }
 
-func makeRequest(method, url string, body interface{}, router *gin.Engine) *httptest.ResponseRecorder {
-	requestBody, _ := json.Marshal(body)
-	request, _ := http.NewRequest(method, url, bytes.NewBuffer(requestBody))
+func exectueTestRequest(
+	method string,
+	url string,
+	body interface{},
+	header *map[string]string,
+	router *gin.Engine,
+) int {
+	var bodyBytes io.Reader = nil
+	if body != nil {
+		requestBody, _ := json.Marshal(body)
+		bodyBytes = bytes.NewBuffer(requestBody)
+	}
+	request, _ := http.NewRequest(method, url, bodyBytes)
+
+	if header != nil {
+		for key, value := range *header {
+			request.Header.Add(key, value)
+		}
+	}
+
 	writer := httptest.NewRecorder()
 	router.ServeHTTP(writer, request)
-	return writer
+	return writer.Result().StatusCode
 }

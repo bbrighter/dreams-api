@@ -42,7 +42,7 @@ func SetupTest(t *testing.T) (Repo, func(t *testing.T)) {
 	return repo, deferedFunc
 }
 
-func CreateTestDream(numberOfCategories int, numberOfPersons int, t *testing.T) Dream {
+func CreateTestDream(numberOfCategories int, numberOfPersons int, visible bool, t *testing.T) Dream {
 	var categories []Category
 	i := 0
 	for i < numberOfCategories {
@@ -60,6 +60,7 @@ func CreateTestDream(numberOfCategories int, numberOfPersons int, t *testing.T) 
 	var dream Dream = Dream{
 		Date:        time.Now(),
 		Description: randomdata.RandStringRunes(100),
+		Visible:     &visible,
 		Categories:  categories,
 		Persons:     persons,
 	}

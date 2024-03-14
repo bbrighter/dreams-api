@@ -66,11 +66,14 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "201": {
+                        "description": "Created",
                         "schema": {
                             "type": "number"
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request"
                     }
                 }
             }
@@ -87,6 +90,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/controller.DreamResponse"
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
                     }
                 }
             },
@@ -96,8 +105,11 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK"
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
                     }
                 }
             },
@@ -120,6 +132,12 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
                     }
                 }
             }
@@ -145,6 +163,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/controller.CategoriesResponse"
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
                     }
                 }
             }
@@ -161,6 +185,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/controller.CategoriesResponse"
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
                     }
                 }
             }
@@ -186,6 +216,12 @@ const docTemplate = `{
                         "schema": {
                             "type": "number"
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
                     }
                 }
             }
@@ -202,6 +238,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/controller.PersonsResponse"
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
                     }
                 }
             }
@@ -225,11 +267,142 @@ const docTemplate = `{
                 }
             }
         },
+        "/private/dreams": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Get all private dreams",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Basic Username:password",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of all dreams",
+                        "schema": {
+                            "$ref": "#/definitions/controller.DreamsResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/private/dreams/{dreamId}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Get one private dream",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "One dream",
+                        "schema": {
+                            "$ref": "#/definitions/controller.DreamResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Toggle visiblity of a dream",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                }
+            }
+        },
+        "/private/statistics": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Get count per category and person",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "type": "number",
+                        "description": "Limit of returned results",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Counts by category and persons",
+                        "schema": {
+                            "$ref": "#/definitions/controller.CountsResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
         "/statistics": {
             "get": {
                 "description": "Get count per category and person",
                 "produces": [
                     "application/json"
+                ],
+                "parameters": [
+                    {
+                        "type": "number",
+                        "description": "Limit of returned results",
+                        "name": "limit",
+                        "in": "query"
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -312,7 +485,8 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "date",
-                "id"
+                "id",
+                "visible"
             ],
             "properties": {
                 "date": {
@@ -320,6 +494,9 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "visible": {
+                    "type": "boolean"
                 }
             }
         },
@@ -344,7 +521,8 @@ const docTemplate = `{
                 "date",
                 "description",
                 "id",
-                "persons"
+                "persons",
+                "visible"
             ],
             "properties": {
                 "categories": {
@@ -367,6 +545,9 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/controller.PersonResponse"
                     }
+                },
+                "visible": {
+                    "type": "boolean"
                 }
             }
         },

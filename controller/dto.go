@@ -49,8 +49,9 @@ func personsToPersonsResponse(p []store.Person) PersonsResponse {
 
 func dreamToDreamMetaResponse(d store.Dream) DreamMetaResponse {
 	return DreamMetaResponse{
-		ID:   d.ID,
-		Date: d.Date,
+		ID:      d.ID,
+		Date:    d.Date,
+		Visible: *d.Visible,
 	}
 }
 

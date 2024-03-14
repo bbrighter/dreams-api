@@ -12,55 +12,71 @@ func TestGetDreams(t *testing.T) {
 	defer teardown(t)
 
 	var dreams []Dream
+	var showAll bool = false
 
 	// Test no dreams exist
-	dreams = repo.GetDreams()
+	dreams = repo.GetDreams(&showAll)
 
 	assert.Len(t, dreams, 0)
 
 	// Test one dream exists
-	CreateTestDream(0, 0, t)
+	CreateTestDream(0, 0, true, t)
 
-	dreams = repo.GetDreams()
+	dreams = repo.GetDreams(&showAll)
 
 	assert.Len(t, dreams, 1)
 
 	// Test one dream and tag exists
-	CreateTestDream(1, 1, t)
+	CreateTestDream(1, 1, true, t)
+	CreateTestDream(1, 1, false, t)
 
-	dreams = repo.GetDreams()
+	dreams = repo.GetDreams(&showAll)
 
 	assert.Len(t, dreams, 2)
 	d := dreams[1]
 	assert.Len(t, d.Categories, 0)
 	assert.Len(t, d.Persons, 0)
+
+	showAll = true
+	dreams = repo.GetDreams(&showAll)
+	assert.Len(t, dreams, 3)
 }
 
 func TestGetDream(t *testing.T) {
 	repo, teardown := SetupTest(t)
 	defer teardown(t)
 
+	var showAll bool = false
 	var dream Dream
 	var err error
 
 	// Dream doesn't exist
-	_, err = repo.GetDream(1)
+	_, err = repo.GetDream(1, &showAll)
 	assert.EqualError(t, err, "not found")
 
 	// Dream exists
-	o := CreateTestDream(0, 0, t)
+	o := CreateTestDream(0, 0, true, t)
 
-	dream, err = repo.GetDream(1)
+	dream, err = repo.GetDream(1, &showAll)
 	assert.NoError(t, err)
 	assert.EqualValues(t, dream.Description, o.Description)
 
 	// Dream exists and has tag
-	CreateTestDream(1, 0, t)
+	CreateTestDream(1, 0, true, t)
 
-	dream, err = repo.GetDream(2)
+	dream, err = repo.GetDream(2, &showAll)
 	assert.NoError(t, err)
 	assert.Len(t, dream.Categories, 1)
 
+	// Invisible dream
+	dreamId := CreateTestDream(0, 0, false, t).ID
+
+	dream, err = repo.GetDream(dreamId, &showAll)
+	assert.Error(t, err)
+
+	showAll = true
+	dream, err = repo.GetDream(dreamId, &showAll)
+	assert.NoError(t, err)
 }
 
 func TestCreateDream(t *testing.T) {
@@ -84,7 +100,7 @@ func TestCreateDream(t *testing.T) {
 func TestUpdateDream(t *testing.T) {
 	repo, teardown := SetupTest(t)
 	defer teardown(t)
-	CreateTestDream(0, 0, t)
+	CreateTestDream(0, 0, true, t)
 
 	var err error
 
@@ -105,7 +121,7 @@ func TestDeleteDream(t *testing.T) {
 	err := repo.DeleteDream(1)
 	assert.EqualError(t, err, "not found")
 
-	CreateTestDream(0, 0, t)
+	CreateTestDream(0, 0, true, t)
 
 	err = repo.DeleteDream(1)
 	assert.NoError(t, err)
@@ -114,7 +130,7 @@ func TestDeleteDream(t *testing.T) {
 func TestDeleteDreamAlsoDeletesTag(t *testing.T) {
 	repo, teardown := SetupTest(t)
 	defer teardown(t)
-	dream := CreateTestDream(1, 0, t)
+	dream := CreateTestDream(1, 0, true, t)
 
 	err := repo.DeleteDream(dream.ID)
 
@@ -123,4 +139,19 @@ func TestDeleteDreamAlsoDeletesTag(t *testing.T) {
 	repo.db.Find(&tags)
 	assert.Len(t, tags, 0)
 
+}
+
+func TestToggleVisibility(t *testing.T) {
+	repo, teardown := SetupTest(t)
+	defer teardown(t)
+	dream := CreateTestDream(1, 0, true, t)
+
+	visible, err := repo.TogglePrivateDream(dream.ID)
+
+	assert.NoError(t, err)
+	assert.False(t, visible)
+
+	visible, err = repo.TogglePrivateDream(dream.ID)
+	assert.NoError(t, err)
+	assert.True(t, visible)
 }

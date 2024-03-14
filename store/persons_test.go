@@ -10,7 +10,7 @@ func TestGetAllPersons(t *testing.T) {
 	repo, teardown := SetupTest(t)
 	defer teardown(t)
 
-	CreateTestDream(0, 10, t)
+	CreateTestDream(0, 10, true, t)
 
 	persons := repo.GetAllPersons()
 
@@ -22,7 +22,7 @@ func TestAddPersonToDream(t *testing.T) {
 	defer teardown(t)
 
 	var err error
-	dream := CreateTestDream(0, 0, t)
+	dream := CreateTestDream(0, 0, true, t)
 
 	_, err = repo.AddPersonToDream("new name", dream.ID)
 	assert.NoError(t, err)
@@ -35,7 +35,7 @@ func TestAddPersonToDream(t *testing.T) {
 	assert.Len(t, persons, 1)
 
 	// Adding same person to another dream does not add a person
-	secondDream := CreateTestDream(0, 0, t)
+	secondDream := CreateTestDream(0, 0, true, t)
 	_, err = repo.AddPersonToDream("new name", secondDream.ID)
 	assert.NoError(t, err)
 	repo.db.Find(&persons)
@@ -58,13 +58,13 @@ func TestRemovePersonFromDream(t *testing.T) {
 	var err error
 
 	// Remove person from dream
-	dream = CreateTestDream(0, 1, t)
+	dream = CreateTestDream(0, 1, true, t)
 	_, err = repo.RemovePersonFromDream(dream.Persons[0].ID, dream.ID)
 	assert.NoError(t, err)
 	assert.EqualValues(t, repo.db.Find(&Person{}).RowsAffected, 0)
 
 	// Remove person from dream without person
-	dream = CreateTestDream(0, 0, t)
+	dream = CreateTestDream(0, 0, true, t)
 	_, err = repo.RemovePersonFromDream(1, dream.ID)
 	assert.ErrorIs(t, err, ErrorNotFound)
 }

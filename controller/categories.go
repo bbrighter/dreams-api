@@ -20,7 +20,8 @@ type CategoryResponse struct {
 // @Produce json
 // @Success 200 {object} CategoriesResponse
 // @Router /categories [get]
-func (con Controller) GetCategories(g *gin.Context) {
+func GetCategories(g *gin.Context) {
+	con := GetCon(g)
 	categories := categoriesToCategoriesResponse(con.Repo.GetCategories())
 	g.JSON(http.StatusOK, categories)
 }
@@ -28,9 +29,11 @@ func (con Controller) GetCategories(g *gin.Context) {
 // @Description Add a category to a dream
 // @Produce json
 // @Success 200 {object} CategoriesResponse
+// @Failure 400
+// @Failure 404
 // @Router /dreams/{dreamId}/categories [put]
 // @Param name query string true "Name of a category"
-func (con Controller) AddCategory(g *gin.Context) {
+func AddCategory(g *gin.Context) {
 	dreamId, err := strconv.Atoi(g.Param("id"))
 	if err != nil {
 		g.AbortWithError(http.StatusBadRequest, err)
@@ -42,6 +45,7 @@ func (con Controller) AddCategory(g *gin.Context) {
 		return
 	}
 
+	con := GetCon(g)
 	categories, err := con.Repo.AddCategoryToDream(categoryName, uint(dreamId))
 	if err == ErrorNotFound {
 		g.AbortWithStatus(http.StatusNotFound)
@@ -53,8 +57,10 @@ func (con Controller) AddCategory(g *gin.Context) {
 // @Description Remove a category from a dream
 // @Produce json
 // @Success 200 {object} CategoriesResponse
+// @Failure 400
+// @Failure 404
 // @Router /dreams/{dreamId}/categories/{categoryId} [delete]
-func (con Controller) RemoveCategory(g *gin.Context) {
+func RemoveCategory(g *gin.Context) {
 	dreamId, err := strconv.Atoi(g.Param("id"))
 	if err != nil {
 		g.AbortWithError(http.StatusBadRequest, err)
@@ -66,6 +72,7 @@ func (con Controller) RemoveCategory(g *gin.Context) {
 		return
 	}
 
+	con := GetCon(g)
 	categories, err := con.Repo.RemoveCategoryFromDream(uint(categoryId), uint(dreamId))
 	if err == ErrorNotFound {
 		g.AbortWithStatus(http.StatusNotFound)

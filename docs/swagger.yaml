@@ -48,9 +48,12 @@ definitions:
         type: string
       id:
         type: integer
+      visible:
+        type: boolean
     required:
     - date
     - id
+    - visible
     type: object
   controller.DreamRequestBody:
     properties:
@@ -77,12 +80,15 @@ definitions:
         items:
           $ref: '#/definitions/controller.PersonResponse'
         type: array
+      visible:
+        type: boolean
     required:
     - categories
     - date
     - description
     - id
     - persons
+    - visible
     type: object
   controller.DreamsResponse:
     properties:
@@ -149,18 +155,22 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
             type: number
+        "400":
+          description: Bad Request
   /dreams/{dreamId}:
     delete:
       description: Delete one dreams
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
     get:
       description: Get one dream
       produces:
@@ -170,6 +180,10 @@ paths:
           description: One dream
           schema:
             $ref: '#/definitions/controller.DreamResponse'
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
     patch:
       consumes:
       - application/json
@@ -184,6 +198,10 @@ paths:
       responses:
         "200":
           description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
   /dreams/{dreamId}/categories:
     put:
       description: Add a category to a dream
@@ -200,6 +218,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/controller.CategoriesResponse'
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
   /dreams/{dreamId}/categories/{categoryId}:
     delete:
       description: Remove a category from a dream
@@ -210,6 +232,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/controller.CategoriesResponse'
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
   /dreams/{dreamId}/persons:
     put:
       description: Add a person to a dream
@@ -226,6 +252,10 @@ paths:
           description: OK
           schema:
             type: number
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
   /dreams/{dreamId}/persons/{personId}:
     delete:
       description: Delete a person from a dream
@@ -236,6 +266,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/controller.PersonsResponse'
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
   /persons:
     get:
       description: Get all persons
@@ -248,9 +282,88 @@ paths:
             items:
               $ref: '#/definitions/controller.PersonResponse'
             type: array
+  /private/dreams:
+    get:
+      description: Get all private dreams
+      parameters:
+      - description: Basic Username:password
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of all dreams
+          schema:
+            $ref: '#/definitions/controller.DreamsResponse'
+        "401":
+          description: Unauthorized
+      security:
+      - BasicAuth: []
+  /private/dreams/{dreamId}:
+    get:
+      description: Get one private dream
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: One dream
+          schema:
+            $ref: '#/definitions/controller.DreamResponse'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not Found
+      security:
+      - BasicAuth: []
+    patch:
+      description: Toggle visiblity of a dream
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not Found
+      security:
+      - BasicAuth: []
+  /private/statistics:
+    get:
+      description: Get count per category and person
+      parameters:
+      - description: Limit of returned results
+        in: query
+        name: limit
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Counts by category and persons
+          schema:
+            $ref: '#/definitions/controller.CountsResponse'
+        "401":
+          description: Unauthorized
+      security:
+      - BasicAuth: []
   /statistics:
     get:
       description: Get count per category and person
+      parameters:
+      - description: Limit of returned results
+        in: query
+        name: limit
+        type: number
       produces:
       - application/json
       responses:
