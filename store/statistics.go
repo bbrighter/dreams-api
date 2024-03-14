@@ -7,7 +7,7 @@ type Count struct {
 	Count int
 }
 
-func (repo Repo) CountCategories(showAll bool) []Count {
+func (repo Repo) CountCategories(showAll bool, maxNumberOfResults int) []Count {
 	tx := repo.db.Preload("Categories")
 	if !showAll {
 		visible := true
@@ -37,13 +37,14 @@ func (repo Repo) CountCategories(showAll bool) []Count {
 		return categoryCount[i].Count > categoryCount[j].Count
 	})
 
-	var maxNumberOfResults = 20
+	if maxNumberOfResults < 1 {
+		return categoryCount
+	}
 	var limit int = min(len(categoryCount), maxNumberOfResults)
-
 	return categoryCount[:limit]
 }
 
-func (repo Repo) CountPersons(showAll bool) []Count {
+func (repo Repo) CountPersons(showAll bool, maxNumberOfResults int) []Count {
 	tx := repo.db.Preload("Persons")
 	if !showAll {
 		visible := true
@@ -68,7 +69,9 @@ func (repo Repo) CountPersons(showAll bool) []Count {
 		return categoryCount[i].Count > categoryCount[j].Count
 	})
 
-	var maxNumberOfResults = 20
+	if maxNumberOfResults < 1 {
+		return categoryCount
+	}
 	var limit int = min(len(categoryCount), maxNumberOfResults)
 	return categoryCount[:limit]
 }

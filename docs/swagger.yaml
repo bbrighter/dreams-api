@@ -340,6 +340,11 @@ paths:
   /private/statistics:
     get:
       description: Get count per category and person
+      parameters:
+      - description: Limit of returned results
+        in: query
+        name: limit
+        type: number
       produces:
       - application/json
       responses:
@@ -354,6 +359,11 @@ paths:
   /statistics:
     get:
       description: Get count per category and person
+      parameters:
+      - description: Limit of returned results
+        in: query
+        name: limit
+        type: number
       produces:
       - application/json
       responses:

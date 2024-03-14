@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,9 +17,9 @@ type CountsResponse struct {
 	Persons    []Count `json:"persons" validate:"required"`
 }
 
-func (con Controller) getCountCategories(showAll bool) CountsResponse {
-	categoryCount := con.Repo.CountCategories(showAll)
-	personCount := con.Repo.CountPersons(showAll)
+func (con Controller) getCountCategories(showAll bool, limit int) CountsResponse {
+	categoryCount := con.Repo.CountCategories(showAll, limit)
+	personCount := con.Repo.CountPersons(showAll, limit)
 	var countsResponse CountsResponse
 	countsResponse.Categories = countsToCounts(categoryCount)
 	countsResponse.Persons = countsToCounts(personCount)
@@ -29,9 +30,21 @@ func (con Controller) getCountCategories(showAll bool) CountsResponse {
 // @Produce json
 // @Success 200 {object} CountsResponse "Counts by category and persons"
 // @Router /statistics [get]
+// @Param limit query number false "Limit of returned results"
 func GetCountCategories(g *gin.Context) {
 	con := GetCon(g)
-	var countsResponse CountsResponse = con.getCountCategories(false)
+	limitStr, exists := g.GetQuery("limit")
+	var limit int = 0
+	var err error
+	if exists {
+		limit, err = strconv.Atoi(limitStr)
+	}
+	if err != nil {
+		g.Status(http.StatusBadRequest)
+		return
+	}
+
+	var countsResponse CountsResponse = con.getCountCategories(false, limit)
 	g.JSON(http.StatusOK, countsResponse)
 }
 
@@ -41,8 +54,20 @@ func GetCountCategories(g *gin.Context) {
 // @Failure 401
 // @Security BasicAuth
 // @Router /private/statistics [get]
+// @Param limit query number false "Limit of returned results"
 func GetPrivateCountCategories(g *gin.Context) {
 	con := GetCon(g)
-	var countsResponse CountsResponse = con.getCountCategories(true)
+
+	limitStr, exists := g.GetQuery("limit")
+	var limit int = 0
+	var err error
+	if exists {
+		limit, err = strconv.Atoi(limitStr)
+	}
+	if err != nil {
+		g.Status(http.StatusBadRequest)
+		return
+	}
+	var countsResponse CountsResponse = con.getCountCategories(true, limit)
 	g.JSON(http.StatusOK, countsResponse)
 }

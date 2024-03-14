@@ -369,6 +369,14 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "parameters": [
+                    {
+                        "type": "number",
+                        "description": "Limit of returned results",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Counts by category and persons",
@@ -387,6 +395,14 @@ const docTemplate = `{
                 "description": "Get count per category and person",
                 "produces": [
                     "application/json"
+                ],
+                "parameters": [
+                    {
+                        "type": "number",
+                        "description": "Limit of returned results",
+                        "name": "limit",
+                        "in": "query"
+                    }
                 ],
                 "responses": {
                     "200": {
