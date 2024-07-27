@@ -1,0 +1,4 @@
+db: 
+  name: "dreams.sqlite"
+api:
+  port: 5005

@@ -1,14 +1,14 @@
 definitions:
-  controller.CategoriesResponse:
+  entity.CategoriesResponse:
     properties:
       categories:
         items:
-          $ref: '#/definitions/controller.CategoryResponse'
+          $ref: '#/definitions/entity.CategoryResponse'
         type: array
     required:
     - categories
     type: object
-  controller.CategoryResponse:
+  entity.CategoryResponse:
     properties:
       id:
         type: integer
@@ -18,7 +18,7 @@ definitions:
     - id
     - name
     type: object
-  controller.Count:
+  entity.CountResponse:
     properties:
       count:
         type: integer
@@ -28,21 +28,21 @@ definitions:
     - count
     - id
     type: object
-  controller.CountsResponse:
+  entity.CountsResponse:
     properties:
       categories:
         items:
-          $ref: '#/definitions/controller.Count'
+          $ref: '#/definitions/entity.CountResponse'
         type: array
       persons:
         items:
-          $ref: '#/definitions/controller.Count'
+          $ref: '#/definitions/entity.CountResponse'
         type: array
     required:
     - categories
     - persons
     type: object
-  controller.DreamMetaResponse:
+  entity.DreamMetaResponse:
     properties:
       date:
         type: string
@@ -55,21 +55,10 @@ definitions:
     - id
     - visible
     type: object
-  controller.DreamRequestBody:
-    properties:
-      date:
-        type: string
-      description:
-        type: string
-    required:
-    - date
-    type: object
-  controller.DreamResponse:
+  entity.DreamResponse:
     properties:
       categories:
-        items:
-          $ref: '#/definitions/controller.CategoryResponse'
-        type: array
+        $ref: '#/definitions/entity.CategoriesResponse'
       date:
         type: string
       description:
@@ -77,9 +66,7 @@ definitions:
       id:
         type: integer
       persons:
-        items:
-          $ref: '#/definitions/controller.PersonResponse'
-        type: array
+        $ref: '#/definitions/entity.PersonsResponse'
       visible:
         type: boolean
     required:
@@ -90,16 +77,16 @@ definitions:
     - persons
     - visible
     type: object
-  controller.DreamsResponse:
+  entity.DreamsResponse:
     properties:
       dreams:
         items:
-          $ref: '#/definitions/controller.DreamMetaResponse'
+          $ref: '#/definitions/entity.DreamMetaResponse'
         type: array
     required:
     - dreams
     type: object
-  controller.PersonResponse:
+  entity.PersonResponse:
     properties:
       id:
         type: integer
@@ -109,14 +96,23 @@ definitions:
     - id
     - name
     type: object
-  controller.PersonsResponse:
+  entity.PersonsResponse:
     properties:
       persons:
         items:
-          $ref: '#/definitions/controller.PersonResponse'
+          $ref: '#/definitions/entity.PersonResponse'
         type: array
     required:
     - persons
+    type: object
+  v1.DreamRequestBody:
+    properties:
+      date:
+        type: string
+      description:
+        type: string
+    required:
+    - date
     type: object
 info:
   contact: {}
@@ -130,7 +126,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controller.CategoriesResponse'
+            $ref: '#/definitions/entity.CategoriesResponse'
   /dreams:
     get:
       description: Get all dreams
@@ -140,7 +136,7 @@ paths:
         "200":
           description: List of all dreams
           schema:
-            $ref: '#/definitions/controller.DreamsResponse'
+            $ref: '#/definitions/entity.DreamsResponse'
     post:
       consumes:
       - application/json
@@ -151,7 +147,7 @@ paths:
         name: dreamRequestBody
         required: true
         schema:
-          $ref: '#/definitions/controller.DreamRequestBody'
+          $ref: '#/definitions/v1.DreamRequestBody'
       produces:
       - application/json
       responses:
@@ -161,6 +157,8 @@ paths:
             type: number
         "400":
           description: Bad Request
+        "500":
+          description: Internal Server Error
   /dreams/{dreamId}:
     delete:
       description: Delete one dreams
@@ -179,7 +177,7 @@ paths:
         "200":
           description: One dream
           schema:
-            $ref: '#/definitions/controller.DreamResponse'
+            $ref: '#/definitions/entity.DreamResponse'
         "400":
           description: Bad Request
         "404":
@@ -194,7 +192,7 @@ paths:
         name: dreamRequestBody
         required: true
         schema:
-          $ref: '#/definitions/controller.DreamRequestBody'
+          $ref: '#/definitions/v1.DreamRequestBody'
       responses:
         "200":
           description: OK
@@ -217,7 +215,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controller.CategoriesResponse'
+            $ref: '#/definitions/entity.CategoriesResponse'
         "400":
           description: Bad Request
         "404":
@@ -231,7 +229,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controller.CategoriesResponse'
+            $ref: '#/definitions/entity.CategoriesResponse'
         "400":
           description: Bad Request
         "404":
@@ -265,7 +263,31 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controller.PersonsResponse'
+            $ref: '#/definitions/entity.PersonsResponse'
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+  /dreams/private:
+    get:
+      description: Get all dreams - inlcuding private
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of all dreams
+          schema:
+            $ref: '#/definitions/entity.DreamsResponse'
+  /dreams/private/{dreamId}:
+    get:
+      description: Get one private dream
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: One dream
+          schema:
+            $ref: '#/definitions/entity.DreamResponse'
         "400":
           description: Bad Request
         "404":
@@ -279,64 +301,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/controller.PersonResponse'
-            type: array
-  /private/dreams:
-    get:
-      description: Get all private dreams
-      parameters:
-      - description: Basic Username:password
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: List of all dreams
-          schema:
-            $ref: '#/definitions/controller.DreamsResponse'
-        "401":
-          description: Unauthorized
-      security:
-      - BasicAuth: []
-  /private/dreams/{dreamId}:
-    get:
-      description: Get one private dream
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: One dream
-          schema:
-            $ref: '#/definitions/controller.DreamResponse'
-        "400":
-          description: Bad Request
-        "401":
-          description: Unauthorized
-        "404":
-          description: Not Found
-      security:
-      - BasicAuth: []
-    patch:
-      description: Toggle visiblity of a dream
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: boolean
-        "400":
-          description: Bad Request
-        "401":
-          description: Unauthorized
-        "404":
-          description: Not Found
-      security:
-      - BasicAuth: []
+            $ref: '#/definitions/entity.PersonsResponse'
   /private/statistics:
     get:
       description: Get count per category and person
@@ -351,11 +316,7 @@ paths:
         "200":
           description: Counts by category and persons
           schema:
-            $ref: '#/definitions/controller.CountsResponse'
-        "401":
-          description: Unauthorized
-      security:
-      - BasicAuth: []
+            $ref: '#/definitions/entity.CountsResponse'
   /statistics:
     get:
       description: Get count per category and person
@@ -370,5 +331,5 @@ paths:
         "200":
           description: Counts by category and persons
           schema:
-            $ref: '#/definitions/controller.CountsResponse'
+            $ref: '#/definitions/entity.CountsResponse'
 swagger: "2.0"

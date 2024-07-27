@@ -25,7 +25,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controller.CategoriesResponse"
+                            "$ref": "#/definitions/entity.CategoriesResponse"
                         }
                     }
                 }
@@ -41,7 +41,7 @@ const docTemplate = `{
                     "200": {
                         "description": "List of all dreams",
                         "schema": {
-                            "$ref": "#/definitions/controller.DreamsResponse"
+                            "$ref": "#/definitions/entity.DreamsResponse"
                         }
                     }
                 }
@@ -61,7 +61,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controller.DreamRequestBody"
+                            "$ref": "#/definitions/v1.DreamRequestBody"
                         }
                     }
                 ],
@@ -74,6 +74,47 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/dreams/private": {
+            "get": {
+                "description": "Get all dreams - inlcuding private",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of all dreams",
+                        "schema": {
+                            "$ref": "#/definitions/entity.DreamsResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/dreams/private/{dreamId}": {
+            "get": {
+                "description": "Get one private dream",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "One dream",
+                        "schema": {
+                            "$ref": "#/definitions/entity.DreamResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
                     }
                 }
             }
@@ -88,7 +129,7 @@ const docTemplate = `{
                     "200": {
                         "description": "One dream",
                         "schema": {
-                            "$ref": "#/definitions/controller.DreamResponse"
+                            "$ref": "#/definitions/entity.DreamResponse"
                         }
                     },
                     "400": {
@@ -125,7 +166,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controller.DreamRequestBody"
+                            "$ref": "#/definitions/v1.DreamRequestBody"
                         }
                     }
                 ],
@@ -161,7 +202,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controller.CategoriesResponse"
+                            "$ref": "#/definitions/entity.CategoriesResponse"
                         }
                     },
                     "400": {
@@ -183,7 +224,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controller.CategoriesResponse"
+                            "$ref": "#/definitions/entity.CategoriesResponse"
                         }
                     },
                     "400": {
@@ -236,7 +277,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controller.PersonsResponse"
+                            "$ref": "#/definitions/entity.PersonsResponse"
                         }
                     },
                     "400": {
@@ -258,113 +299,14 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/controller.PersonResponse"
-                            }
+                            "$ref": "#/definitions/entity.PersonsResponse"
                         }
-                    }
-                }
-            }
-        },
-        "/private/dreams": {
-            "get": {
-                "security": [
-                    {
-                        "BasicAuth": []
-                    }
-                ],
-                "description": "Get all private dreams",
-                "produces": [
-                    "application/json"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Basic Username:password",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "List of all dreams",
-                        "schema": {
-                            "$ref": "#/definitions/controller.DreamsResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    }
-                }
-            }
-        },
-        "/private/dreams/{dreamId}": {
-            "get": {
-                "security": [
-                    {
-                        "BasicAuth": []
-                    }
-                ],
-                "description": "Get one private dream",
-                "produces": [
-                    "application/json"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "One dream",
-                        "schema": {
-                            "$ref": "#/definitions/controller.DreamResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    }
-                }
-            },
-            "patch": {
-                "security": [
-                    {
-                        "BasicAuth": []
-                    }
-                ],
-                "description": "Toggle visiblity of a dream",
-                "produces": [
-                    "application/json"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "boolean"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "404": {
-                        "description": "Not Found"
                     }
                 }
             }
         },
         "/private/statistics": {
             "get": {
-                "security": [
-                    {
-                        "BasicAuth": []
-                    }
-                ],
                 "description": "Get count per category and person",
                 "produces": [
                     "application/json"
@@ -381,11 +323,8 @@ const docTemplate = `{
                     "200": {
                         "description": "Counts by category and persons",
                         "schema": {
-                            "$ref": "#/definitions/controller.CountsResponse"
+                            "$ref": "#/definitions/entity.CountsResponse"
                         }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
                     }
                 }
             }
@@ -408,7 +347,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Counts by category and persons",
                         "schema": {
-                            "$ref": "#/definitions/controller.CountsResponse"
+                            "$ref": "#/definitions/entity.CountsResponse"
                         }
                     }
                 }
@@ -416,7 +355,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "controller.CategoriesResponse": {
+        "entity.CategoriesResponse": {
             "type": "object",
             "required": [
                 "categories"
@@ -425,12 +364,12 @@ const docTemplate = `{
                 "categories": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/controller.CategoryResponse"
+                        "$ref": "#/definitions/entity.CategoryResponse"
                     }
                 }
             }
         },
-        "controller.CategoryResponse": {
+        "entity.CategoryResponse": {
             "type": "object",
             "required": [
                 "id",
@@ -445,7 +384,7 @@ const docTemplate = `{
                 }
             }
         },
-        "controller.Count": {
+        "entity.CountResponse": {
             "type": "object",
             "required": [
                 "count",
@@ -460,7 +399,7 @@ const docTemplate = `{
                 }
             }
         },
-        "controller.CountsResponse": {
+        "entity.CountsResponse": {
             "type": "object",
             "required": [
                 "categories",
@@ -470,18 +409,18 @@ const docTemplate = `{
                 "categories": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/controller.Count"
+                        "$ref": "#/definitions/entity.CountResponse"
                     }
                 },
                 "persons": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/controller.Count"
+                        "$ref": "#/definitions/entity.CountResponse"
                     }
                 }
             }
         },
-        "controller.DreamMetaResponse": {
+        "entity.DreamMetaResponse": {
             "type": "object",
             "required": [
                 "date",
@@ -500,21 +439,7 @@ const docTemplate = `{
                 }
             }
         },
-        "controller.DreamRequestBody": {
-            "type": "object",
-            "required": [
-                "date"
-            ],
-            "properties": {
-                "date": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                }
-            }
-        },
-        "controller.DreamResponse": {
+        "entity.DreamResponse": {
             "type": "object",
             "required": [
                 "categories",
@@ -526,10 +451,7 @@ const docTemplate = `{
             ],
             "properties": {
                 "categories": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/controller.CategoryResponse"
-                    }
+                    "$ref": "#/definitions/entity.CategoriesResponse"
                 },
                 "date": {
                     "type": "string"
@@ -541,17 +463,14 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "persons": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/controller.PersonResponse"
-                    }
+                    "$ref": "#/definitions/entity.PersonsResponse"
                 },
                 "visible": {
                     "type": "boolean"
                 }
             }
         },
-        "controller.DreamsResponse": {
+        "entity.DreamsResponse": {
             "type": "object",
             "required": [
                 "dreams"
@@ -560,12 +479,12 @@ const docTemplate = `{
                 "dreams": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/controller.DreamMetaResponse"
+                        "$ref": "#/definitions/entity.DreamMetaResponse"
                     }
                 }
             }
         },
-        "controller.PersonResponse": {
+        "entity.PersonResponse": {
             "type": "object",
             "required": [
                 "id",
@@ -580,7 +499,7 @@ const docTemplate = `{
                 }
             }
         },
-        "controller.PersonsResponse": {
+        "entity.PersonsResponse": {
             "type": "object",
             "required": [
                 "persons"
@@ -589,8 +508,22 @@ const docTemplate = `{
                 "persons": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/controller.PersonResponse"
+                        "$ref": "#/definitions/entity.PersonResponse"
                     }
+                }
+            }
+        },
+        "v1.DreamRequestBody": {
+            "type": "object",
+            "required": [
+                "date"
+            ],
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
                 }
             }
         }

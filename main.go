@@ -1,21 +1,14 @@
 package main
 
 import (
-	"log"
-
-	"github.com/bbrighter/dreams-api/controller"
-	"github.com/bbrighter/dreams-api/store"
+	"github.com/bbrighter/dreams-api/app"
+	"github.com/bbrighter/dreams-api/config"
 )
 
 func main() {
-	var dbName string = "dreams.sqlite"
-
-	var repo store.Repo = store.InitRepo(dbName)
-	var con controller.Controller = controller.InitController(repo)
-
-	if err := store.Migration(repo); err != nil {
-		log.Fatal(err)
+	cnf, err := config.NewConfig()
+	if err != nil {
+		return
 	}
-
-	con.RunRouter()
+	app.Run(cnf)
 }
