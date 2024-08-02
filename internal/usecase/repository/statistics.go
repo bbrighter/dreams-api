@@ -20,8 +20,7 @@ func NewStatisticsRepo(dbName string) *StatisticsRepo {
 func (r StatisticsRepo) CountCategories(showAll bool, maxNumberOfResults int) entity.Counts {
 	tx := r.Repo.Preload("Categories")
 	if !showAll {
-		visible := true
-		tx.Where(&entity.Dream{Visible: &visible})
+		tx.Where(&entity.Dream{Visible: true})
 	}
 	var dreams entity.Dreams
 	tx.Find(&dreams)
@@ -57,8 +56,7 @@ func (r StatisticsRepo) CountCategories(showAll bool, maxNumberOfResults int) en
 func (r StatisticsRepo) CountPersons(showAll bool, maxNumberOfResults int) entity.Counts {
 	tx := r.Repo.Preload("Persons")
 	if !showAll {
-		visible := true
-		tx.Where(&entity.Dream{Visible: &visible})
+		tx.Where(&entity.Dream{Visible: true})
 	}
 	var dreams entity.Dreams
 	tx.Find(&dreams)

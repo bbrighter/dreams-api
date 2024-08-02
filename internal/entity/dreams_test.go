@@ -11,12 +11,11 @@ import (
 func TestDreamToResponse(t *testing.T) {
 	t.Parallel()
 
-	visible := true
 	var dream = entity.Dream{
 		ID:          1,
 		Date:        time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
 		Description: "desc",
-		Visible:     &visible,
+		Visible:     true,
 		Categories: []entity.Category{
 			{ID: 1, Name: "Category", Dreams: []entity.Dream{{ID: 1}}},
 		},
@@ -49,7 +48,6 @@ func TestDreamsToDreamsResponse(t *testing.T) {
 	assert.Len(t, emptyResp.Dreams, 0)
 
 	// Non-empty input gives {dreams: [...]}
-	var visible bool = true
 	dreams = entity.Dreams{
 		{
 			ID:          1,
@@ -57,7 +55,7 @@ func TestDreamsToDreamsResponse(t *testing.T) {
 			Description: "desc",
 			Categories:  []entity.Category{{ID: 1, Name: "Category"}},
 			Persons:     []entity.Person{{ID: 1, Name: "Name"}},
-			Visible:     &visible,
+			Visible:     true,
 		},
 	}
 	var resp entity.DreamsResponse = dreams.ToResponse()

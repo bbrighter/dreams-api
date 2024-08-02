@@ -13,14 +13,16 @@ type (
 		Create(time.Time) (uint, error)
 		Update(uint, time.Time, string) error
 		Delete(uint) (entity.Categories, error)
+		ToggleVisibility(uint) error
 	}
 
 	DreamsRepo interface {
-		GetAll(*bool) entity.Dreams
-		GetById(uint, *bool) (entity.Dream, error)
+		GetAll(bool) entity.Dreams
+		GetById(uint, bool) (entity.Dream, error)
 		Create(entity.Dream) (uint, error)
 		Update(entity.Dream) error
 		Delete(entity.Dream) (entity.Categories, error)
+		ToggleVisibility(entity.Dream) error
 	}
 
 	Categories interface {

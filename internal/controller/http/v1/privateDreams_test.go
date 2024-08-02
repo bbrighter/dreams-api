@@ -40,3 +40,12 @@ func TestGetPrivate404(t *testing.T) {
 
 	assert.Equal(t, 404, rec.Code)
 }
+
+func TestToggleVisiblity(t *testing.T) {
+	r, g, rec := newTestRoutePrivateDreams()
+	g.AddParam("id", "1")
+
+	r.ToggleVisibility(g)
+
+	assert.Equal(t, rec.Code, 200)
+}

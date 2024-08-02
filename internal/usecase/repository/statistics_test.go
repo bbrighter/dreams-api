@@ -26,11 +26,10 @@ func TestCountPersons(t *testing.T) {
 	counts := r.CountPersons(true, 100)
 	assert.Len(t, counts, 0)
 
-	visible := true
 	r.Repo.Create(&entity.Dream{
 		ID:         1,
 		Date:       time.Now(),
-		Visible:    &visible,
+		Visible:    true,
 		Categories: entity.Categories{entity.Category{ID: 10}},
 		Persons:    entity.Persons{entity.Person{ID: 100}},
 	})
@@ -46,17 +45,16 @@ func TestCountCategories(t *testing.T) {
 	counts := r.CountCategories(true, 100)
 	assert.Len(t, counts, 0)
 
-	visible := true
 	r.Repo.Create(&entity.Dream{
 		ID:         1,
 		Date:       time.Now(),
-		Visible:    &visible,
+		Visible:    true,
 		Categories: entity.Categories{entity.Category{ID: 10}, entity.Category{ID: 11}},
 		Persons:    entity.Persons{entity.Person{ID: 100}},
 	})
 	r.Repo.Create(&entity.Dream{
 		ID:         2,
-		Visible:    &visible,
+		Visible:    true,
 		Categories: entity.Categories{entity.Category{ID: 10}},
 	})
 

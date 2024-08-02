@@ -18,18 +18,18 @@ func newStatisticsRoute(handler *gin.RouterGroup, c usecase.Statistics) {
 
 	h := handler.Group("/statistics")
 	{
-		h.GET("/", r.GetStatistics)
+		h.GET("", r.GetStatistics)
 	}
 	p := handler.Group("/private/statistics")
 	{
-		p.GET("/", r.GetPrivateStatistics)
+		p.GET("", r.GetPrivateStatistics)
 	}
 }
 
 // @Description Get count per category and person
 // @Produce json
 // @Success 200 {object} entity.CountsResponse "Counts by category and persons"
-// @Router /statistics [get]
+// @Router /v1/statistics [get]
 // @Param limit query number false "Limit of returned results"
 func (r *statisticsRoute) GetStatistics(g *gin.Context) {
 	limitStr, exists := g.GetQuery("limit")
@@ -54,7 +54,7 @@ func (r *statisticsRoute) GetStatistics(g *gin.Context) {
 // @Description Get count per category and person
 // @Produce json
 // @Success 200 {object} entity.CountsResponse "Counts by category and persons"
-// @Router /private/statistics [get]
+// @Router /v1/private/statistics [get]
 // @Param limit query number false "Limit of returned results"
 func (r *statisticsRoute) GetPrivateStatistics(g *gin.Context) {
 

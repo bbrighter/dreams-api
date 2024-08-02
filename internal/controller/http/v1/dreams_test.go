@@ -25,12 +25,11 @@ func (tuc testUseCaseDreams) GetAll(showAll bool) entity.Dreams {
 
 func (tuc testUseCaseDreams) Get(id uint, showAll bool) (entity.Dream, error) {
 	if id == uint(1) {
-		visible := true
 		return entity.Dream{
 			ID:          1,
 			Date:        time.Now(),
 			Description: "desc",
-			Visible:     &visible,
+			Visible:     true,
 		}, nil
 	}
 	return entity.Dream{}, customerrors.ErrorNotFound
@@ -46,6 +45,10 @@ func (tuc testUseCaseDreams) Update(id uint, date time.Time, description string)
 
 func (tuc testUseCaseDreams) Delete(id uint) (entity.Categories, error) {
 	return entity.Categories{}, nil
+}
+
+func (tuc testUseCaseDreams) ToggleVisibility(id uint) error {
+	return nil
 }
 
 func newTestRoute() (*dreamsRoutes, *gin.Context, *httptest.ResponseRecorder) {

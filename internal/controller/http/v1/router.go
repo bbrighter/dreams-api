@@ -6,7 +6,6 @@ import (
 )
 
 func NewRouter(handler *gin.Engine, d usecase.Dreams, p usecase.Persons, c usecase.Categories, s usecase.Statistics) {
-
 	h := handler.Group("/v1")
 	{
 		newDreamsRoute(h, d, p, c)

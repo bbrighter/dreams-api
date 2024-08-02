@@ -4,7 +4,7 @@
         "contact": {}
     },
     "paths": {
-        "/categories": {
+        "/v1/categories": {
             "get": {
                 "description": "Get all categories",
                 "produces": [
@@ -20,7 +20,7 @@
                 }
             }
         },
-        "/dreams": {
+        "/v1/dreams": {
             "get": {
                 "description": "Get all dreams",
                 "produces": [
@@ -70,7 +70,7 @@
                 }
             }
         },
-        "/dreams/private": {
+        "/v1/dreams/private": {
             "get": {
                 "description": "Get all dreams - inlcuding private",
                 "produces": [
@@ -86,7 +86,7 @@
                 }
             }
         },
-        "/dreams/private/{dreamId}": {
+        "/v1/dreams/private/{dreamId}": {
             "get": {
                 "description": "Get one private dream",
                 "produces": [
@@ -106,9 +106,20 @@
                         "description": "Not Found"
                     }
                 }
+            },
+            "patch": {
+                "description": "Toggle visiblity of a dream",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
             }
         },
-        "/dreams/{dreamId}": {
+        "/v1/dreams/{dreamId}": {
             "get": {
                 "description": "Get one dream",
                 "produces": [
@@ -172,7 +183,7 @@
                 }
             }
         },
-        "/dreams/{dreamId}/categories": {
+        "/v1/dreams/{dreamId}/categories": {
             "put": {
                 "description": "Add a category to a dream",
                 "produces": [
@@ -203,7 +214,7 @@
                 }
             }
         },
-        "/dreams/{dreamId}/categories/{categoryId}": {
+        "/v1/dreams/{dreamId}/categories/{categoryId}": {
             "delete": {
                 "description": "Remove a category from a dream",
                 "produces": [
@@ -225,7 +236,7 @@
                 }
             }
         },
-        "/dreams/{dreamId}/persons": {
+        "/v1/dreams/{dreamId}/persons": {
             "put": {
                 "description": "Add a person to a dream",
                 "produces": [
@@ -244,7 +255,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "number"
+                            "$ref": "#/definitions/entity.PersonsResponse"
                         }
                     },
                     "400": {
@@ -256,7 +267,7 @@
                 }
             }
         },
-        "/dreams/{dreamId}/persons/{personId}": {
+        "/v1/dreams/{dreamId}/persons/{personId}": {
             "delete": {
                 "description": "Delete a person from a dream",
                 "produces": [
@@ -278,7 +289,7 @@
                 }
             }
         },
-        "/persons": {
+        "/v1/persons": {
             "get": {
                 "description": "Get all persons",
                 "produces": [
@@ -294,7 +305,7 @@
                 }
             }
         },
-        "/private/statistics": {
+        "/v1/private/statistics": {
             "get": {
                 "description": "Get count per category and person",
                 "produces": [
@@ -318,7 +329,7 @@
                 }
             }
         },
-        "/statistics": {
+        "/v1/statistics": {
             "get": {
                 "description": "Get count per category and person",
                 "produces": [

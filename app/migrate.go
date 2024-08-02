@@ -15,6 +15,7 @@ const (
 	migration2       = "20240131_Persons"
 	migration3       = "20240207_RenameTags"
 	migration4       = "20240218_HiddenDreams"
+	migration5       = "20240728_VisibleNonPointer"
 )
 
 var migrations = []*gormigrate.Migration{
@@ -170,6 +171,31 @@ var migrations = []*gormigrate.Migration{
 		},
 		Rollback: func(tx *gorm.DB) error {
 			return tx.Migrator().DropColumn("dreams", "visible")
+		},
+	},
+	{
+		ID: migration5,
+		Migrate: func(tx *gorm.DB) error {
+			type Dream struct {
+				ID          uint
+				Date        time.Time
+				Description string
+				Visible     bool              `gorm:"default:true"`
+				Categories  []entity.Category `gorm:"many2many:categories_dreams;"`
+				Persons     []entity.Person   `gorm:"many2many:people_dreams;"`
+			}
+			return tx.AutoMigrate(&Dream{})
+		},
+		Rollback: func(tx *gorm.DB) error {
+			type Dream struct {
+				ID          uint
+				Date        time.Time
+				Description string
+				Visible     *bool             `gorm:"default:true"`
+				Categories  []entity.Category `gorm:"many2many:categories_dreams;"`
+				Persons     []entity.Person   `gorm:"many2many:people_dreams;"`
+			}
+			return tx.AutoMigrate(&Dream{})
 		},
 	},
 }

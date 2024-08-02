@@ -6,6 +6,7 @@ import (
 	v1 "github.com/bbrighter/dreams-api/internal/controller/http/v1"
 	"github.com/bbrighter/dreams-api/internal/usecase"
 	"github.com/bbrighter/dreams-api/internal/usecase/repository"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,6 +22,13 @@ func Run(cfg *config.Config) {
 	Migration(repo.Repo)
 
 	handler := gin.New()
+	handler.Use(cors.New(cors.Config{
+		// AllowAllOrigins: true,
+		AllowMethods:  []string{"GET", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowOrigins:  []string{"http://" + cfg.API.Host + ":3005", "http://localhost:*"},
+		AllowWildcard: true,
+	}))
+
 	v1.NewRouter(
 		handler,
 		dreamsUseCase,

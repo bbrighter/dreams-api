@@ -16,14 +16,14 @@ func newPersonsRoute(handler *gin.RouterGroup, p usecase.Persons) {
 
 	h := handler.Group("/persons")
 	{
-		h.GET("/", r.GetAll)
+		h.GET("", r.GetAll)
 	}
 }
 
 // @Description Get all persons
 // @Produce json
 // @Success 200 {object} entity.PersonsResponse
-// @Router /persons [get]
+// @Router /v1/persons [get]
 func (r *personsRoute) GetAll(g *gin.Context) {
 	persons := r.p.GetAll()
 	g.JSON(http.StatusOK, persons.ToResponse())

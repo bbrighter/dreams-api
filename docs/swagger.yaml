@@ -117,7 +117,7 @@ definitions:
 info:
   contact: {}
 paths:
-  /categories:
+  /v1/categories:
     get:
       description: Get all categories
       produces:
@@ -127,7 +127,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/entity.CategoriesResponse'
-  /dreams:
+  /v1/dreams:
     get:
       description: Get all dreams
       produces:
@@ -159,7 +159,7 @@ paths:
           description: Bad Request
         "500":
           description: Internal Server Error
-  /dreams/{dreamId}:
+  /v1/dreams/{dreamId}:
     delete:
       description: Delete one dreams
       produces:
@@ -200,7 +200,7 @@ paths:
           description: Bad Request
         "404":
           description: Not Found
-  /dreams/{dreamId}/categories:
+  /v1/dreams/{dreamId}/categories:
     put:
       description: Add a category to a dream
       parameters:
@@ -220,7 +220,7 @@ paths:
           description: Bad Request
         "404":
           description: Not Found
-  /dreams/{dreamId}/categories/{categoryId}:
+  /v1/dreams/{dreamId}/categories/{categoryId}:
     delete:
       description: Remove a category from a dream
       produces:
@@ -234,7 +234,7 @@ paths:
           description: Bad Request
         "404":
           description: Not Found
-  /dreams/{dreamId}/persons:
+  /v1/dreams/{dreamId}/persons:
     put:
       description: Add a person to a dream
       parameters:
@@ -249,12 +249,12 @@ paths:
         "200":
           description: OK
           schema:
-            type: number
+            $ref: '#/definitions/entity.PersonsResponse'
         "400":
           description: Bad Request
         "404":
           description: Not Found
-  /dreams/{dreamId}/persons/{personId}:
+  /v1/dreams/{dreamId}/persons/{personId}:
     delete:
       description: Delete a person from a dream
       produces:
@@ -268,7 +268,7 @@ paths:
           description: Bad Request
         "404":
           description: Not Found
-  /dreams/private:
+  /v1/dreams/private:
     get:
       description: Get all dreams - inlcuding private
       produces:
@@ -278,7 +278,7 @@ paths:
           description: List of all dreams
           schema:
             $ref: '#/definitions/entity.DreamsResponse'
-  /dreams/private/{dreamId}:
+  /v1/dreams/private/{dreamId}:
     get:
       description: Get one private dream
       produces:
@@ -292,7 +292,14 @@ paths:
           description: Bad Request
         "404":
           description: Not Found
-  /persons:
+    patch:
+      description: Toggle visiblity of a dream
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+  /v1/persons:
     get:
       description: Get all persons
       produces:
@@ -302,7 +309,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/entity.PersonsResponse'
-  /private/statistics:
+  /v1/private/statistics:
     get:
       description: Get count per category and person
       parameters:
@@ -317,7 +324,7 @@ paths:
           description: Counts by category and persons
           schema:
             $ref: '#/definitions/entity.CountsResponse'
-  /statistics:
+  /v1/statistics:
     get:
       description: Get count per category and person
       parameters:

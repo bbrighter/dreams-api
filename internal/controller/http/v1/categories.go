@@ -16,14 +16,14 @@ func newCategoriesRoute(handler *gin.RouterGroup, c usecase.Categories) {
 
 	h := handler.Group("/categories")
 	{
-		h.GET("/", r.GetAll)
+		h.GET("", r.GetAll)
 	}
 }
 
 // @Description Get all categories
 // @Produce json
 // @Success 200 {object} entity.CategoriesResponse
-// @Router /categories [get]
+// @Router /v1/categories [get]
 func (r *categoriesRoute) GetAll(g *gin.Context) {
 	categories := r.c.GetAll()
 	g.JSON(http.StatusOK, categories.ToResponse())

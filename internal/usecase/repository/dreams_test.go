@@ -23,16 +23,15 @@ func TestGetDreams(t *testing.T) {
 	repo := setupDreamsTest(t)
 
 	var dreams []entity.Dream
-	var showAll bool = false
 
 	// Test no dreams exist
-	dreams = repo.GetAll(&showAll)
+	dreams = repo.GetAll(false)
 
 	assert.Len(t, dreams, 0)
 
 	// Test one dream exists
 	repo.Repo.Create(&entity.Dream{ID: 1})
-	dreams = repo.GetAll(&showAll)
+	dreams = repo.GetAll(false)
 
 	assert.Len(t, dreams, 1)
 
@@ -57,16 +56,15 @@ func TestGetDream(t *testing.T) {
 
 	var dream entity.Dream
 	var err error
-	var showAll bool = false
 
 	// Test no dreams exist
-	_, err = repo.GetById(1, &showAll)
+	_, err = repo.GetById(1, false)
 
 	assert.Error(t, err)
 
 	// Test dream exists
 	repo.Repo.Create(&entity.Dream{ID: 100})
-	dream, err = repo.GetById(100, &showAll)
+	dream, err = repo.GetById(100, false)
 
 	assert.NoError(t, err)
 	assert.EqualValues(t, 100, dream.ID)

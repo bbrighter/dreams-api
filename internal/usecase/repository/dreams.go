@@ -17,22 +17,20 @@ func NewDreamsRepo(dbName string) *DreamsRepo {
 	return &DreamsRepo{Repo: db}
 }
 
-func (r *DreamsRepo) GetAll(showAll *bool) entity.Dreams {
+func (r *DreamsRepo) GetAll(showAll bool) entity.Dreams {
 	var dreams entity.Dreams
 	tx := r.Repo.Model(&entity.Dream{})
-	if showAll != nil && *showAll {
-		visible := true
-		tx.Where(&entity.Dream{Visible: &visible})
+	if !showAll {
+		tx.Where(&entity.Dream{Visible: true})
 	}
 	tx.Find(&dreams)
 	return dreams
 }
 
-func (r *DreamsRepo) GetById(id uint, showAll *bool) (entity.Dream, error) {
+func (r *DreamsRepo) GetById(id uint, showAll bool) (entity.Dream, error) {
 	tx := r.Repo.Model(&entity.Dream{}).Preload(clause.Associations)
-	if showAll != nil && !*showAll {
-		var visible bool = true
-		tx.Where(&entity.Dream{Visible: &visible})
+	if !showAll {
+		tx.Where(&entity.Dream{Visible: true})
 	}
 
 	dream := entity.Dream{ID: id}
@@ -65,6 +63,17 @@ func (r *DreamsRepo) Delete(dream entity.Dream) (entity.Categories, error) {
 	r.Repo.Select(clause.Associations).Delete(&dream)
 	return removeCategoriesIfNeeded(r.Repo, dream.Categories)
 
+}
+
+func (r *DreamsRepo) ToggleVisibility(dream entity.Dream) error {
+	if rowsAffected := r.Repo.First(&dream).RowsAffected; rowsAffected == 0 {
+		return customerrors.ErrorNotFound
+	}
+
+	if err := r.Repo.Model(&dream).Update("Visible", !dream.Visible).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 func removeCategoriesIfNeeded(db *gorm.DB, cats entity.Categories) (entity.Categories, error) {

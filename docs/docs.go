@@ -15,7 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/categories": {
+        "/v1/categories": {
             "get": {
                 "description": "Get all categories",
                 "produces": [
@@ -31,7 +31,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/dreams": {
+        "/v1/dreams": {
             "get": {
                 "description": "Get all dreams",
                 "produces": [
@@ -81,7 +81,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/dreams/private": {
+        "/v1/dreams/private": {
             "get": {
                 "description": "Get all dreams - inlcuding private",
                 "produces": [
@@ -97,7 +97,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/dreams/private/{dreamId}": {
+        "/v1/dreams/private/{dreamId}": {
             "get": {
                 "description": "Get one private dream",
                 "produces": [
@@ -117,9 +117,20 @@ const docTemplate = `{
                         "description": "Not Found"
                     }
                 }
+            },
+            "patch": {
+                "description": "Toggle visiblity of a dream",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
             }
         },
-        "/dreams/{dreamId}": {
+        "/v1/dreams/{dreamId}": {
             "get": {
                 "description": "Get one dream",
                 "produces": [
@@ -183,7 +194,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/dreams/{dreamId}/categories": {
+        "/v1/dreams/{dreamId}/categories": {
             "put": {
                 "description": "Add a category to a dream",
                 "produces": [
@@ -214,7 +225,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/dreams/{dreamId}/categories/{categoryId}": {
+        "/v1/dreams/{dreamId}/categories/{categoryId}": {
             "delete": {
                 "description": "Remove a category from a dream",
                 "produces": [
@@ -236,7 +247,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/dreams/{dreamId}/persons": {
+        "/v1/dreams/{dreamId}/persons": {
             "put": {
                 "description": "Add a person to a dream",
                 "produces": [
@@ -255,7 +266,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "number"
+                            "$ref": "#/definitions/entity.PersonsResponse"
                         }
                     },
                     "400": {
@@ -267,7 +278,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/dreams/{dreamId}/persons/{personId}": {
+        "/v1/dreams/{dreamId}/persons/{personId}": {
             "delete": {
                 "description": "Delete a person from a dream",
                 "produces": [
@@ -289,7 +300,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/persons": {
+        "/v1/persons": {
             "get": {
                 "description": "Get all persons",
                 "produces": [
@@ -305,7 +316,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/private/statistics": {
+        "/v1/private/statistics": {
             "get": {
                 "description": "Get count per category and person",
                 "produces": [
@@ -329,7 +340,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/statistics": {
+        "/v1/statistics": {
             "get": {
                 "description": "Get count per category and person",
                 "produces": [

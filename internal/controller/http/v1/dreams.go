@@ -20,34 +20,31 @@ func newDreamsRoute(handler *gin.RouterGroup, d usecase.Dreams, p usecase.Person
 
 	h := handler.Group("/dreams")
 	{
-		h.GET("/", r.GetAll)
-		h.POST("/", r.Create)
-	}
-
-	hid := h.Group("/:id")
-	{
-		hid.GET("/", r.Get)
-		hid.PATCH("/", r.Update)
-		hid.DELETE("/", r.Delete)
-	}
-
-	hcat := hid.Group("/category")
-	{
-		hcat.PUT("/", r.PutCategoryToDream)
-		hcat.DELETE("/:categoryId", r.RemoveCategoryFromDream)
-	}
-
-	hper := hid.Group("/person")
-	{
-		hper.PUT("/", r.PutPersonToDream)
-		hper.DELETE("/:personId", r.RemovePersonFromDream)
+		h.GET("", r.GetAll)
+		h.POST("", r.Create)
+		hid := h.Group("/:id")
+		{
+			hid.GET("", r.Get)
+			hid.PATCH("", r.Update)
+			hid.DELETE("", r.Delete)
+			hcat := hid.Group("/categories")
+			{
+				hcat.PUT("", r.PutCategoryToDream)
+				hcat.DELETE("/:categoryId", r.RemoveCategoryFromDream)
+			}
+			hper := hid.Group("/persons")
+			{
+				hper.PUT("", r.PutPersonToDream)
+				hper.DELETE("/:personId", r.RemovePersonFromDream)
+			}
+		}
 	}
 }
 
 // @Description Get all dreams
 // @Produce json
 // @Success 200 {object} entity.DreamsResponse "List of all dreams"
-// @Router /dreams [get]
+// @Router /v1/dreams [get]
 func (r *dreamsRoutes) GetAll(g *gin.Context) {
 	dreams := r.d.GetAll(false)
 	g.JSON(200, dreams.ToResponse())
@@ -58,7 +55,7 @@ func (r *dreamsRoutes) GetAll(g *gin.Context) {
 // @Success 200 {object} entity.DreamResponse "One dream"
 // @Failure 400
 // @Failure 404
-// @Router /dreams/{dreamId} [get]
+// @Router /v1/dreams/{dreamId} [get]
 func (r *dreamsRoutes) Get(g *gin.Context) {
 	id, err := parseParamUint(g, "id")
 	if err != nil {
@@ -88,7 +85,7 @@ type DreamRequestBody struct {
 // @Success 201 {number} ID
 // @Failure 400
 // @Failure 500
-// @Router /dreams [post]
+// @Router /v1/dreams [post]
 // @Param dreamRequestBody  body DreamRequestBody true "The dream which will be created"
 func (r *dreamsRoutes) Create(g *gin.Context) {
 	var body DreamRequestBody
@@ -112,7 +109,7 @@ func (r *dreamsRoutes) Create(g *gin.Context) {
 // @Success 200
 // @Failure 400
 // @Failure 404
-// @Router /dreams/{dreamId} [patch]
+// @Router /v1/dreams/{dreamId} [patch]
 // @Param dreamRequestBody body DreamRequestBody true "The dream which will be updated"
 func (r *dreamsRoutes) Update(g *gin.Context) {
 	var body DreamRequestBody
@@ -142,7 +139,7 @@ func (r *dreamsRoutes) Update(g *gin.Context) {
 // @Produce json
 // @Failure 400
 // @Failure 404
-// @Router /dreams/{dreamId} [delete]
+// @Router /v1/dreams/{dreamId} [delete]
 func (r *dreamsRoutes) Delete(g *gin.Context) {
 	id, err := parseParamUint(g, "id")
 	if err != nil {
@@ -160,10 +157,10 @@ func (r *dreamsRoutes) Delete(g *gin.Context) {
 
 // @Description Add a person to a dream
 // @Produce json
-// @Success 200 {number} entity.PersonsResonse
+// @Success 200 {object} entity.PersonsResponse
 // @Failure 400
 // @Failure 404
-// @Router /dreams/{dreamId}/persons [put]
+// @Router /v1/dreams/{dreamId}/persons [put]
 // @Param name query string true "Name of person"
 func (r *dreamsRoutes) PutPersonToDream(g *gin.Context) {
 	dreamId, err := parseParamUint(g, "id")
@@ -190,7 +187,7 @@ func (r *dreamsRoutes) PutPersonToDream(g *gin.Context) {
 // @Success 200 {object} entity.PersonsResponse
 // @Failure 400
 // @Failure 404
-// @Router /dreams/{dreamId}/persons/{personId} [delete]
+// @Router /v1/dreams/{dreamId}/persons/{personId} [delete]
 func (r *dreamsRoutes) RemovePersonFromDream(g *gin.Context) {
 	dreamId, err := parseParamUint(g, "id")
 	if err != nil {
@@ -216,7 +213,7 @@ func (r *dreamsRoutes) RemovePersonFromDream(g *gin.Context) {
 // @Success 200 {object} entity.CategoriesResponse
 // @Failure 400
 // @Failure 404
-// @Router /dreams/{dreamId}/categories [put]
+// @Router /v1/dreams/{dreamId}/categories [put]
 // @Param name query string true "Name of a category"
 func (r *dreamsRoutes) PutCategoryToDream(g *gin.Context) {
 	dreamId, err := parseParamUint(g, "id")
@@ -243,7 +240,7 @@ func (r *dreamsRoutes) PutCategoryToDream(g *gin.Context) {
 // @Success 200 {object} entity.CategoriesResponse
 // @Failure 400
 // @Failure 404
-// @Router /dreams/{dreamId}/categories/{categoryId} [delete]
+// @Router /v1/dreams/{dreamId}/categories/{categoryId} [delete]
 func (r *dreamsRoutes) RemoveCategoryFromDream(g *gin.Context) {
 	dreamId, err := parseParamUint(g, "id")
 	if err != nil {

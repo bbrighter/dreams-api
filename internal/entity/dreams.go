@@ -6,7 +6,7 @@ type Dream struct {
 	ID          uint
 	Date        time.Time
 	Description string
-	Visible     *bool      `gorm:"default:true"`
+	Visible     bool       `gorm:"default:true"`
 	Categories  Categories `gorm:"many2many:categories_dreams;"`
 	Persons     Persons    `gorm:"many2many:people_dreams;"`
 }
@@ -36,7 +36,7 @@ func (d Dream) ToResponse() DreamResponse {
 		DreamMetaResponse: DreamMetaResponse{
 			ID:      d.ID,
 			Date:    d.Date,
-			Visible: *d.Visible,
+			Visible: d.Visible,
 		},
 		Description: d.Description,
 		Categories:  d.Categories.ToResponse(),
@@ -51,7 +51,7 @@ func (d Dreams) ToResponse() DreamsResponse {
 			DreamMetaResponse{
 				ID:      dream.ID,
 				Date:    dream.Date,
-				Visible: *dream.Visible,
+				Visible: dream.Visible,
 			},
 		)
 	}
