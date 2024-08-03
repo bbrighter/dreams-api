@@ -1,6 +1,8 @@
 package app
 
 import (
+	"time"
+
 	"github.com/bbrighter/dreams-api/config"
 	"github.com/bbrighter/dreams-api/docs"
 	v1 "github.com/bbrighter/dreams-api/internal/controller/http/v1"
@@ -22,12 +24,14 @@ func Run(cfg *config.Config) {
 	Migration(repo.Repo)
 
 	handler := gin.New()
-	handler.Use(cors.New(cors.Config{
-		// AllowAllOrigins: true,
-		AllowMethods:  []string{"GET", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowOrigins:  []string{"http://" + cfg.API.Host + ":3005", "http://localhost:*"},
-		AllowWildcard: true,
-	}))
+	handler.Use(
+		cors.New(cors.Config{
+			AllowMethods:    []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
+			AllowHeaders:    []string{"Origin", "Content-Length", "Content-Type", "Authorization"},
+			MaxAge:          12 * time.Hour,
+			AllowAllOrigins: true,
+		}),
+	)
 
 	v1.NewRouter(
 		handler,
