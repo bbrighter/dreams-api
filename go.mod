@@ -1,6 +1,6 @@
 module github.com/bbrighter/dreams-api
 
-go 1.21
+go 1.22.4
 
 require (
 	github.com/go-gormigrate/gormigrate/v2 v2.1.2
