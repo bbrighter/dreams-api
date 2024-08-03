@@ -1,12 +1,9 @@
-FROM golang:bullseye
+FROM golang:1.22.4-bullseye
 # RUN apt-get install gcc-aarch64-linux-gnu libc6-dev-arm64-cross PROBABLY NOT NEEDED????
 RUN apt update
 RUN apt install -y gcc make gcc-arm-linux-gnueabi binutils-arm-linux-gnueabi
 
-WORKDIR /app
-
-COPY go.mod ./
-COPY go.sum ./
+COPY go.mod go.sum ./
 
 RUN go mod download
 COPY *.go ./
