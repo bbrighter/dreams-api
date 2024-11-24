@@ -1,12 +1,23 @@
-FROM golang:1.22.4-bullseye
-# RUN apt-get install gcc-aarch64-linux-gnu libc6-dev-arm64-cross PROBABLY NOT NEEDED????
-RUN apt update
-RUN apt install -y gcc make gcc-arm-linux-gnueabi binutils-arm-linux-gnueabi
+ARG GO_VERSION="1.22"
+ARG ALPINE_VERSION="3.20"
+ARG APP_NAME="dreams-api"
 
+
+FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-alpine${ALPINE_VERSION} as builder
+ARG TARGETOS
+ARG TARGETARCH
+ARG APP_NAME
+
+WORKDIR /app
 COPY go.mod go.sum ./
-
 RUN go mod download
-COPY *.go ./
+COPY . .
+RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o ${APP_NAME} .
 
-WORKDIR /dreams-api
-# env GOARCH=arm GOARM=6 CGO_ENABLED=1 CC=arm-linux-gnueabi-gcc  go build .
+
+FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION}
+ARG APP_NAME
+
+COPY --from=builder /app/${APP_NAME} /app/${APP_NAME}
+WORKDIR /app
+ENTRYPOINT ["/app/dreams-api"]
