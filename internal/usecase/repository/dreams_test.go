@@ -9,7 +9,8 @@ import (
 )
 
 func setupDreamsTest(t *testing.T) *DreamsRepo {
-	repo := NewDreamsRepo(":memory:", zap.L())
+	logger, _ := zap.NewDevelopment()
+	repo := NewDreamsRepo(":memory:", logger)
 	err := repo.Repo.AutoMigrate(
 		&entity.Dream{},
 		&entity.Category{},

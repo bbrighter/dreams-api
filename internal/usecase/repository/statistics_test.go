@@ -6,10 +6,12 @@ import (
 
 	"github.com/bbrighter/dreams-api/internal/entity"
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
 )
 
 func setupStatisticsTest(t *testing.T) *StatisticsRepo {
-	repo := NewStatisticsRepo(":memory:")
+	logger, _ := zap.NewDevelopment()
+	repo := NewStatisticsRepo(":memory:", logger)
 	err := repo.Repo.AutoMigrate(
 		&entity.Dream{},
 		&entity.Category{},

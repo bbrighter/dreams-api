@@ -3,22 +3,19 @@ package repository
 import (
 	customerrors "github.com/bbrighter/dreams-api/internal/customErrors"
 	"github.com/bbrighter/dreams-api/internal/entity"
-	"github.com/glebarez/sqlite"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
 type DreamsRepo struct {
-	Repo *gorm.DB
+	Repo   *gorm.DB
+	logger *zap.Logger
 }
 
-func NewDreamsRepo(dbName string, logger *zap.Logger) *DreamsRepo {
-	db, err := gorm.Open(sqlite.Open(dbName), &gorm.Config{})
-	if err != nil {
-		logger.Fatal("Cannot create database", zap.Error(err))
-	}
-	return &DreamsRepo{Repo: db}
+func NewDreamsRepo(name string, logger *zap.Logger) *DreamsRepo {
+	db := newDatabase(name, logger)
+	return &DreamsRepo{Repo: db, logger: logger}
 }
 
 func (r *DreamsRepo) GetAll(showAll bool) entity.Dreams {

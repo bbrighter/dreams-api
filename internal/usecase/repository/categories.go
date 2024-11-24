@@ -3,27 +3,28 @@ package repository
 import (
 	customerrors "github.com/bbrighter/dreams-api/internal/customErrors"
 	"github.com/bbrighter/dreams-api/internal/entity"
-	"github.com/glebarez/sqlite"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
 type CategoriesRepo struct {
-	Repo *gorm.DB
+	repo   *gorm.DB
+	logger *zap.Logger
 }
 
-func NewCategoriesRepo(dbName string) *CategoriesRepo {
-	db, _ := gorm.Open(sqlite.Open(dbName), &gorm.Config{})
-	return &CategoriesRepo{Repo: db}
+func NewCategoriesRepo(name string, logger *zap.Logger) *CategoriesRepo {
+	db := newDatabase(name, logger)
+	return &CategoriesRepo{repo: db, logger: logger}
 }
 
 func (r *CategoriesRepo) GetAll() entity.Categories {
 	var cats entity.Categories
-	r.Repo.Find(&cats)
+	r.repo.Find(&cats)
 	return cats
 }
 
 func (r *CategoriesRepo) AddToDream(categoryName string, dream entity.Dream) (entity.Categories, error) {
-	if rowsAffected := r.Repo.First(&dream).RowsAffected; rowsAffected == 0 {
+	if rowsAffected := r.repo.First(&dream).RowsAffected; rowsAffected == 0 {
 		return nil, customerrors.ErrorNotFound
 	}
 
@@ -31,26 +32,26 @@ func (r *CategoriesRepo) AddToDream(categoryName string, dream entity.Dream) (en
 		Name:   categoryName,
 		Dreams: entity.Dreams{dream},
 	}
-	r.Repo.Where(&entity.Category{Name: categoryName}).First(&category)
-	err := r.Repo.Save(&category).Error
+	r.repo.Where(&entity.Category{Name: categoryName}).First(&category)
+	err := r.repo.Save(&category).Error
 
 	var categories []entity.Category
-	r.Repo.Find(&categories)
+	r.repo.Find(&categories)
 	return categories, err
 }
 
 func (r *CategoriesRepo) RemoveFromDream(category entity.Category, dream entity.Dream) (entity.Categories, error) {
 	var categories = []entity.Category{}
 
-	if rowsAffected := r.Repo.First(&dream).RowsAffected; rowsAffected == 0 {
+	if rowsAffected := r.repo.First(&dream).RowsAffected; rowsAffected == 0 {
 		return categories, customerrors.ErrorNotFound
 	}
-	if rowsAffected := r.Repo.First(&category).RowsAffected; rowsAffected == 0 {
+	if rowsAffected := r.repo.First(&category).RowsAffected; rowsAffected == 0 {
 		return categories, customerrors.ErrorNotFound
 	}
 
-	r.Repo.Model(&dream).Association("Categories").Delete(category)
-	categories, err := removeCategoriesIfNeeded(r.Repo, entity.Categories{category})
+	r.repo.Model(&dream).Association("Categories").Delete(category)
+	categories, err := removeCategoriesIfNeeded(r.repo, entity.Categories{category})
 
 	return categories, err
 }

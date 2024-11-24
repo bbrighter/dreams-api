@@ -3,7 +3,7 @@ package repository
 import (
 	customerrors "github.com/bbrighter/dreams-api/internal/customErrors"
 	"github.com/bbrighter/dreams-api/internal/entity"
-	"github.com/glebarez/sqlite"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -11,8 +11,8 @@ type PersonsRepo struct {
 	Repo *gorm.DB
 }
 
-func NewPersonsRepo(dbName string) *PersonsRepo {
-	db, _ := gorm.Open(sqlite.Open(dbName), &gorm.Config{})
+func NewPersonsRepo(name string, logger *zap.Logger) *PersonsRepo {
+	db := newDatabase(name, logger)
 	return &PersonsRepo{Repo: db}
 }
 
