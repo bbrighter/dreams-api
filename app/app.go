@@ -54,9 +54,9 @@ func Run(cfg *config.Config) {
 	docs.SwaggerInfo.BasePath = "/"
 	docs.SwaggerInfo.Version = "2.0"
 
+	log.Info("Starting API", zap.String("Port", cfg.API.Port), zap.String("Host", cfg.API.Host))
 	err := handler.Run(host)
 	if err != nil {
 		log.Fatal("Cannot start API", zap.Error(err))
 	}
-	log.Info("API started", zap.String("Port", cfg.API.Port), zap.String("Host", cfg.API.Host))
 }
