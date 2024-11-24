@@ -5,11 +5,13 @@ import (
 
 	"github.com/bbrighter/dreams-api/internal/entity"
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
 )
 
 func setupCategoriesTest(t *testing.T) *CategoriesRepo {
-	repo := NewCategoriesRepo(":memory:")
-	err := repo.Repo.AutoMigrate(
+	logger, _ := zap.NewDevelopment()
+	repo := NewCategoriesRepo(":memory:", logger)
+	err := repo.repo.AutoMigrate(
 		&entity.Dream{},
 		&entity.Category{},
 		&entity.Person{},
@@ -25,7 +27,7 @@ func TestGetAllCategories(t *testing.T) {
 	cats := r.GetAll()
 	assert.Len(t, cats, 0)
 
-	r.Repo.Create(&entity.Category{ID: 1})
+	r.repo.Create(&entity.Category{ID: 1})
 	cats = r.GetAll()
 	assert.Len(t, cats, 1)
 }
@@ -38,7 +40,7 @@ func TestAddCategoryToDream(t *testing.T) {
 	_, err = r.AddToDream("name", dream)
 	assert.Error(t, err)
 
-	r.Repo.Create(&dream)
+	r.repo.Create(&dream)
 
 	var cats entity.Categories
 	cats, err = r.AddToDream("name", dream)
@@ -68,13 +70,13 @@ func TestRemoveCategoryFromDream(t *testing.T) {
 	assert.Error(t, err)
 
 	// No category
-	r.Repo.Create(&dream)
+	r.repo.Create(&dream)
 
 	_, err = r.RemoveFromDream(cat, dream)
 	assert.Error(t, err)
 
 	// Category and dream exist
-	r.Repo.Create(&entity.Category{ID: 10, Dreams: []entity.Dream{dream}})
+	r.repo.Create(&entity.Category{ID: 10, Dreams: []entity.Dream{dream}})
 
 	var cats entity.Categories
 	cats, err = r.RemoveFromDream(cat, dream)
@@ -83,8 +85,8 @@ func TestRemoveCategoryFromDream(t *testing.T) {
 
 	// Category exists and cannot be removed
 	var dream2 = entity.Dream{ID: 2}
-	r.Repo.Create(&entity.Dreams{dream, dream2})
-	r.Repo.Create(&entity.Category{ID: 10, Dreams: []entity.Dream{dream, dream2}})
+	r.repo.Create(&entity.Dreams{dream, dream2})
+	r.repo.Create(&entity.Category{ID: 10, Dreams: []entity.Dream{dream, dream2}})
 	cats, err = r.RemoveFromDream(cat, dream)
 	assert.NoError(t, err)
 	assert.Len(t, cats, 1)

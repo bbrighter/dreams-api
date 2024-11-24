@@ -23,11 +23,11 @@ func Run(cfg *config.Config) {
 
 	repo := repository.NewDreamsRepo(cfg.DB.Name, log)
 	dreamsUseCase := usecase.New(repo)
-	personsRepo := repository.NewPersonsRepo(cfg.DB.Name)
+	personsRepo := repository.NewPersonsRepo(cfg.DB.Name, log)
 	personsUseCase := usecase.NewPersonsUseCase(personsRepo)
-	categoriesRepo := repository.NewCategoriesRepo(cfg.DB.Name)
+	categoriesRepo := repository.NewCategoriesRepo(cfg.DB.Name, log)
 	categoriesUseCase := usecase.NewCategoriesUseCase(categoriesRepo)
-	statisticsRepo := repository.NewStatisticsRepo(cfg.DB.Name)
+	statisticsRepo := repository.NewStatisticsRepo(cfg.DB.Name, log)
 	statisticsUseCase := usecase.NewStatisticsUseCase(statisticsRepo)
 	Migration(repo.Repo)
 

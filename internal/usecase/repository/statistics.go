@@ -4,7 +4,7 @@ import (
 	"sort"
 
 	"github.com/bbrighter/dreams-api/internal/entity"
-	"github.com/glebarez/sqlite"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -12,8 +12,8 @@ type StatisticsRepo struct {
 	Repo *gorm.DB
 }
 
-func NewStatisticsRepo(dbName string) *StatisticsRepo {
-	db, _ := gorm.Open(sqlite.Open(dbName), &gorm.Config{})
+func NewStatisticsRepo(name string, logger *zap.Logger) *StatisticsRepo {
+	db := newDatabase(name, logger)
 	return &StatisticsRepo{Repo: db}
 }
 

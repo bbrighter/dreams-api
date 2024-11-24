@@ -1,0 +1,28 @@
+networks:
+  dreams:
+
+services:
+  api:
+    image: bbrighter/dreams-api:latest
+    container_name: dreams-api
+    privileged: true
+    restart: unless-stopped
+    environment:
+      - GIN_MODE=release
+      - HOST_IP_ADDRESS=dreams-api
+    ports: 
+      - "5001:5000"
+    networks:
+      - dreams
+    volumes:
+     - ~/logs:/app/logs
+     - /home/pi/dreams:/app/data
+
+  ui:
+    image: bbrighter/dreams-ui:latest
+    container_name: dreams-ui
+    restart: unless-stopped
+    ports:
+      - "3001:80"
+    networks:
+      - dreams
