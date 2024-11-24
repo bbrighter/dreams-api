@@ -2,3 +2,4 @@
 *.exe
 interface.ts
 dreams-api
+*.log

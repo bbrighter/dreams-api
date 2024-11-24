@@ -8,8 +8,9 @@ import (
 
 type (
 	Config struct {
-		DB  DB  `yaml:"db"`
-		API API `yaml:"api"`
+		DB   DB   `yaml:"db"`
+		API  API  `yaml:"api"`
+		Logs Logs `yaml:"logs"`
 	}
 
 	DB struct {
@@ -19,6 +20,11 @@ type (
 	API struct {
 		Host string `yaml:"host" env:"HOST_IP_ADDRESS" env-default:"localhost"`
 		Port string `yaml:"port" env-required:"true"`
+	}
+
+	Logs struct {
+		Level  string `yaml:"level" env-default:"info"`
+		Folder string `yaml:"folder"`
 	}
 )
 
