@@ -8,12 +8,20 @@ import (
 	v1 "github.com/bbrighter/dreams-api/internal/controller/http/v1"
 	"github.com/bbrighter/dreams-api/internal/usecase"
 	"github.com/bbrighter/dreams-api/internal/usecase/repository"
+	logger "github.com/bbrighter/zapLogWrapper"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 func Run(cfg *config.Config) {
-	repo := repository.NewDreamsRepo(cfg.DB.Name)
+	opts := logger.NewLoggerOptions()
+	if cfg.Logs.Folder != "" {
+		opts.SetFolder(cfg.Logs.Folder)
+	}
+	log := logger.NewLogger(opts)
+
+	repo := repository.NewDreamsRepo(cfg.DB.Name, log)
 	dreamsUseCase := usecase.New(repo)
 	personsRepo := repository.NewPersonsRepo(cfg.DB.Name)
 	personsUseCase := usecase.NewPersonsUseCase(personsRepo)
@@ -46,5 +54,9 @@ func Run(cfg *config.Config) {
 	docs.SwaggerInfo.BasePath = "/"
 	docs.SwaggerInfo.Version = "2.0"
 
-	handler.Run(host)
+	err := handler.Run(host)
+	if err != nil {
+		log.Fatal("Cannot start API", zap.Error(err))
+	}
+	log.Info("API started", zap.String("Port", cfg.API.Port), zap.String("Host", cfg.API.Host))
 }
