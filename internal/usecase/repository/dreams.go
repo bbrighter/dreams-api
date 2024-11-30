@@ -7,16 +7,16 @@ import (
 )
 
 type DreamsRepo struct {
-	Repo *gorm.DB
+	db *gorm.DB
 }
 
 func NewDreamsRepo(db *gorm.DB) *DreamsRepo {
-	return &DreamsRepo{Repo: db}
+	return &DreamsRepo{db: db}
 }
 
 func (r *DreamsRepo) List(showAll bool) entity.Dreams {
 	var dreams entity.Dreams
-	tx := r.Repo.Model(&entity.Dream{})
+	tx := r.db.Model(&entity.Dream{})
 	if !showAll {
 		tx.Where(&entity.Dream{Visible: true})
 	}
@@ -25,7 +25,7 @@ func (r *DreamsRepo) List(showAll bool) entity.Dreams {
 }
 
 func (r *DreamsRepo) Get(id uint, showAll bool) (entity.Dream, error) {
-	tx := r.Repo.Model(&entity.Dream{}).Preload(clause.Associations)
+	tx := r.db.Model(&entity.Dream{}).Preload(clause.Associations)
 	if !showAll {
 		tx.Where(&entity.Dream{Visible: true})
 	}
@@ -38,14 +38,14 @@ func (r *DreamsRepo) Get(id uint, showAll bool) (entity.Dream, error) {
 }
 
 func (r *DreamsRepo) Create(dream entity.Dream) (uint, error) {
-	if err := r.Repo.Create(&dream).Error; err != nil {
+	if err := r.db.Create(&dream).Error; err != nil {
 		return 0, err
 	}
 	return dream.ID, nil
 }
 
 func (r *DreamsRepo) Update(dream entity.Dream) error {
-	tx := r.Repo.Model(&dream).Updates(&dream)
+	tx := r.db.Model(&dream).Updates(&dream)
 	if tx.RowsAffected == 0 {
 		return entity.ErrorNotFound
 	}
@@ -53,21 +53,21 @@ func (r *DreamsRepo) Update(dream entity.Dream) error {
 }
 
 func (r *DreamsRepo) Delete(dream entity.Dream) (entity.Categories, error) {
-	if rowsAffected := r.Repo.Preload(clause.Associations).
+	if rowsAffected := r.db.Preload(clause.Associations).
 		Find(&dream).RowsAffected; rowsAffected == 0 {
 		return entity.Categories{}, entity.ErrorNotFound
 	}
-	r.Repo.Select(clause.Associations).Delete(&dream)
-	return removeCategoriesIfNeeded(r.Repo, dream.Categories)
+	r.db.Select(clause.Associations).Delete(&dream)
+	return removeCategoriesIfNeeded(r.db, dream.Categories)
 
 }
 
 func (r *DreamsRepo) ToggleVisibility(dream entity.Dream) error {
-	if rowsAffected := r.Repo.First(&dream).RowsAffected; rowsAffected == 0 {
+	if rowsAffected := r.db.First(&dream).RowsAffected; rowsAffected == 0 {
 		return entity.ErrorNotFound
 	}
 
-	if err := r.Repo.Model(&dream).Update("Visible", !dream.Visible).Error; err != nil {
+	if err := r.db.Model(&dream).Update("Visible", !dream.Visible).Error; err != nil {
 		return err
 	}
 	return nil

@@ -31,7 +31,7 @@ func Run(cfg *config.Config) {
 	categoriesUseCase := usecase.NewCategoriesUseCase(categoriesRepo)
 	statisticsRepo := repository.NewStatisticsRepo(db)
 	statisticsUseCase := usecase.NewStatisticsUseCase(statisticsRepo)
-	migration(dreamsRepo.Repo, log)
+	migration(db, log)
 
 	handler := gin.New()
 	handler.Use(

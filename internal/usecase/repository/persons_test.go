@@ -12,7 +12,7 @@ func setupPersonsTest(t *testing.T) *PersonsRepo {
 	logger, _ := zap.NewDevelopment()
 	db := NewDatabase(":memory:", logger)
 	repo := NewPersonsRepo(db)
-	err := repo.Repo.AutoMigrate(
+	err := repo.db.AutoMigrate(
 		&entity.Dream{},
 		&entity.Category{},
 		&entity.Person{},
@@ -27,7 +27,7 @@ func TestGetAllPersons(t *testing.T) {
 	persons := r.List()
 	assert.Len(t, persons, 0)
 
-	r.Repo.Create(&entity.Person{ID: 1})
+	r.db.Create(&entity.Person{ID: 1})
 	persons = r.List()
 	assert.Len(t, persons, 1)
 }
@@ -45,7 +45,7 @@ func TestAddPersonToDream(t *testing.T) {
 	assert.Error(t, err)
 
 	// Valid
-	r.Repo.Create(&dream)
+	r.db.Create(&dream)
 
 	persons, err = r.AddToDream("name", dream)
 	assert.NoError(t, err)
@@ -76,19 +76,19 @@ func TestRemovePersonFromDream(t *testing.T) {
 	assert.Error(t, err)
 
 	// Dream not found
-	r.Repo.Create(&person)
+	r.db.Create(&person)
 	_, err = r.RemoveFromDream(person, dream)
 	assert.Error(t, err)
 
 	// Valid
-	r.Repo.Create(&dream)
+	r.db.Create(&dream)
 	persons, err = r.RemoveFromDream(person, dream)
 	assert.NoError(t, err)
 	assert.Len(t, persons, 0)
 
 	// One person is left
-	r.Repo.Create(&entity.Person{ID: 10, Dreams: []entity.Dream{dream}})
-	r.Repo.Create(&entity.Person{ID: 11, Dreams: []entity.Dream{{ID: 2}}})
+	r.db.Create(&entity.Person{ID: 10, Dreams: []entity.Dream{dream}})
+	r.db.Create(&entity.Person{ID: 11, Dreams: []entity.Dream{{ID: 2}}})
 	persons, err = r.RemoveFromDream(person, dream)
 	assert.NoError(t, err)
 	assert.Len(t, persons, 1)

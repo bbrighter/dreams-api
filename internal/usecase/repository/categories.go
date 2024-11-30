@@ -6,21 +6,21 @@ import (
 )
 
 type CategoriesRepo struct {
-	repo *gorm.DB
+	db *gorm.DB
 }
 
 func NewCategoriesRepo(db *gorm.DB) *CategoriesRepo {
-	return &CategoriesRepo{repo: db}
+	return &CategoriesRepo{db: db}
 }
 
 func (r *CategoriesRepo) List() entity.Categories {
 	var cats entity.Categories
-	r.repo.Find(&cats)
+	r.db.Find(&cats)
 	return cats
 }
 
 func (r *CategoriesRepo) AddToDream(categoryName string, dream entity.Dream) (entity.Categories, error) {
-	if rowsAffected := r.repo.First(&dream).RowsAffected; rowsAffected == 0 {
+	if rowsAffected := r.db.First(&dream).RowsAffected; rowsAffected == 0 {
 		return nil, entity.ErrorNotFound
 	}
 
@@ -28,26 +28,26 @@ func (r *CategoriesRepo) AddToDream(categoryName string, dream entity.Dream) (en
 		Name:   categoryName,
 		Dreams: entity.Dreams{dream},
 	}
-	r.repo.Where(&entity.Category{Name: categoryName}).First(&category)
-	err := r.repo.Save(&category).Error
+	r.db.Where(&entity.Category{Name: categoryName}).First(&category)
+	err := r.db.Save(&category).Error
 
 	var categories []entity.Category
-	r.repo.Find(&categories)
+	r.db.Find(&categories)
 	return categories, err
 }
 
 func (r *CategoriesRepo) RemoveFromDream(category entity.Category, dream entity.Dream) (entity.Categories, error) {
 	var categories = []entity.Category{}
 
-	if rowsAffected := r.repo.First(&dream).RowsAffected; rowsAffected == 0 {
+	if rowsAffected := r.db.First(&dream).RowsAffected; rowsAffected == 0 {
 		return categories, entity.ErrorNotFound
 	}
-	if rowsAffected := r.repo.First(&category).RowsAffected; rowsAffected == 0 {
+	if rowsAffected := r.db.First(&category).RowsAffected; rowsAffected == 0 {
 		return categories, entity.ErrorNotFound
 	}
 
-	r.repo.Model(&dream).Association("Categories").Delete(category)
-	categories, err := removeCategoriesIfNeeded(r.repo, entity.Categories{category})
+	r.db.Model(&dream).Association("Categories").Delete(category)
+	categories, err := removeCategoriesIfNeeded(r.db, entity.Categories{category})
 
 	return categories, err
 }

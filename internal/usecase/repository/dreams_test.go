@@ -12,7 +12,7 @@ func setupDreamsTest(t *testing.T) *DreamsRepo {
 	logger, _ := zap.NewDevelopment()
 	db := NewDatabase(":memory:", logger)
 	repo := NewDreamsRepo(db)
-	err := repo.Repo.AutoMigrate(
+	err := repo.db.AutoMigrate(
 		&entity.Dream{},
 		&entity.Category{},
 		&entity.Person{},
@@ -33,7 +33,7 @@ func TestGetDreams(t *testing.T) {
 	assert.Len(t, dreams, 0)
 
 	// Test one dream exists
-	repo.Repo.Create(&entity.Dream{ID: 1})
+	repo.db.Create(&entity.Dream{ID: 1})
 	dreams = repo.List(false)
 
 	assert.Len(t, dreams, 1)
@@ -66,7 +66,7 @@ func TestGetDream(t *testing.T) {
 	assert.Error(t, err)
 
 	// Test dream exists
-	repo.Repo.Create(&entity.Dream{ID: 100})
+	repo.db.Create(&entity.Dream{ID: 100})
 	dream, err = repo.Get(100, false)
 
 	assert.NoError(t, err)

@@ -21,15 +21,6 @@ type (
 		Get(uint) (entity.Dream, error)
 	}
 
-	IDreamsRepo interface {
-		List(bool) entity.Dreams
-		Get(uint, bool) (entity.Dream, error)
-		Create(entity.Dream) (uint, error)
-		Update(entity.Dream) error
-		Delete(entity.Dream) (entity.Categories, error)
-		ToggleVisibility(entity.Dream) error
-	}
-
 	CategoriesLister interface {
 		List() entity.Categories
 	}
@@ -37,12 +28,6 @@ type (
 	CategoriesAdderRemover interface {
 		AddToDream(categoryName string, dreamId uint) (entity.Categories, error)
 		RemoveFromDream(categoryId uint, dreamId uint) (entity.Categories, error)
-	}
-
-	ICategoriesRepo interface {
-		List() entity.Categories
-		AddToDream(string, entity.Dream) (entity.Categories, error)
-		RemoveFromDream(entity.Category, entity.Dream) (entity.Categories, error)
 	}
 
 	PersonsLister interface {
@@ -54,14 +39,31 @@ type (
 		RemoveFromDream(personId uint, dreamId uint) (entity.Persons, error)
 	}
 
+	Statistics interface {
+		GetStatistics(bool, int) (entity.Counts, entity.Counts)
+	}
+)
+
+type (
+	IDreamsRepo interface {
+		List(bool) entity.Dreams
+		Get(uint, bool) (entity.Dream, error)
+		Create(entity.Dream) (uint, error)
+		Update(entity.Dream) error
+		Delete(entity.Dream) (entity.Categories, error)
+		ToggleVisibility(entity.Dream) error
+	}
+
+	ICategoriesRepo interface {
+		List() entity.Categories
+		AddToDream(string, entity.Dream) (entity.Categories, error)
+		RemoveFromDream(entity.Category, entity.Dream) (entity.Categories, error)
+	}
+
 	IPersonsRepo interface {
 		List() entity.Persons
 		AddToDream(string, entity.Dream) (entity.Persons, error)
 		RemoveFromDream(entity.Person, entity.Dream) (entity.Persons, error)
-	}
-
-	Statistics interface {
-		GetStatistics(bool, int) (entity.Counts, entity.Counts)
 	}
 
 	IStatisticsRepo interface {
