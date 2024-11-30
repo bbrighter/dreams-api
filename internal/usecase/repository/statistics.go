@@ -4,7 +4,6 @@ import (
 	"sort"
 
 	"github.com/bbrighter/dreams-api/internal/entity"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -12,8 +11,7 @@ type StatisticsRepo struct {
 	Repo *gorm.DB
 }
 
-func NewStatisticsRepo(name string, logger *zap.Logger) *StatisticsRepo {
-	db := newDatabase(name, logger)
+func NewStatisticsRepo(db *gorm.DB) *StatisticsRepo {
 	return &StatisticsRepo{Repo: db}
 }
 

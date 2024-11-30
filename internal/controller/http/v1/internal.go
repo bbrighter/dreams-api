@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	customerrors "github.com/bbrighter/dreams-api/internal/customErrors"
+	"github.com/bbrighter/dreams-api/internal/entity"
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,7 +12,8 @@ func parseParamUint(g *gin.Context, paramName string) (uint, error) {
 	str := g.Param(paramName)
 	id, err := stringToUint(str)
 	if err != nil {
-		return 0, g.AbortWithError(http.StatusBadRequest, err)
+		g.AbortWithError(http.StatusBadRequest, err)
+		return 0, entity.ErrorBadParam
 	}
 	return id, nil
 }
@@ -20,8 +21,8 @@ func parseParamUint(g *gin.Context, paramName string) (uint, error) {
 func parseQueryParamString(g *gin.Context, queryParamName string) (string, error) {
 	str := g.Query(queryParamName)
 	if str == "" {
-		return "", g.AbortWithError(http.StatusBadRequest, customerrors.ErrorParameterMissing(queryParamName))
-
+		g.AbortWithError(http.StatusBadRequest, entity.ErrorBadParam)
+		return "", entity.ErrorBadParam
 	}
 	return str, nil
 }
@@ -29,7 +30,7 @@ func parseQueryParamString(g *gin.Context, queryParamName string) (string, error
 func stringToUint(s string) (uint, error) {
 	ui, err := strconv.ParseUint(s, 10, 64)
 	if err != nil {
-		return 0, err
+		return 0, entity.ErrorBadParam
 	}
 	return uint(ui), nil
 }

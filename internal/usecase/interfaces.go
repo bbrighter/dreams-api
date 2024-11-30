@@ -8,43 +8,54 @@ import (
 
 type (
 	Dreams interface {
-		GetAll(bool) entity.Dreams
-		Get(uint, bool) (entity.Dream, error)
+		List() entity.Dreams
+		Get(uint) (entity.Dream, error)
 		Create(time.Time) (uint, error)
 		Update(uint, time.Time, string) error
 		Delete(uint) (entity.Categories, error)
-		ToggleVisibility(uint) error
 	}
 
-	DreamsRepo interface {
-		GetAll(bool) entity.Dreams
-		GetById(uint, bool) (entity.Dream, error)
+	PrivateDreams interface {
+		ToggleVisibility(uint) error
+		List() entity.Dreams
+		Get(uint) (entity.Dream, error)
+	}
+
+	IDreamsRepo interface {
+		List(bool) entity.Dreams
+		Get(uint, bool) (entity.Dream, error)
 		Create(entity.Dream) (uint, error)
 		Update(entity.Dream) error
 		Delete(entity.Dream) (entity.Categories, error)
 		ToggleVisibility(entity.Dream) error
 	}
 
-	Categories interface {
-		GetAll() entity.Categories
+	CategoriesLister interface {
+		List() entity.Categories
+	}
+
+	CategoriesAdderRemover interface {
 		AddToDream(categoryName string, dreamId uint) (entity.Categories, error)
 		RemoveFromDream(categoryId uint, dreamId uint) (entity.Categories, error)
 	}
 
-	CategoriesRepo interface {
-		GetAll() entity.Categories
+	ICategoriesRepo interface {
+		List() entity.Categories
 		AddToDream(string, entity.Dream) (entity.Categories, error)
 		RemoveFromDream(entity.Category, entity.Dream) (entity.Categories, error)
 	}
 
-	Persons interface {
-		GetAll() entity.Persons
+	PersonsLister interface {
+		List() entity.Persons
+	}
+
+	PersonsAdderRemover interface {
 		AddToDream(personName string, dreamId uint) (entity.Persons, error)
 		RemoveFromDream(personId uint, dreamId uint) (entity.Persons, error)
 	}
 
-	PersonsRepo interface {
-		GetAll() entity.Persons
+	IPersonsRepo interface {
+		List() entity.Persons
 		AddToDream(string, entity.Dream) (entity.Persons, error)
 		RemoveFromDream(entity.Person, entity.Dream) (entity.Persons, error)
 	}
@@ -53,7 +64,7 @@ type (
 		GetStatistics(bool, int) (entity.Counts, entity.Counts)
 	}
 
-	StatisticsRepo interface {
+	IStatisticsRepo interface {
 		CountPersons(bool, int) entity.Counts
 		CountCategories(bool, int) entity.Counts
 	}

@@ -1,9 +1,7 @@
 package repository
 
 import (
-	customerrors "github.com/bbrighter/dreams-api/internal/customErrors"
 	"github.com/bbrighter/dreams-api/internal/entity"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -11,12 +9,11 @@ type PersonsRepo struct {
 	Repo *gorm.DB
 }
 
-func NewPersonsRepo(name string, logger *zap.Logger) *PersonsRepo {
-	db := newDatabase(name, logger)
+func NewPersonsRepo(db *gorm.DB) *PersonsRepo {
 	return &PersonsRepo{Repo: db}
 }
 
-func (r *PersonsRepo) GetAll() entity.Persons {
+func (r *PersonsRepo) List() entity.Persons {
 	var persons entity.Persons
 	r.Repo.Find(&persons)
 	return persons
@@ -25,7 +22,7 @@ func (r *PersonsRepo) GetAll() entity.Persons {
 func (r *PersonsRepo) AddToDream(name string, dream entity.Dream) (entity.Persons, error) {
 	var persons entity.Persons
 	if rowsAffected := r.Repo.First(&dream).RowsAffected; rowsAffected == 0 {
-		return persons, customerrors.ErrorNotFound
+		return persons, entity.ErrorNotFound
 	}
 
 	var person = entity.Person{Name: name, Dreams: entity.Dreams{dream}}
@@ -44,10 +41,10 @@ func (r *PersonsRepo) AddToDream(name string, dream entity.Dream) (entity.Person
 func (r *PersonsRepo) RemoveFromDream(person entity.Person, dream entity.Dream) (entity.Persons, error) {
 	var persons entity.Persons
 	if rowsAffected := r.Repo.First(&dream).RowsAffected; rowsAffected == 0 {
-		return persons, customerrors.ErrorNotFound
+		return persons, entity.ErrorNotFound
 	}
 	if rowsAffected := r.Repo.First(&person).RowsAffected; rowsAffected == 0 {
-		return persons, customerrors.ErrorNotFound
+		return persons, entity.ErrorNotFound
 	}
 
 	if err := r.Repo.Model(&dream).Association("Persons").Delete(person); err != nil {

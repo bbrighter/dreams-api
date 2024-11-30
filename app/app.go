@@ -21,15 +21,17 @@ func Run(cfg *config.Config) {
 	}
 	log := logger.NewLogger(opts)
 
-	repo := repository.NewDreamsRepo(cfg.DB.Name, log)
-	dreamsUseCase := usecase.New(repo)
-	personsRepo := repository.NewPersonsRepo(cfg.DB.Name, log)
+	db := repository.NewDatabase(cfg.DB.Name, log)
+	dreamsRepo := repository.NewDreamsRepo(db)
+	dreamsUseCase := usecase.NewDreamUseCase(dreamsRepo)
+	privateDreamsUseCase := usecase.NewPrivateDreamUseCase(dreamsRepo)
+	personsRepo := repository.NewPersonsRepo(db)
 	personsUseCase := usecase.NewPersonsUseCase(personsRepo)
-	categoriesRepo := repository.NewCategoriesRepo(cfg.DB.Name, log)
+	categoriesRepo := repository.NewCategoriesRepo(db)
 	categoriesUseCase := usecase.NewCategoriesUseCase(categoriesRepo)
-	statisticsRepo := repository.NewStatisticsRepo(cfg.DB.Name, log)
+	statisticsRepo := repository.NewStatisticsRepo(db)
 	statisticsUseCase := usecase.NewStatisticsUseCase(statisticsRepo)
-	Migration(repo.Repo)
+	migration(dreamsRepo.Repo, log)
 
 	handler := gin.New()
 	handler.Use(
@@ -44,9 +46,12 @@ func Run(cfg *config.Config) {
 	v1.NewRouter(
 		handler,
 		dreamsUseCase,
+		privateDreamsUseCase,
 		personsUseCase,
 		categoriesUseCase,
 		statisticsUseCase,
+		categoriesUseCase,
+		personsUseCase,
 	)
 
 	var host = cfg.API.Host + ":" + cfg.API.Port

@@ -8,10 +8,10 @@ import (
 )
 
 type categoriesRoute struct {
-	c usecase.Categories
+	c usecase.CategoriesLister
 }
 
-func newCategoriesRoute(handler *gin.RouterGroup, c usecase.Categories) {
+func newCategoriesRoute(handler *gin.RouterGroup, c usecase.CategoriesLister) {
 	r := &categoriesRoute{c: c}
 
 	h := handler.Group("/categories")
@@ -25,6 +25,6 @@ func newCategoriesRoute(handler *gin.RouterGroup, c usecase.Categories) {
 // @Success 200 {object} entity.CategoriesResponse
 // @Router /v1/categories [get]
 func (r *categoriesRoute) GetAll(g *gin.Context) {
-	categories := r.c.GetAll()
+	categories := r.c.List()
 	g.JSON(http.StatusOK, categories.ToResponse())
 }

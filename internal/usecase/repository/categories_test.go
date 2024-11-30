@@ -10,7 +10,8 @@ import (
 
 func setupCategoriesTest(t *testing.T) *CategoriesRepo {
 	logger, _ := zap.NewDevelopment()
-	repo := NewCategoriesRepo(":memory:", logger)
+	db := NewDatabase(":memory:", logger)
+	repo := NewCategoriesRepo(db)
 	err := repo.repo.AutoMigrate(
 		&entity.Dream{},
 		&entity.Category{},
@@ -24,11 +25,11 @@ func setupCategoriesTest(t *testing.T) *CategoriesRepo {
 func TestGetAllCategories(t *testing.T) {
 	r := setupCategoriesTest(t)
 
-	cats := r.GetAll()
+	cats := r.List()
 	assert.Len(t, cats, 0)
 
 	r.repo.Create(&entity.Category{ID: 1})
-	cats = r.GetAll()
+	cats = r.List()
 	assert.Len(t, cats, 1)
 }
 

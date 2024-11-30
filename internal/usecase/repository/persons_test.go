@@ -10,7 +10,8 @@ import (
 
 func setupPersonsTest(t *testing.T) *PersonsRepo {
 	logger, _ := zap.NewDevelopment()
-	repo := NewPersonsRepo(":memory:", logger)
+	db := NewDatabase(":memory:", logger)
+	repo := NewPersonsRepo(db)
 	err := repo.Repo.AutoMigrate(
 		&entity.Dream{},
 		&entity.Category{},
@@ -23,11 +24,11 @@ func setupPersonsTest(t *testing.T) *PersonsRepo {
 func TestGetAllPersons(t *testing.T) {
 	r := setupPersonsTest(t)
 
-	persons := r.GetAll()
+	persons := r.List()
 	assert.Len(t, persons, 0)
 
 	r.Repo.Create(&entity.Person{ID: 1})
-	persons = r.GetAll()
+	persons = r.List()
 	assert.Len(t, persons, 1)
 }
 

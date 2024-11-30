@@ -2,5 +2,17 @@
     "go.coverOnSave": false,
     "go.coverOnSingleTestFile": false,
     "go.coverOnSingleTest": false,
-    "go.coverOnTestPackage": true
+    "go.coverOnTestPackage": true,
+    "cSpell.words": [
+        "github",
+        "glebarez",
+        "gonic",
+        "gorm",
+        "moul",
+        "sqlite",
+        "stretchr",
+        "uber",
+        "usecase",
+        "zapgorm"
+    ]
 }

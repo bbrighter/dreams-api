@@ -11,7 +11,8 @@ import (
 
 func setupStatisticsTest(t *testing.T) *StatisticsRepo {
 	logger, _ := zap.NewDevelopment()
-	repo := NewStatisticsRepo(":memory:", logger)
+	db := NewDatabase(":memory:", logger)
+	repo := NewStatisticsRepo(db)
 	err := repo.Repo.AutoMigrate(
 		&entity.Dream{},
 		&entity.Category{},

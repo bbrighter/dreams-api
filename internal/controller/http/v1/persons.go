@@ -8,10 +8,10 @@ import (
 )
 
 type personsRoute struct {
-	p usecase.Persons
+	p usecase.PersonsLister
 }
 
-func newPersonsRoute(handler *gin.RouterGroup, p usecase.Persons) {
+func newPersonsRoute(handler *gin.RouterGroup, p usecase.PersonsLister) {
 	r := &personsRoute{p}
 
 	h := handler.Group("/persons")
@@ -25,6 +25,6 @@ func newPersonsRoute(handler *gin.RouterGroup, p usecase.Persons) {
 // @Success 200 {object} entity.PersonsResponse
 // @Router /v1/persons [get]
 func (r *personsRoute) GetAll(g *gin.Context) {
-	persons := r.p.GetAll()
+	persons := r.p.List()
 	g.JSON(http.StatusOK, persons.ToResponse())
 }

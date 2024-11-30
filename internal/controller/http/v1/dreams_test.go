@@ -10,7 +10,6 @@ import (
 	"testing"
 	"time"
 
-	customerrors "github.com/bbrighter/dreams-api/internal/customErrors"
 	"github.com/bbrighter/dreams-api/internal/entity"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -18,12 +17,12 @@ import (
 
 type testUseCaseDreams struct{}
 
-func (tuc testUseCaseDreams) GetAll(showAll bool) entity.Dreams {
+func (tuc testUseCaseDreams) List() entity.Dreams {
 	resp := entity.Dreams{}
 	return resp
 }
 
-func (tuc testUseCaseDreams) Get(id uint, showAll bool) (entity.Dream, error) {
+func (tuc testUseCaseDreams) Get(id uint) (entity.Dream, error) {
 	if id == uint(1) {
 		return entity.Dream{
 			ID:          1,
@@ -32,7 +31,7 @@ func (tuc testUseCaseDreams) Get(id uint, showAll bool) (entity.Dream, error) {
 			Visible:     true,
 		}, nil
 	}
-	return entity.Dream{}, customerrors.ErrorNotFound
+	return entity.Dream{}, entity.ErrorNotFound
 }
 
 func (tuc testUseCaseDreams) Create(date time.Time) (uint, error) {
@@ -47,8 +46,23 @@ func (tuc testUseCaseDreams) Delete(id uint) (entity.Categories, error) {
 	return entity.Categories{}, nil
 }
 
-func (tuc testUseCaseDreams) ToggleVisibility(id uint) error {
-	return nil
+type mockCategoriesAdderRemover struct{}
+
+func (mu mockCategoriesAdderRemover) AddToDream(categoryName string, dreamId uint) (entity.Categories, error) {
+	return entity.Categories{}, nil
+}
+
+func (mu mockCategoriesAdderRemover) RemoveFromDream(categoryId uint, dreamId uint) (entity.Categories, error) {
+	return entity.Categories{}, nil
+}
+
+type mockPersonsAdderRemover struct{}
+
+func (tu mockPersonsAdderRemover) AddToDream(categoryName string, dreamId uint) (entity.Persons, error) {
+	return entity.Persons{}, nil
+}
+func (tu mockPersonsAdderRemover) RemoveFromDream(categoryId uint, dreamId uint) (entity.Persons, error) {
+	return entity.Persons{}, nil
 }
 
 func newTestRoute() (*dreamsRoutes, *gin.Context, *httptest.ResponseRecorder) {
@@ -58,8 +72,8 @@ func newTestRoute() (*dreamsRoutes, *gin.Context, *httptest.ResponseRecorder) {
 	c.Request.URL = new(url.URL)
 	return &dreamsRoutes{
 		d: testUseCaseDreams{},
-		c: testUseCaseCategories{},
-		p: testUseCasePersons{},
+		c: mockCategoriesAdderRemover{},
+		p: mockPersonsAdderRemover{},
 	}, c, rec
 }
 
@@ -104,7 +118,7 @@ func TestCreate(t *testing.T) {
 	// Don't know how to add a body yet
 	t.Skip()
 	r, g, rec := newTestRoute()
-	var body = strings.NewReader(`"description":"blabla","date":"2022-02-1"`)
+	var body = strings.NewReader(`"description":"Description","date":"2022-02-1"`)
 	g.Request = new(http.Request)
 	// req, _ := http.NewRequest("POST", "/", body)
 	g.Request.Body = io.NopCloser(body)

@@ -3,15 +3,15 @@ package usecase
 import "github.com/bbrighter/dreams-api/internal/entity"
 
 type CategoriesUseCase struct {
-	repo CategoriesRepo
+	repo ICategoriesRepo
 }
 
-func NewCategoriesUseCase(r CategoriesRepo) *CategoriesUseCase {
+func NewCategoriesUseCase(r ICategoriesRepo) *CategoriesUseCase {
 	return &CategoriesUseCase{repo: r}
 }
 
-func (u *CategoriesUseCase) GetAll() entity.Categories {
-	return u.repo.GetAll()
+func (u *CategoriesUseCase) List() entity.Categories {
+	return u.repo.List()
 }
 
 func (u *CategoriesUseCase) AddToDream(categoryName string, dreamId uint) (entity.Categories, error) {

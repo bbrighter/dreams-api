@@ -1,24 +1,20 @@
 package repository
 
 import (
-	customerrors "github.com/bbrighter/dreams-api/internal/customErrors"
 	"github.com/bbrighter/dreams-api/internal/entity"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
 type DreamsRepo struct {
-	Repo   *gorm.DB
-	logger *zap.Logger
+	Repo *gorm.DB
 }
 
-func NewDreamsRepo(name string, logger *zap.Logger) *DreamsRepo {
-	db := newDatabase(name, logger)
-	return &DreamsRepo{Repo: db, logger: logger}
+func NewDreamsRepo(db *gorm.DB) *DreamsRepo {
+	return &DreamsRepo{Repo: db}
 }
 
-func (r *DreamsRepo) GetAll(showAll bool) entity.Dreams {
+func (r *DreamsRepo) List(showAll bool) entity.Dreams {
 	var dreams entity.Dreams
 	tx := r.Repo.Model(&entity.Dream{})
 	if !showAll {
@@ -28,7 +24,7 @@ func (r *DreamsRepo) GetAll(showAll bool) entity.Dreams {
 	return dreams
 }
 
-func (r *DreamsRepo) GetById(id uint, showAll bool) (entity.Dream, error) {
+func (r *DreamsRepo) Get(id uint, showAll bool) (entity.Dream, error) {
 	tx := r.Repo.Model(&entity.Dream{}).Preload(clause.Associations)
 	if !showAll {
 		tx.Where(&entity.Dream{Visible: true})
@@ -36,7 +32,7 @@ func (r *DreamsRepo) GetById(id uint, showAll bool) (entity.Dream, error) {
 
 	dream := entity.Dream{ID: id}
 	if tx.First(&dream).RowsAffected == 0 {
-		return dream, customerrors.ErrorNotFound
+		return dream, entity.ErrorNotFound
 	}
 	return dream, tx.Error
 }
@@ -51,7 +47,7 @@ func (r *DreamsRepo) Create(dream entity.Dream) (uint, error) {
 func (r *DreamsRepo) Update(dream entity.Dream) error {
 	tx := r.Repo.Model(&dream).Updates(&dream)
 	if tx.RowsAffected == 0 {
-		return customerrors.ErrorNotFound
+		return entity.ErrorNotFound
 	}
 	return tx.Error
 }
@@ -59,7 +55,7 @@ func (r *DreamsRepo) Update(dream entity.Dream) error {
 func (r *DreamsRepo) Delete(dream entity.Dream) (entity.Categories, error) {
 	if rowsAffected := r.Repo.Preload(clause.Associations).
 		Find(&dream).RowsAffected; rowsAffected == 0 {
-		return entity.Categories{}, customerrors.ErrorNotFound
+		return entity.Categories{}, entity.ErrorNotFound
 	}
 	r.Repo.Select(clause.Associations).Delete(&dream)
 	return removeCategoriesIfNeeded(r.Repo, dream.Categories)
@@ -68,7 +64,7 @@ func (r *DreamsRepo) Delete(dream entity.Dream) (entity.Categories, error) {
 
 func (r *DreamsRepo) ToggleVisibility(dream entity.Dream) error {
 	if rowsAffected := r.Repo.First(&dream).RowsAffected; rowsAffected == 0 {
-		return customerrors.ErrorNotFound
+		return entity.ErrorNotFound
 	}
 
 	if err := r.Repo.Model(&dream).Update("Visible", !dream.Visible).Error; err != nil {

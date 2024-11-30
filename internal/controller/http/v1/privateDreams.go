@@ -8,11 +8,11 @@ import (
 )
 
 type privateDreamsRoute struct {
-	d usecase.Dreams
+	p usecase.PrivateDreams
 }
 
-func newPrivateDreamsRoute(handler *gin.RouterGroup, d usecase.Dreams) {
-	r := &privateDreamsRoute{d}
+func newPrivateDreamsRoute(handler *gin.RouterGroup, p usecase.PrivateDreams) {
+	r := &privateDreamsRoute{p: p}
 
 	h := handler.Group("/dreams/private")
 	{
@@ -22,12 +22,12 @@ func newPrivateDreamsRoute(handler *gin.RouterGroup, d usecase.Dreams) {
 	}
 }
 
-// @Description Get all dreams - inlcuding private
+// @Description Get all dreams - including private
 // @Produce json
 // @Success 200 {object} entity.DreamsResponse "List of all dreams"
 // @Router /v1/dreams/private [get]
 func (r *privateDreamsRoute) GetAll(g *gin.Context) {
-	dreams := r.d.GetAll(true)
+	dreams := r.p.List()
 	g.JSON(200, dreams.ToResponse())
 }
 
@@ -40,33 +40,26 @@ func (r *privateDreamsRoute) GetAll(g *gin.Context) {
 func (r *privateDreamsRoute) Get(g *gin.Context) {
 	id, err := parseParamUint(g, "id")
 	if err != nil {
-		g.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	dream, err := r.d.Get(id, true)
-	if err != nil && err.Error() == "record not found" {
-		g.AbortWithStatus(http.StatusNotFound)
-		return
-	}
-	if err != nil {
-		g.AbortWithError(http.StatusInternalServerError, err)
+	dream, err := r.p.Get(id)
+	if handleError(g, err) {
 		return
 	}
 	g.JSON(http.StatusOK, dream.ToResponse())
 }
 
-// @Description Toggle visiblity of a dream
+// @Description Toggle visibility of a dream
 // @Produce json
 // @Success 200
 // @Router /v1/dreams/private/{dreamId} [patch]
 func (r *privateDreamsRoute) ToggleVisibility(g *gin.Context) {
 	id, err := parseParamUint(g, "id")
 	if err != nil {
-		g.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	if err = r.d.ToggleVisibility(id); err != nil {
-		g.AbortWithError(http.StatusInternalServerError, err)
+	err = r.p.ToggleVisibility(id)
+	if handleError(g, err) {
 		return
 	}
 	g.Status(http.StatusOK)

@@ -1,23 +1,19 @@
 package repository
 
 import (
-	customerrors "github.com/bbrighter/dreams-api/internal/customErrors"
 	"github.com/bbrighter/dreams-api/internal/entity"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
 type CategoriesRepo struct {
-	repo   *gorm.DB
-	logger *zap.Logger
+	repo *gorm.DB
 }
 
-func NewCategoriesRepo(name string, logger *zap.Logger) *CategoriesRepo {
-	db := newDatabase(name, logger)
-	return &CategoriesRepo{repo: db, logger: logger}
+func NewCategoriesRepo(db *gorm.DB) *CategoriesRepo {
+	return &CategoriesRepo{repo: db}
 }
 
-func (r *CategoriesRepo) GetAll() entity.Categories {
+func (r *CategoriesRepo) List() entity.Categories {
 	var cats entity.Categories
 	r.repo.Find(&cats)
 	return cats
@@ -25,7 +21,7 @@ func (r *CategoriesRepo) GetAll() entity.Categories {
 
 func (r *CategoriesRepo) AddToDream(categoryName string, dream entity.Dream) (entity.Categories, error) {
 	if rowsAffected := r.repo.First(&dream).RowsAffected; rowsAffected == 0 {
-		return nil, customerrors.ErrorNotFound
+		return nil, entity.ErrorNotFound
 	}
 
 	var category = entity.Category{
@@ -44,10 +40,10 @@ func (r *CategoriesRepo) RemoveFromDream(category entity.Category, dream entity.
 	var categories = []entity.Category{}
 
 	if rowsAffected := r.repo.First(&dream).RowsAffected; rowsAffected == 0 {
-		return categories, customerrors.ErrorNotFound
+		return categories, entity.ErrorNotFound
 	}
 	if rowsAffected := r.repo.First(&category).RowsAffected; rowsAffected == 0 {
-		return categories, customerrors.ErrorNotFound
+		return categories, entity.ErrorNotFound
 	}
 
 	r.repo.Model(&dream).Association("Categories").Delete(category)
