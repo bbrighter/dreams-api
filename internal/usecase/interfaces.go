@@ -40,7 +40,7 @@ type (
 	}
 
 	Statistics interface {
-		GetStatistics(bool, int) (entity.Counts, entity.Counts)
+		GetStatistics(includeHidden bool, limit int) (entity.Counts, entity.Counts)
 	}
 )
 

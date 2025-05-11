@@ -16,7 +16,7 @@ func handleError(g *gin.Context, err error) bool {
 		g.AbortWithStatus(http.StatusNotFound)
 		return true
 	}
-	if errors.Is(err, entity.ErrorBadParam) || errors.Is(err, entity.ErrorMissingParam) {
+	if errors.Is(err, entity.ErrorBadParam) {
 		g.AbortWithError(http.StatusBadRequest, err)
 		return true
 	}

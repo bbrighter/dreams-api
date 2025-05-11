@@ -11,11 +11,16 @@ import (
 )
 
 type mockCategoriesLister struct{}
+type mockCategoriesListerNoResults struct{}
 
 func (tu mockCategoriesLister) List() entity.Categories {
 	return entity.Categories{entity.Category{
 		ID: 1, Name: "Name", Dreams: []entity.Dream{{ID: 10}},
 	}}
+}
+
+func (tu mockCategoriesListerNoResults) List() entity.Categories {
+	return entity.Categories{}
 }
 
 func TestGetAllCategories(t *testing.T) {
@@ -30,6 +35,12 @@ func TestGetAllCategories(t *testing.T) {
 			uc:             mockCategoriesLister{},
 			expectedStatus: 200,
 			expectedBody:   `{"categories":[{"id":1,"name":"Name"}]}`,
+		},
+		{
+			name:           "no results",
+			uc:             mockCategoriesListerNoResults{},
+			expectedStatus: 200,
+			expectedBody:   `{"categories":[]}`,
 		},
 	}
 
