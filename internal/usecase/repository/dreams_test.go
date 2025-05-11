@@ -10,8 +10,9 @@ import (
 
 func setupDreamsTest(t *testing.T) *DreamsRepo {
 	logger, _ := zap.NewDevelopment()
-	repo := NewDreamsRepo(":memory:", logger)
-	err := repo.Repo.AutoMigrate(
+	db := NewDatabase(":memory:", logger)
+	repo := NewDreamsRepo(db)
+	err := repo.db.AutoMigrate(
 		&entity.Dream{},
 		&entity.Category{},
 		&entity.Person{},
@@ -27,13 +28,13 @@ func TestGetDreams(t *testing.T) {
 	var dreams []entity.Dream
 
 	// Test no dreams exist
-	dreams = repo.GetAll(false)
+	dreams = repo.List(false)
 
 	assert.Len(t, dreams, 0)
 
 	// Test one dream exists
-	repo.Repo.Create(&entity.Dream{ID: 1})
-	dreams = repo.GetAll(false)
+	repo.db.Create(&entity.Dream{ID: 1})
+	dreams = repo.List(false)
 
 	assert.Len(t, dreams, 1)
 
@@ -60,13 +61,13 @@ func TestGetDream(t *testing.T) {
 	var err error
 
 	// Test no dreams exist
-	_, err = repo.GetById(1, false)
+	_, err = repo.Get(1, false)
 
 	assert.Error(t, err)
 
 	// Test dream exists
-	repo.Repo.Create(&entity.Dream{ID: 100})
-	dream, err = repo.GetById(100, false)
+	repo.db.Create(&entity.Dream{ID: 100})
+	dream, err = repo.Get(100, false)
 
 	assert.NoError(t, err)
 	assert.EqualValues(t, 100, dream.ID)

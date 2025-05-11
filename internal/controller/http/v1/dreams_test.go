@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -10,20 +9,22 @@ import (
 	"testing"
 	"time"
 
-	customerrors "github.com/bbrighter/dreams-api/internal/customErrors"
 	"github.com/bbrighter/dreams-api/internal/entity"
+	"github.com/bbrighter/dreams-api/internal/usecase"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
 
-type testUseCaseDreams struct{}
+var testDate = time.Date(2020, 11, 30, 13, 45, 52, 0, time.UTC)
 
-func (tuc testUseCaseDreams) GetAll(showAll bool) entity.Dreams {
-	resp := entity.Dreams{}
+type mockDreamsUseCaseOk struct{}
+
+func (tuc mockDreamsUseCaseOk) List() entity.Dreams {
+	resp := entity.Dreams{entity.Dream{ID: 1, Date: testDate, Description: "Description", Visible: true}}
 	return resp
 }
 
-func (tuc testUseCaseDreams) Get(id uint, showAll bool) (entity.Dream, error) {
+func (tuc mockDreamsUseCaseOk) Get(id uint) (entity.Dream, error) {
 	if id == uint(1) {
 		return entity.Dream{
 			ID:          1,
@@ -32,23 +33,38 @@ func (tuc testUseCaseDreams) Get(id uint, showAll bool) (entity.Dream, error) {
 			Visible:     true,
 		}, nil
 	}
-	return entity.Dream{}, customerrors.ErrorNotFound
+	return entity.Dream{}, entity.ErrorNotFound
 }
 
-func (tuc testUseCaseDreams) Create(date time.Time) (uint, error) {
+func (tuc mockDreamsUseCaseOk) Create(date time.Time) (uint, error) {
 	return 1, nil
 }
 
-func (tuc testUseCaseDreams) Update(id uint, date time.Time, description string) error {
+func (tuc mockDreamsUseCaseOk) Update(id uint, date time.Time, description string) error {
 	return nil
 }
 
-func (tuc testUseCaseDreams) Delete(id uint) (entity.Categories, error) {
+func (tuc mockDreamsUseCaseOk) Delete(id uint) (entity.Categories, error) {
 	return entity.Categories{}, nil
 }
 
-func (tuc testUseCaseDreams) ToggleVisibility(id uint) error {
-	return nil
+type mockCategoriesAdderRemover struct{}
+
+func (mu mockCategoriesAdderRemover) AddToDream(categoryName string, dreamId uint) (entity.Categories, error) {
+	return entity.Categories{}, nil
+}
+
+func (mu mockCategoriesAdderRemover) RemoveFromDream(categoryId uint, dreamId uint) (entity.Categories, error) {
+	return entity.Categories{}, nil
+}
+
+type mockPersonsAdderRemover struct{}
+
+func (tu mockPersonsAdderRemover) AddToDream(categoryName string, dreamId uint) (entity.Persons, error) {
+	return entity.Persons{}, nil
+}
+func (tu mockPersonsAdderRemover) RemoveFromDream(categoryId uint, dreamId uint) (entity.Persons, error) {
+	return entity.Persons{}, nil
 }
 
 func newTestRoute() (*dreamsRoutes, *gin.Context, *httptest.ResponseRecorder) {
@@ -57,23 +73,50 @@ func newTestRoute() (*dreamsRoutes, *gin.Context, *httptest.ResponseRecorder) {
 	c.Request = new(http.Request)
 	c.Request.URL = new(url.URL)
 	return &dreamsRoutes{
-		d: testUseCaseDreams{},
-		c: testUseCaseCategories{},
-		p: testUseCasePersons{},
+		d: mockDreamsUseCaseOk{},
+		c: mockCategoriesAdderRemover{},
+		p: mockPersonsAdderRemover{},
 	}, c, rec
 }
 
-func TestGetAll(t *testing.T) {
-	r, g, rec := newTestRoute()
-	r.GetAll(g)
+func TestList(t *testing.T) {
+	tests := []struct {
+		name         string
+		expectedCode int
+		expectedBody string
+		uc           usecase.Dreams
+	}{
+		{
+			name:         "ok",
+			expectedCode: 200,
+			uc:           mockDreamsUseCaseOk{},
+			expectedBody: `{"dreams":[{"id":1,"date":"2020-11-30T13:45:52Z","visible":true}]}`,
+		},
+	}
 
-	assert.Equal(t, rec.Code, 200)
-	var response map[string][]string
-	err := json.Unmarshal(rec.Body.Bytes(), &response)
-	assert.NoError(t, err)
-	value, exists := response["dreams"]
-	assert.True(t, exists)
-	assert.Len(t, value, 0)
+	for _, test := range tests {
+		rec := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(rec)
+		route := &dreamsRoutes{d: test.uc, p: mockPersonsAdderRemover{}, c: mockCategoriesAdderRemover{}}
+
+		t.Run(test.name, func(t *testing.T) {
+			route.GetAll(c)
+
+			assert.Equal(t, test.expectedCode, rec.Code)
+			assert.Equal(t, test.expectedBody, rec.Body.String())
+		})
+	}
+
+	// 	r, g, rec := newTestRoute()
+	// 	r.GetAll(g)
+
+	// 	assert.Equal(t, rec.Code, 200)
+	// 	var response map[string][]string
+	// 	err := json.Unmarshal(rec.Body.Bytes(), &response)
+	// 	assert.NoError(t, err)
+	// 	value, exists := response["dreams"]
+	// 	assert.True(t, exists)
+	// 	assert.Len(t, value, 0)
 }
 
 func TestGet(t *testing.T) {
@@ -104,7 +147,7 @@ func TestCreate(t *testing.T) {
 	// Don't know how to add a body yet
 	t.Skip()
 	r, g, rec := newTestRoute()
-	var body = strings.NewReader(`"description":"blabla","date":"2022-02-1"`)
+	var body = strings.NewReader(`"description":"Description","date":"2022-02-1"`)
 	g.Request = new(http.Request)
 	// req, _ := http.NewRequest("POST", "/", body)
 	g.Request.Body = io.NopCloser(body)

@@ -7,21 +7,21 @@ import (
 )
 
 type DreamsUseCase struct {
-	repo DreamsRepo
+	repo IDreamsRepo
 }
 
-func New(r DreamsRepo) *DreamsUseCase {
+func NewDreamUseCase(r IDreamsRepo) *DreamsUseCase {
 	return &DreamsUseCase{
 		repo: r,
 	}
 }
 
-func (uc *DreamsUseCase) GetAll(showAll bool) entity.Dreams {
-	return uc.repo.GetAll(showAll)
+func (uc *DreamsUseCase) List() entity.Dreams {
+	return uc.repo.List(false)
 }
 
-func (uc *DreamsUseCase) Get(id uint, showAll bool) (entity.Dream, error) {
-	return uc.repo.GetById(id, showAll)
+func (uc *DreamsUseCase) Get(id uint) (entity.Dream, error) {
+	return uc.repo.Get(id, false)
 }
 
 func (uc *DreamsUseCase) Create(date time.Time) (uint, error) {
@@ -37,9 +37,4 @@ func (uc *DreamsUseCase) Update(id uint, date time.Time, description string) err
 func (uc *DreamsUseCase) Delete(id uint) (entity.Categories, error) {
 	dream := entity.Dream{ID: id}
 	return uc.repo.Delete(dream)
-}
-
-func (uc *DreamsUseCase) ToggleVisibility(id uint) error {
-	dream := entity.Dream{ID: id}
-	return uc.repo.ToggleVisibility(dream)
 }

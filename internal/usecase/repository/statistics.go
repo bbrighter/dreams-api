@@ -4,21 +4,19 @@ import (
 	"sort"
 
 	"github.com/bbrighter/dreams-api/internal/entity"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
 type StatisticsRepo struct {
-	Repo *gorm.DB
+	db *gorm.DB
 }
 
-func NewStatisticsRepo(name string, logger *zap.Logger) *StatisticsRepo {
-	db := newDatabase(name, logger)
-	return &StatisticsRepo{Repo: db}
+func NewStatisticsRepo(db *gorm.DB) *StatisticsRepo {
+	return &StatisticsRepo{db: db}
 }
 
 func (r StatisticsRepo) CountCategories(showAll bool, maxNumberOfResults int) entity.Counts {
-	tx := r.Repo.Preload("Categories")
+	tx := r.db.Preload("Categories")
 	if !showAll {
 		tx.Where(&entity.Dream{Visible: true})
 	}
@@ -54,7 +52,7 @@ func (r StatisticsRepo) CountCategories(showAll bool, maxNumberOfResults int) en
 }
 
 func (r StatisticsRepo) CountPersons(showAll bool, maxNumberOfResults int) entity.Counts {
-	tx := r.Repo.Preload("Persons")
+	tx := r.db.Preload("Persons")
 	if !showAll {
 		tx.Where(&entity.Dream{Visible: true})
 	}

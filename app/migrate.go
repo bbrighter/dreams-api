@@ -1,11 +1,11 @@
 package app
 
 import (
-	"log"
 	"time"
 
 	"github.com/bbrighter/dreams-api/internal/entity"
 	"github.com/go-gormigrate/gormigrate/v2"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -204,12 +204,10 @@ func migrationFactory(db *gorm.DB) *gormigrate.Gormigrate {
 	return gormigrate.New(db, gormigrate.DefaultOptions, migrations)
 }
 
-func Migration(db *gorm.DB) error {
+func migration(db *gorm.DB, logger *zap.Logger) {
 	m := migrationFactory(db)
 	if err := m.Migrate(); err != nil {
-		log.Fatalf("Could not migrate")
-		return err
+		logger.Fatal("Migration failed", zap.Error(err))
 	}
-	log.Printf("Migration succesful")
-	return nil
+	logger.Info("Migration successful")
 }

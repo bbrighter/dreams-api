@@ -14,7 +14,7 @@ type (
 	}
 
 	DB struct {
-		Name string `yaml:"name" env-required:"true"`
+		Name string `yaml:"name" env-default:"dreams.sqlite"`
 	}
 
 	API struct {
@@ -23,8 +23,8 @@ type (
 	}
 
 	Logs struct {
-		Level  string `yaml:"level" env-default:"info"`
-		Folder string `yaml:"folder"`
+		Level  string `yaml:"level" env:"LOG_LEVEL" env-default:"info"`
+		Folder string `yaml:"folder" env:"LOG_FOLDER"`
 	}
 )
 

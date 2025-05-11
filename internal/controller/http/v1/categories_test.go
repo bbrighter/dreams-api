@@ -5,37 +5,55 @@ import (
 	"testing"
 
 	"github.com/bbrighter/dreams-api/internal/entity"
+	"github.com/bbrighter/dreams-api/internal/usecase"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
 
-type testUseCaseCategories struct{}
+type mockCategoriesLister struct{}
+type mockCategoriesListerNoResults struct{}
 
-func (tu testUseCaseCategories) GetAll() entity.Categories {
+func (tu mockCategoriesLister) List() entity.Categories {
 	return entity.Categories{entity.Category{
 		ID: 1, Name: "Name", Dreams: []entity.Dream{{ID: 10}},
 	}}
 }
 
-func (tu testUseCaseCategories) AddToDream(categoryName string, dreamId uint) (entity.Categories, error) {
-	return entity.Categories{}, nil
-}
-
-func (tu testUseCaseCategories) RemoveFromDream(categoryId uint, dreamId uint) (entity.Categories, error) {
-	return entity.Categories{}, nil
-}
-
-func newTestRouteCat() (*categoriesRoute, *gin.Context, *httptest.ResponseRecorder) {
-	var tuc = testUseCaseCategories{}
-	rec := httptest.NewRecorder()
-	c, _ := gin.CreateTestContext(rec)
-	return &categoriesRoute{c: tuc}, c, rec
+func (tu mockCategoriesListerNoResults) List() entity.Categories {
+	return entity.Categories{}
 }
 
 func TestGetAllCategories(t *testing.T) {
-	r, g, rec := newTestRouteCat()
-	r.GetAll(g)
+	tests := []struct {
+		name           string
+		uc             usecase.CategoriesLister
+		expectedStatus int
+		expectedBody   string
+	}{
+		{
+			name:           "Ok",
+			uc:             mockCategoriesLister{},
+			expectedStatus: 200,
+			expectedBody:   `{"categories":[{"id":1,"name":"Name"}]}`,
+		},
+		{
+			name:           "no results",
+			uc:             mockCategoriesListerNoResults{},
+			expectedStatus: 200,
+			expectedBody:   `{"categories":[]}`,
+		},
+	}
 
-	assert.Equal(t, rec.Code, 200)
-	assert.Equal(t, rec.Body.String(), `{"categories":[{"id":1,"name":"Name"}]}`)
+	for _, test := range tests {
+		rec := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(rec)
+		route := &categoriesRoute{c: test.uc}
+
+		t.Run(test.name, func(t *testing.T) {
+			route.GetAll(c)
+
+			assert.Equal(t, rec.Code, test.expectedStatus)
+			assert.Equal(t, rec.Body.String(), test.expectedBody)
+		})
+	}
 }

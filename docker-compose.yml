@@ -10,13 +10,13 @@ services:
     environment:
       - GIN_MODE=release
       - HOST_IP_ADDRESS=dreams-api
-    ports: 
+    ports:
       - "5001:5000"
     networks:
       - dreams
     volumes:
      - ~/logs:/app/logs
-     - /home/pi/dreams:/app/data
+     - /home/pi/dreams/data:/app/data
 
   ui:
     image: bbrighter/dreams-ui:latest

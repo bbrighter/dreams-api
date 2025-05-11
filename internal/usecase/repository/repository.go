@@ -7,9 +7,10 @@ import (
 	"github.com/glebarez/sqlite"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+	"moul.io/zapgorm2"
 )
 
-func newDatabase(name string, log *zap.Logger) *gorm.DB {
+func NewDatabase(name string, log *zap.Logger) *gorm.DB {
 	var dbName string
 	if name == ":memory:" {
 		dbName = name
@@ -20,7 +21,9 @@ func newDatabase(name string, log *zap.Logger) *gorm.DB {
 			log.Fatal("Cannot create database folder", zap.Error(err))
 		}
 	}
-	db, err := gorm.Open(sqlite.Open(dbName), &gorm.Config{})
+	logger := zapgorm2.New(log)
+	logger.SetAsDefault()
+	db, err := gorm.Open(sqlite.Open(dbName), &gorm.Config{Logger: logger})
 	if err != nil {
 		log.Fatal("Cannot open database", zap.Error(err))
 	}

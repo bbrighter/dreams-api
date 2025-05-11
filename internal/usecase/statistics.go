@@ -3,10 +3,10 @@ package usecase
 import "github.com/bbrighter/dreams-api/internal/entity"
 
 type StatisticsUseCase struct {
-	repo StatisticsRepo
+	repo IStatisticsRepo
 }
 
-func NewStatisticsUseCase(r StatisticsRepo) *StatisticsUseCase {
+func NewStatisticsUseCase(r IStatisticsRepo) *StatisticsUseCase {
 	return &StatisticsUseCase{
 		repo: r,
 	}
@@ -14,7 +14,7 @@ func NewStatisticsUseCase(r StatisticsRepo) *StatisticsUseCase {
 
 func (u StatisticsUseCase) GetStatistics(showAll bool, maxNumber int) (entity.Counts, entity.Counts) {
 	cats := u.repo.CountCategories(showAll, maxNumber)
-	pers := u.repo.CountPersons(showAll, maxNumber)
+	persons := u.repo.CountPersons(showAll, maxNumber)
 
-	return cats, pers
+	return cats, persons
 }

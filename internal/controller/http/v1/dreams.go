@@ -4,18 +4,18 @@ import (
 	"net/http"
 	"time"
 
-	customerrors "github.com/bbrighter/dreams-api/internal/customErrors"
+	"github.com/bbrighter/dreams-api/internal/entity"
 	"github.com/bbrighter/dreams-api/internal/usecase"
 	"github.com/gin-gonic/gin"
 )
 
 type dreamsRoutes struct {
 	d usecase.Dreams
-	p usecase.Persons
-	c usecase.Categories
+	p usecase.PersonsAdderRemover
+	c usecase.CategoriesAdderRemover
 }
 
-func newDreamsRoute(handler *gin.RouterGroup, d usecase.Dreams, p usecase.Persons, c usecase.Categories) {
+func newDreamsRoute(handler *gin.RouterGroup, d usecase.Dreams, p usecase.PersonsAdderRemover, c usecase.CategoriesAdderRemover) {
 	r := &dreamsRoutes{d, p, c}
 
 	h := handler.Group("/dreams")
@@ -27,15 +27,15 @@ func newDreamsRoute(handler *gin.RouterGroup, d usecase.Dreams, p usecase.Person
 			hid.GET("", r.Get)
 			hid.PATCH("", r.Update)
 			hid.DELETE("", r.Delete)
-			hcat := hid.Group("/categories")
+			hCat := hid.Group("/categories")
 			{
-				hcat.PUT("", r.PutCategoryToDream)
-				hcat.DELETE("/:categoryId", r.RemoveCategoryFromDream)
+				hCat.PUT("", r.PutCategoryToDream)
+				hCat.DELETE("/:categoryId", r.RemoveCategoryFromDream)
 			}
-			hper := hid.Group("/persons")
+			hPer := hid.Group("/persons")
 			{
-				hper.PUT("", r.PutPersonToDream)
-				hper.DELETE("/:personId", r.RemovePersonFromDream)
+				hPer.PUT("", r.PutPersonToDream)
+				hPer.DELETE("/:personId", r.RemovePersonFromDream)
 			}
 		}
 	}
@@ -46,7 +46,7 @@ func newDreamsRoute(handler *gin.RouterGroup, d usecase.Dreams, p usecase.Person
 // @Success 200 {object} entity.DreamsResponse "List of all dreams"
 // @Router /v1/dreams [get]
 func (r *dreamsRoutes) GetAll(g *gin.Context) {
-	dreams := r.d.GetAll(false)
+	dreams := r.d.List()
 	g.JSON(200, dreams.ToResponse())
 }
 
@@ -59,16 +59,11 @@ func (r *dreamsRoutes) GetAll(g *gin.Context) {
 func (r *dreamsRoutes) Get(g *gin.Context) {
 	id, err := parseParamUint(g, "id")
 	if err != nil {
-		g.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	dream, err := r.d.Get(id, false)
-	if err != nil && err.Error() == "record not found" {
-		g.AbortWithStatus(http.StatusNotFound)
-		return
-	}
-	if err != nil {
-		g.AbortWithError(http.StatusInternalServerError, err)
+
+	dream, err := r.d.Get(id)
+	if handleError(g, err) {
 		return
 	}
 	g.JSON(http.StatusOK, dream.ToResponse())
@@ -94,12 +89,12 @@ func (r *dreamsRoutes) Create(g *gin.Context) {
 		return
 	}
 	if body.Date.IsZero() {
-		g.AbortWithError(http.StatusBadRequest, customerrors.ErrorParameterMissing("date"))
+		g.AbortWithError(http.StatusBadRequest, entity.ErrorBadParam)
 		return
 	}
 	id, err := r.d.Create(body.Date)
-	if err != nil {
-		g.AbortWithError(http.StatusInternalServerError, err)
+	if handleError(g, err) {
+		return
 	}
 	g.JSON(http.StatusCreated, id)
 }
@@ -121,15 +116,10 @@ func (r *dreamsRoutes) Update(g *gin.Context) {
 	var id uint
 	id, err = parseParamUint(g, "id")
 	if err != nil {
-		g.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 	err = r.d.Update(id, body.Date, *body.Description)
-	if err != nil && err == customerrors.ErrorNotFound {
-		g.AbortWithStatus(http.StatusNotFound)
-		return
-	} else if err != nil {
-		g.AbortWithError(http.StatusInternalServerError, err)
+	if handleError(g, err) {
 		return
 	}
 	g.Status(http.StatusOK)
@@ -143,13 +133,11 @@ func (r *dreamsRoutes) Update(g *gin.Context) {
 func (r *dreamsRoutes) Delete(g *gin.Context) {
 	id, err := parseParamUint(g, "id")
 	if err != nil {
-		g.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
 	categories, err := r.d.Delete(id)
-	if err != nil && err == customerrors.ErrorNotFound {
-		g.AbortWithStatus(http.StatusNotFound)
+	if handleError(g, err) {
 		return
 	}
 	g.JSON(http.StatusOK, categories.ToResponse())
@@ -165,18 +153,15 @@ func (r *dreamsRoutes) Delete(g *gin.Context) {
 func (r *dreamsRoutes) PutPersonToDream(g *gin.Context) {
 	dreamId, err := parseParamUint(g, "id")
 	if err != nil {
-		g.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 	name, err := parseQueryParamString(g, "name")
 	if err != nil {
-		g.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
 	persons, err := r.p.AddToDream(name, dreamId)
-	if err == customerrors.ErrorNotFound {
-		g.AbortWithStatus(http.StatusNotFound)
+	if handleError(g, err) {
 		return
 	}
 	g.JSON(http.StatusOK, persons.ToResponse())
@@ -191,18 +176,15 @@ func (r *dreamsRoutes) PutPersonToDream(g *gin.Context) {
 func (r *dreamsRoutes) RemovePersonFromDream(g *gin.Context) {
 	dreamId, err := parseParamUint(g, "id")
 	if err != nil {
-		g.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 	personId, err := parseParamUint(g, "personId")
 	if err != nil {
-		g.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
 	persons, err := r.p.RemoveFromDream(personId, dreamId)
-	if err == customerrors.ErrorNotFound {
-		g.AbortWithStatus(http.StatusNotFound)
+	if handleError(g, err) {
 		return
 	}
 	g.JSON(http.StatusOK, persons.ToResponse())
@@ -218,18 +200,15 @@ func (r *dreamsRoutes) RemovePersonFromDream(g *gin.Context) {
 func (r *dreamsRoutes) PutCategoryToDream(g *gin.Context) {
 	dreamId, err := parseParamUint(g, "id")
 	if err != nil {
-		g.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 	name, err := parseQueryParamString(g, "name")
 	if err != nil {
-		g.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
 	categories, err := r.c.AddToDream(name, dreamId)
-	if err == customerrors.ErrorNotFound {
-		g.AbortWithStatus(http.StatusNotFound)
+	if handleError(g, err) {
 		return
 	}
 	g.JSON(http.StatusOK, categories.ToResponse())
@@ -244,18 +223,15 @@ func (r *dreamsRoutes) PutCategoryToDream(g *gin.Context) {
 func (r *dreamsRoutes) RemoveCategoryFromDream(g *gin.Context) {
 	dreamId, err := parseParamUint(g, "id")
 	if err != nil {
-		g.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 	categoryId, err := parseParamUint(g, "categoryId")
 	if err != nil {
-		g.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
 	categories, err := r.c.RemoveFromDream(categoryId, dreamId)
-	if err == customerrors.ErrorNotFound {
-		g.AbortWithStatus(http.StatusNotFound)
+	if handleError(g, err) {
 		return
 	}
 	g.JSON(http.StatusOK, categories.ToResponse())

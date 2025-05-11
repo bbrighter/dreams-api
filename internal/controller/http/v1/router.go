@@ -5,13 +5,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func NewRouter(handler *gin.Engine, d usecase.Dreams, p usecase.Persons, c usecase.Categories, s usecase.Statistics) {
+func NewRouter(handler *gin.Engine,
+	d usecase.Dreams,
+	pd usecase.PrivateDreams,
+	p usecase.PersonsAdderRemover,
+	c usecase.CategoriesAdderRemover,
+	s usecase.Statistics,
+	cl usecase.CategoriesLister,
+	pl usecase.PersonsLister,
+) {
 	h := handler.Group("/v1")
 	{
 		newDreamsRoute(h, d, p, c)
-		newPrivateDreamsRoute(h, d)
-		newPersonsRoute(h, p)
-		newCategoriesRoute(h, c)
+		newPrivateDreamsRoute(h, pd)
+		newPersonsRoute(h, pl)
+		newCategoriesRoute(h, cl)
 		newStatisticsRoute(h, s)
 	}
 }

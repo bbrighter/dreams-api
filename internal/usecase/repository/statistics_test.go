@@ -11,8 +11,9 @@ import (
 
 func setupStatisticsTest(t *testing.T) *StatisticsRepo {
 	logger, _ := zap.NewDevelopment()
-	repo := NewStatisticsRepo(":memory:", logger)
-	err := repo.Repo.AutoMigrate(
+	db := NewDatabase(":memory:", logger)
+	repo := NewStatisticsRepo(db)
+	err := repo.db.AutoMigrate(
 		&entity.Dream{},
 		&entity.Category{},
 		&entity.Person{},
@@ -28,7 +29,7 @@ func TestCountPersons(t *testing.T) {
 	counts := r.CountPersons(true, 100)
 	assert.Len(t, counts, 0)
 
-	r.Repo.Create(&entity.Dream{
+	r.db.Create(&entity.Dream{
 		ID:         1,
 		Date:       time.Now(),
 		Visible:    true,
@@ -47,14 +48,14 @@ func TestCountCategories(t *testing.T) {
 	counts := r.CountCategories(true, 100)
 	assert.Len(t, counts, 0)
 
-	r.Repo.Create(&entity.Dream{
+	r.db.Create(&entity.Dream{
 		ID:         1,
 		Date:       time.Now(),
 		Visible:    true,
 		Categories: entity.Categories{entity.Category{ID: 10}, entity.Category{ID: 11}},
 		Persons:    entity.Persons{entity.Person{ID: 100}},
 	})
-	r.Repo.Create(&entity.Dream{
+	r.db.Create(&entity.Dream{
 		ID:         2,
 		Visible:    true,
 		Categories: entity.Categories{entity.Category{ID: 10}},
