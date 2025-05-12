@@ -23,7 +23,7 @@ func newCategoriesRoute(handler *gin.RouterGroup, c usecase.CategoriesLister) {
 // @Description Get all categories
 // @Produce json
 // @Success 200 {object} entity.CategoriesResponse
-// @Router /v1/categories [get]
+// @Router /dreams-api/v1/categories [get]
 func (r *categoriesRoute) GetAll(g *gin.Context) {
 	categories := r.c.List()
 	g.JSON(http.StatusOK, categories.ToResponse())

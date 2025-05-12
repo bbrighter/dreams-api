@@ -25,7 +25,7 @@ func newPrivateDreamsRoute(handler *gin.RouterGroup, p usecase.PrivateDreams) {
 // @Description Get all dreams - including private
 // @Produce json
 // @Success 200 {object} entity.DreamsResponse "List of all dreams"
-// @Router /v1/dreams/private [get]
+// @Router /dreams-api/v1/dreams/private [get]
 func (r *privateDreamsRoute) GetAll(g *gin.Context) {
 	dreams := r.p.List()
 	g.JSON(200, dreams.ToResponse())
@@ -36,7 +36,7 @@ func (r *privateDreamsRoute) GetAll(g *gin.Context) {
 // @Success 200 {object} entity.DreamResponse "One dream"
 // @Failure 400
 // @Failure 404
-// @Router /v1/dreams/private/{dreamId} [get]
+// @Router /dreams-api/v1/dreams/private/{dreamId} [get]
 func (r *privateDreamsRoute) Get(g *gin.Context) {
 	id, err := parseParamUint(g, "id")
 	if err != nil {
@@ -52,7 +52,7 @@ func (r *privateDreamsRoute) Get(g *gin.Context) {
 // @Description Toggle visibility of a dream
 // @Produce json
 // @Success 200
-// @Router /v1/dreams/private/{dreamId} [patch]
+// @Router /dreams-api/v1/dreams/private/{dreamId} [patch]
 func (r *privateDreamsRoute) ToggleVisibility(g *gin.Context) {
 	id, err := parseParamUint(g, "id")
 	if err != nil {

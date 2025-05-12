@@ -23,7 +23,7 @@ func newPersonsRoute(handler *gin.RouterGroup, p usecase.PersonsLister) {
 // @Description Get all persons
 // @Produce json
 // @Success 200 {object} entity.PersonsResponse
-// @Router /v1/persons [get]
+// @Router /dreams-api/v1/persons [get]
 func (r *personsRoute) GetAll(g *gin.Context) {
 	persons := r.p.List()
 	g.JSON(http.StatusOK, persons.ToResponse())

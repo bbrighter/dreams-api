@@ -15,7 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/v1/categories": {
+        "/dreams-api/v1/categories": {
             "get": {
                 "description": "Get all categories",
                 "produces": [
@@ -31,7 +31,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/dreams": {
+        "/dreams-api/v1/dreams": {
             "get": {
                 "description": "Get all dreams",
                 "produces": [
@@ -81,9 +81,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/dreams/private": {
+        "/dreams-api/v1/dreams/private": {
             "get": {
-                "description": "Get all dreams - inlcuding private",
+                "description": "Get all dreams - including private",
                 "produces": [
                     "application/json"
                 ],
@@ -97,7 +97,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/dreams/private/{dreamId}": {
+        "/dreams-api/v1/dreams/private/{dreamId}": {
             "get": {
                 "description": "Get one private dream",
                 "produces": [
@@ -119,7 +119,7 @@ const docTemplate = `{
                 }
             },
             "patch": {
-                "description": "Toggle visiblity of a dream",
+                "description": "Toggle visibility of a dream",
                 "produces": [
                     "application/json"
                 ],
@@ -130,7 +130,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/dreams/{dreamId}": {
+        "/dreams-api/v1/dreams/{dreamId}": {
             "get": {
                 "description": "Get one dream",
                 "produces": [
@@ -194,7 +194,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/dreams/{dreamId}/categories": {
+        "/dreams-api/v1/dreams/{dreamId}/categories": {
             "put": {
                 "description": "Add a category to a dream",
                 "produces": [
@@ -225,7 +225,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/dreams/{dreamId}/categories/{categoryId}": {
+        "/dreams-api/v1/dreams/{dreamId}/categories/{categoryId}": {
             "delete": {
                 "description": "Remove a category from a dream",
                 "produces": [
@@ -247,7 +247,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/dreams/{dreamId}/persons": {
+        "/dreams-api/v1/dreams/{dreamId}/persons": {
             "put": {
                 "description": "Add a person to a dream",
                 "produces": [
@@ -278,7 +278,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/dreams/{dreamId}/persons/{personId}": {
+        "/dreams-api/v1/dreams/{dreamId}/persons/{personId}": {
             "delete": {
                 "description": "Delete a person from a dream",
                 "produces": [
@@ -300,7 +300,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/persons": {
+        "/dreams-api/v1/persons": {
             "get": {
                 "description": "Get all persons",
                 "produces": [
@@ -316,7 +316,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/private/statistics": {
+        "/dreams-api/v1/private/statistics": {
             "get": {
                 "description": "Get count per category and person",
                 "produces": [
@@ -340,7 +340,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/statistics": {
+        "/dreams-api/v1/statistics": {
             "get": {
                 "description": "Get count per category and person",
                 "produces": [

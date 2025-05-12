@@ -8,20 +8,13 @@ import (
 	v1 "github.com/bbrighter/dreams-api/internal/controller/http/v1"
 	"github.com/bbrighter/dreams-api/internal/usecase"
 	"github.com/bbrighter/dreams-api/internal/usecase/repository"
-	logger "github.com/bbrighter/zapLogWrapper"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
-func Run(cfg *config.Config) {
-	opts := logger.NewLoggerOptions()
-	if cfg.Logs.Folder != "" {
-		opts.SetFolder(cfg.Logs.Folder)
-	}
-	log := logger.NewLogger(opts)
-
-	db := repository.NewDatabase(cfg.DB.Name, log)
+func Run(cfg *config.Config, logger *zap.Logger) {
+	db := repository.NewDatabase(cfg.DbName, logger)
 	dreamsRepo := repository.NewDreamsRepo(db)
 	dreamsUseCase := usecase.NewDreamUseCase(dreamsRepo)
 	privateDreamsUseCase := usecase.NewPrivateDreamUseCase(dreamsRepo)
@@ -31,7 +24,7 @@ func Run(cfg *config.Config) {
 	categoriesUseCase := usecase.NewCategoriesUseCase(categoriesRepo)
 	statisticsRepo := repository.NewStatisticsRepo(db)
 	statisticsUseCase := usecase.NewStatisticsUseCase(statisticsRepo)
-	migration(db, log)
+	migration(db, logger)
 
 	handler := gin.New()
 	handler.Use(
@@ -54,14 +47,14 @@ func Run(cfg *config.Config) {
 		personsUseCase,
 	)
 
-	var host = cfg.API.Host + ":" + cfg.API.Port
+	var host = cfg.Host + ":" + cfg.Port
 	docs.SwaggerInfo.Host = host
 	docs.SwaggerInfo.BasePath = "/"
 	docs.SwaggerInfo.Version = "2.0"
 
-	log.Info("Starting API", zap.String("Port", cfg.API.Port), zap.String("Host", cfg.API.Host))
+	logger.Info("Starting API", zap.String("Port", cfg.Port), zap.String("Host", cfg.Host))
 	err := handler.Run(host)
 	if err != nil {
-		log.Fatal("Cannot start API", zap.Error(err))
+		logger.Fatal("Cannot start API", zap.Error(err))
 	}
 }

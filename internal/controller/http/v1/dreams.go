@@ -44,7 +44,7 @@ func newDreamsRoute(handler *gin.RouterGroup, d usecase.Dreams, p usecase.Person
 // @Description Get all dreams
 // @Produce json
 // @Success 200 {object} entity.DreamsResponse "List of all dreams"
-// @Router /v1/dreams [get]
+// @Router /dreams-api/v1/dreams [get]
 func (r *dreamsRoutes) GetAll(g *gin.Context) {
 	dreams := r.d.List()
 	g.JSON(200, dreams.ToResponse())
@@ -55,7 +55,7 @@ func (r *dreamsRoutes) GetAll(g *gin.Context) {
 // @Success 200 {object} entity.DreamResponse "One dream"
 // @Failure 400
 // @Failure 404
-// @Router /v1/dreams/{dreamId} [get]
+// @Router /dreams-api/v1/dreams/{dreamId} [get]
 func (r *dreamsRoutes) Get(g *gin.Context) {
 	id, err := parseParamUint(g, "id")
 	if err != nil {
@@ -80,7 +80,7 @@ type DreamRequestBody struct {
 // @Success 201 {number} ID
 // @Failure 400
 // @Failure 500
-// @Router /v1/dreams [post]
+// @Router /dreams-api/v1/dreams [post]
 // @Param dreamRequestBody  body DreamRequestBody true "The dream which will be created"
 func (r *dreamsRoutes) Create(g *gin.Context) {
 	var body DreamRequestBody
@@ -104,7 +104,7 @@ func (r *dreamsRoutes) Create(g *gin.Context) {
 // @Success 200
 // @Failure 400
 // @Failure 404
-// @Router /v1/dreams/{dreamId} [patch]
+// @Router /dreams-api/v1/dreams/{dreamId} [patch]
 // @Param dreamRequestBody body DreamRequestBody true "The dream which will be updated"
 func (r *dreamsRoutes) Update(g *gin.Context) {
 	var body DreamRequestBody
@@ -129,7 +129,7 @@ func (r *dreamsRoutes) Update(g *gin.Context) {
 // @Produce json
 // @Failure 400
 // @Failure 404
-// @Router /v1/dreams/{dreamId} [delete]
+// @Router /dreams-api/v1/dreams/{dreamId} [delete]
 func (r *dreamsRoutes) Delete(g *gin.Context) {
 	id, err := parseParamUint(g, "id")
 	if err != nil {
@@ -148,7 +148,7 @@ func (r *dreamsRoutes) Delete(g *gin.Context) {
 // @Success 200 {object} entity.PersonsResponse
 // @Failure 400
 // @Failure 404
-// @Router /v1/dreams/{dreamId}/persons [put]
+// @Router /dreams-api/v1/dreams/{dreamId}/persons [put]
 // @Param name query string true "Name of person"
 func (r *dreamsRoutes) PutPersonToDream(g *gin.Context) {
 	dreamId, err := parseParamUint(g, "id")
@@ -172,7 +172,7 @@ func (r *dreamsRoutes) PutPersonToDream(g *gin.Context) {
 // @Success 200 {object} entity.PersonsResponse
 // @Failure 400
 // @Failure 404
-// @Router /v1/dreams/{dreamId}/persons/{personId} [delete]
+// @Router /dreams-api/v1/dreams/{dreamId}/persons/{personId} [delete]
 func (r *dreamsRoutes) RemovePersonFromDream(g *gin.Context) {
 	dreamId, err := parseParamUint(g, "id")
 	if err != nil {
@@ -195,7 +195,7 @@ func (r *dreamsRoutes) RemovePersonFromDream(g *gin.Context) {
 // @Success 200 {object} entity.CategoriesResponse
 // @Failure 400
 // @Failure 404
-// @Router /v1/dreams/{dreamId}/categories [put]
+// @Router /dreams-api/v1/dreams/{dreamId}/categories [put]
 // @Param name query string true "Name of a category"
 func (r *dreamsRoutes) PutCategoryToDream(g *gin.Context) {
 	dreamId, err := parseParamUint(g, "id")
@@ -219,7 +219,7 @@ func (r *dreamsRoutes) PutCategoryToDream(g *gin.Context) {
 // @Success 200 {object} entity.CategoriesResponse
 // @Failure 400
 // @Failure 404
-// @Router /v1/dreams/{dreamId}/categories/{categoryId} [delete]
+// @Router /dreams-api/v1/dreams/{dreamId}/categories/{categoryId} [delete]
 func (r *dreamsRoutes) RemoveCategoryFromDream(g *gin.Context) {
 	dreamId, err := parseParamUint(g, "id")
 	if err != nil {
