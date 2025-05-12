@@ -5,13 +5,15 @@ import (
 
 	"github.com/bbrighter/dreams-api/app"
 	"github.com/bbrighter/dreams-api/config"
+	"go.uber.org/zap"
 )
 
 func main() {
-	cnf, err := config.NewConfig()
+	logger, _ := zap.NewProduction()
+	cnf, err := config.NewConfig(logger)
 	if err != nil {
 		fmt.Print(err)
 		return
 	}
-	app.Run(cnf)
+	app.Run(cnf, logger)
 }

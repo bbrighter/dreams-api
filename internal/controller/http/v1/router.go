@@ -14,7 +14,7 @@ func NewRouter(handler *gin.Engine,
 	cl usecase.CategoriesLister,
 	pl usecase.PersonsLister,
 ) {
-	h := handler.Group("/v1")
+	h := handler.Group("/dreams-api/v1")
 	{
 		newDreamsRoute(h, d, p, c)
 		newPrivateDreamsRoute(h, pd)
