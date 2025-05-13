@@ -7,7 +7,7 @@ import (
 
 type Config struct {
 	Host   string `env:"HOST_IP_ADDRESS" env-default:"localhost"`
-	Port   string `env:"HOST_PORT" env-default:"5005"`
+	Port   string `env:"HOST_PORT" env-default:"5000"`
 	Level  string `env:"LOG_LEVEL" env-default:"info"`
 	DbName string `yaml:"name" env-default:"dreams.sqlite"`
 }
