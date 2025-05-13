@@ -29,7 +29,7 @@ func newStatisticsRoute(handler *gin.RouterGroup, c usecase.Statistics) {
 // @Description Get count per category and person
 // @Produce json
 // @Success 200 {object} entity.CountsResponse "Counts by category and persons"
-// @Router /dreams-api/v1/statistics [get]
+// @Router /statistics [get]
 // @Param limit query number false "Limit of returned results"
 func (r *statisticsRoute) GetStatistics(g *gin.Context) {
 	limitStr, exists := g.GetQuery("limit")
@@ -54,7 +54,7 @@ func (r *statisticsRoute) GetStatistics(g *gin.Context) {
 // @Description Get count per category and person
 // @Produce json
 // @Success 200 {object} entity.CountsResponse "Counts by category and persons"
-// @Router /dreams-api/v1/private/statistics [get]
+// @Router /private/statistics [get]
 // @Param limit query number false "Limit of returned results"
 func (r *statisticsRoute) GetPrivateStatistics(g *gin.Context) {
 
