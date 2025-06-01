@@ -247,6 +247,25 @@ const docTemplate = `{
                 }
             }
         },
+        "/dreams/{dreamId}/finalize": {
+            "patch": {
+                "description": "Finalize a dream",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                }
+            }
+        },
         "/dreams/{dreamId}/persons": {
             "put": {
                 "description": "Add a person to a dream",
@@ -435,12 +454,16 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "date",
+                "finalized",
                 "id",
                 "visible"
             ],
             "properties": {
                 "date": {
                     "type": "string"
+                },
+                "finalized": {
+                    "type": "boolean"
                 },
                 "id": {
                     "type": "integer"
@@ -456,6 +479,7 @@ const docTemplate = `{
                 "categories",
                 "date",
                 "description",
+                "finalized",
                 "id",
                 "persons",
                 "visible"
@@ -469,6 +493,9 @@ const docTemplate = `{
                 },
                 "description": {
                     "type": "string"
+                },
+                "finalized": {
+                    "type": "boolean"
                 },
                 "id": {
                     "type": "integer"

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"testing"
+	"time"
 
 	"github.com/bbrighter/dreams-api/internal/entity"
 	"github.com/stretchr/testify/assert"
@@ -71,4 +72,67 @@ func TestGetDream(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.EqualValues(t, 100, dream.ID)
+}
+
+func TestFinalize(t *testing.T) {
+	repo := setupDreamsTest(t)
+	err := repo.db.Create(&entity.Dream{ID: 1}).Error
+	assert.NoError(t, err)
+
+	err = repo.Finalize(1)
+	assert.NoError(t, err)
+
+	err = repo.Finalize(100)
+	assert.Error(t, err)
+}
+
+func TestCreateDream(t *testing.T) {
+	repo := setupDreamsTest(t)
+	id, err := repo.Create(entity.Dream{Date: time.Now()})
+	assert.NoError(t, err)
+	assert.EqualValues(t, 1, id)
+}
+
+func TestUpdateDream(t *testing.T) {
+	repo := setupDreamsTest(t)
+	err := repo.db.Create(&entity.Dream{ID: 1}).Error
+	assert.NoError(t, err)
+
+	err = repo.Update(entity.Dream{ID: 1, Date: time.Now(), Description: "desc"})
+	assert.NoError(t, err)
+
+	err = repo.Update(entity.Dream{ID: 100})
+	assert.ErrorIs(t, err, entity.ErrorNotFound)
+}
+
+func TestDeleteDream(t *testing.T) {
+	repo := setupDreamsTest(t)
+	err := repo.db.Create(&entity.Dream{
+		ID:         1,
+		Categories: entity.Categories{entity.Category{ID: 1, Name: "Cat"}},
+		Persons:    entity.Persons{entity.Person{ID: 1, Name: "Person"}},
+	}).Error
+	assert.NoError(t, err)
+
+	cats, pers, err := repo.Delete(entity.Dream{ID: 1})
+	assert.NoError(t, err)
+	assert.Len(t, cats, 0)
+	assert.Len(t, pers, 0)
+
+	var persons entity.Persons
+	repo.db.Find(&persons)
+	assert.Len(t, persons, 0)
+}
+
+func TestToggleVisibility(t *testing.T) {
+	repo := setupDreamsTest(t)
+	err := repo.db.Create(&entity.Dream{ID: 1}).Error
+	assert.NoError(t, err)
+
+	err = repo.ToggleVisibility(entity.Dream{ID: 1})
+	assert.NoError(t, err)
+
+	var dream entity.Dream
+	repo.db.First(&dream)
+	assert.False(t, dream.Visible)
 }

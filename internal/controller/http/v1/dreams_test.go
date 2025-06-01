@@ -36,17 +36,15 @@ func (tuc mockDreamsUseCaseOk) Get(id uint) (entity.Dream, error) {
 	return entity.Dream{}, entity.ErrorNotFound
 }
 
-func (tuc mockDreamsUseCaseOk) Create(date time.Time) (uint, error) {
-	return 1, nil
+func (tuc mockDreamsUseCaseOk) Create(date time.Time) (uint, error) { return 1, nil }
+
+func (tuc mockDreamsUseCaseOk) Update(id uint, date time.Time, description string) error { return nil }
+
+func (tuc mockDreamsUseCaseOk) Delete(id uint) (entity.Categories, entity.Persons, error) {
+	return entity.Categories{}, entity.Persons{}, nil
 }
 
-func (tuc mockDreamsUseCaseOk) Update(id uint, date time.Time, description string) error {
-	return nil
-}
-
-func (tuc mockDreamsUseCaseOk) Delete(id uint) (entity.Categories, error) {
-	return entity.Categories{}, nil
-}
+func (tuc mockDreamsUseCaseOk) Finalize(id uint) error { return nil }
 
 type mockCategoriesAdderRemover struct{}
 
@@ -68,6 +66,7 @@ func (tu mockPersonsAdderRemover) RemoveFromDream(categoryId uint, dreamId uint)
 }
 
 func newTestRoute() (*dreamsRoutes, *gin.Context, *httptest.ResponseRecorder) {
+	gin.SetMode(gin.TestMode)
 	rec := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(rec)
 	c.Request = new(http.Request)
@@ -90,7 +89,7 @@ func TestList(t *testing.T) {
 			name:         "ok",
 			expectedCode: 200,
 			uc:           mockDreamsUseCaseOk{},
-			expectedBody: `{"dreams":[{"id":1,"date":"2020-11-30T13:45:52Z","visible":true}]}`,
+			expectedBody: `{"dreams":[{"id":1,"date":"2020-11-30T13:45:52Z","finalized":false,"visible":true}]}`,
 		},
 	}
 

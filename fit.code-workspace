@@ -1,0 +1,64 @@
+{
+	"folders": [
+		{
+			"name": "dreams-api",
+			"path": "C:/Users/Test/go/src/github.com/bbrighter/dreams-api"
+		},
+		{
+			"name": "dreams-ui",
+			"path": "C:/Users/Test/Documents/Code/dreams-ui"
+		}
+	],
+	"settings": {
+		"go.coverOnSingleTestFile": false,
+		"go.coverOnSingleTest": false,
+		"go.coverOnTestPackage": true
+	},
+	"launch": {
+		"version": "0.2.0",
+		"configurations": [
+		{
+			"name": "Backend",
+			"type": "go",
+			"request": "launch",
+			"mode": "auto", 
+			"program": "${workspaceFolder:dreams-api}/.",
+			"cwd": "${workspaceFolder:dreams-api}"
+		},
+		{
+			"name": "Frontend",
+			"type": "node",
+			"request": "launch",
+			"cwd": "${workspaceFolder:dreams-ui}",
+			"runtimeExecutable": "npm",
+			"runtimeArgs": ["start"],
+			"console": "integratedTerminal"
+		}
+		],
+		"compounds": [{
+			"name": "Compound",
+			"configurations": ["Frontend", "Backend"]
+		}]
+	},
+	"tasks": {
+		"version": "2.0.0",
+		"tasks": [
+			{
+            	"label": "Create OpenAPI Spec",
+            	"type": "shell",
+            	"command": "swag init",
+				"options": {"cwd": "${workspaceFolder:dreams-api}"}
+        	},
+			{
+				"label": "Read OpenAPI Spec",
+				"type": "shell",
+				"command": "pnpm openapi",
+				"dependsOn": ["Create OpenAPI Spec"],
+				"dependsOrder": "sequence",
+				"options": {
+					"cwd": "${workspaceFolder:dreams-ui}"
+				}
+			}
+		]	
+	}
+}

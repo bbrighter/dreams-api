@@ -45,6 +45,7 @@ func TestGetAllCategories(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		gin.SetMode(gin.TestMode)
 		rec := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(rec)
 		route := &categoriesRoute{c: test.uc}
