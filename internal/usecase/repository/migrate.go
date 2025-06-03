@@ -17,6 +17,7 @@ const (
 	migration4       = "20240218_HiddenDreams"
 	migration5       = "20240728_VisibleNonPointer"
 	migration6       = "20250601_FinalizeDreams"
+	migration7       = "20250603_FixFinalizeDreams"
 )
 
 var migrations = []*gormigrate.Migration{
@@ -240,6 +241,17 @@ var migrations = []*gormigrate.Migration{
 				Persons     []entity.Person   `gorm:"many2many:people_dreams;"`
 			}
 			return tx.AutoMigrate(&Dream{})
+		},
+	},
+	{
+		ID: migration7,
+		Migrate: func(tx *gorm.DB) error {
+			type Dream struct{}
+			return tx.Session(&gorm.Session{AllowGlobalUpdate: true}).Model(&Dream{}).Update("finalized", gorm.Expr("NOT finalized")).Error
+
+		},
+		Rollback: func(tx *gorm.DB) error {
+			return nil
 		},
 	},
 }
