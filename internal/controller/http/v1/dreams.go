@@ -27,6 +27,7 @@ func newDreamsRoute(handler *gin.RouterGroup, d usecase.Dreams, p usecase.Person
 			hid.GET("", r.Get)
 			hid.PATCH("", r.Update)
 			hid.DELETE("", r.Delete)
+			hid.PATCH("/finalize", r.Finalize)
 			hCat := hid.Group("/categories")
 			{
 				hCat.PUT("", r.PutCategoryToDream)
@@ -136,7 +137,7 @@ func (r *dreamsRoutes) Delete(g *gin.Context) {
 		return
 	}
 
-	categories, err := r.d.Delete(id)
+	categories, _, err := r.d.Delete(id)
 	if handleError(g, err) {
 		return
 	}
@@ -235,4 +236,24 @@ func (r *dreamsRoutes) RemoveCategoryFromDream(g *gin.Context) {
 		return
 	}
 	g.JSON(http.StatusOK, categories.ToResponse())
+}
+
+// @Description Finalize a dream
+// @Produce json
+// @Success 200
+// @Failure 400
+// @Failure 404
+// @Router /dreams/{dreamId}/finalize [patch]
+func (r *dreamsRoutes) Finalize(g *gin.Context) {
+	dreamId, err := parseParamUint(g, "id")
+	if err != nil {
+		return
+	}
+
+	err = r.d.Finalize(dreamId)
+	if handleError(g, err) {
+		return
+	}
+
+	g.Status(http.StatusOK)
 }

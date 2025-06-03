@@ -1,4 +1,4 @@
-package app
+package repository
 
 import (
 	"time"
@@ -16,6 +16,7 @@ const (
 	migration3       = "20240207_RenameTags"
 	migration4       = "20240218_HiddenDreams"
 	migration5       = "20240728_VisibleNonPointer"
+	migration6       = "20250601_FinalizeDreams"
 )
 
 var migrations = []*gormigrate.Migration{
@@ -198,13 +199,56 @@ var migrations = []*gormigrate.Migration{
 			return tx.AutoMigrate(&Dream{})
 		},
 	},
+	{
+		ID: migration6,
+		Migrate: func(tx *gorm.DB) error {
+			type Dream struct {
+				ID          uint
+				Date        time.Time
+				Description string
+				Visible     bool `gorm:"default:true"`
+				Finalized   bool
+				Categories  []entity.Category `gorm:"many2many:categories_dreams;"`
+				Persons     []entity.Person   `gorm:"many2many:people_dreams;"`
+			}
+			if err := tx.AutoMigrate(&Dream{}); err != nil {
+				return err
+			}
+			var dreams []Dream
+			tx.Preload("Categories").Preload("Persons").
+				Where(`
+					dreams.id NOT IN (
+						SELECT dream_id FROM categories_dreams
+					)
+					OR dreams.id NOT IN (
+						SELECT dream_id FROM people_dreams
+					)
+				`).Find(&dreams)
+			var ids []uint
+			for _, d := range dreams {
+				ids = append(ids, d.ID)
+			}
+			return tx.Model(&Dream{}).Where("id IN ?", ids).UpdateColumn("finalized", true).Error
+		},
+		Rollback: func(tx *gorm.DB) error {
+			type Dream struct {
+				ID          uint
+				Date        time.Time
+				Description string
+				Visible     bool              `gorm:"default:true"`
+				Categories  []entity.Category `gorm:"many2many:categories_dreams;"`
+				Persons     []entity.Person   `gorm:"many2many:people_dreams;"`
+			}
+			return tx.AutoMigrate(&Dream{})
+		},
+	},
 }
 
 func migrationFactory(db *gorm.DB) *gormigrate.Gormigrate {
 	return gormigrate.New(db, gormigrate.DefaultOptions, migrations)
 }
 
-func migration(db *gorm.DB, logger *zap.Logger) {
+func Migration(db *gorm.DB, logger *zap.Logger) {
 	m := migrationFactory(db)
 	if err := m.Migrate(); err != nil {
 		logger.Fatal("Migration failed", zap.Error(err))

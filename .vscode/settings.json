@@ -1,5 +1,5 @@
 {
-    "go.coverOnSave": false,
+    "go.coverOnSave": true,
     "go.coverOnSingleTestFile": false,
     "go.coverOnSingleTest": false,
     "go.coverOnTestPackage": true,

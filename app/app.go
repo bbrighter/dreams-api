@@ -24,7 +24,7 @@ func Run(cfg *config.Config, logger *zap.Logger) {
 	categoriesUseCase := usecase.NewCategoriesUseCase(categoriesRepo)
 	statisticsRepo := repository.NewStatisticsRepo(db)
 	statisticsUseCase := usecase.NewStatisticsUseCase(statisticsRepo)
-	migration(db, logger)
+	repository.Migration(db, logger)
 
 	handler := gin.New()
 	handler.Use(

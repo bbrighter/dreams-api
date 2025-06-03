@@ -1,47 +1,30 @@
 package v1
 
 import (
-	"net/http/httptest"
+	"net/http"
 	"testing"
+	"time"
 
 	"github.com/bbrighter/dreams-api/internal/entity"
-	"github.com/bbrighter/dreams-api/internal/usecase"
-	"github.com/gin-gonic/gin"
-	"github.com/stretchr/testify/assert"
 )
 
-type testUseCasePersons struct{}
+func TestPersons(t *testing.T) {
+	g := setupApiTest(t)
+	date := time.Now()
 
-func (tu testUseCasePersons) List() entity.Persons {
-	return entity.Persons{entity.Person{
-		ID: 1, Name: "Name", Dreams: []entity.Dream{{ID: 10}},
-	}}
-}
-
-func TestGetAllPersons(t *testing.T) {
-	tests := []struct {
-		name           string
-		uc             usecase.PersonsLister
-		expectedStatus int
-		expectedBody   string
-	}{
-		{
-			name:           "ok",
-			uc:             testUseCasePersons{},
-			expectedStatus: 200,
-			expectedBody:   `{"persons":[{"id":1,"name":"Name"}]}`,
-		},
+	tests := []apiTest{
+		{name: "post dream", method: http.MethodPost, url: "/dreams", statusCode: http.StatusCreated,
+			body: DreamRequestBody{Date: date}},
+		{name: "add person to dream", method: http.MethodPut, url: "/dreams/1/persons?name=person", statusCode: http.StatusOK,
+			response: entity.PersonsResponse{Persons: []entity.PersonResponse{{ID: 1, Name: "person"}}}},
+		{name: "get persons", method: http.MethodGet, url: "/persons", statusCode: http.StatusOK,
+			response: entity.PersonsResponse{Persons: []entity.PersonResponse{{ID: 1, Name: "person"}}}},
+		{name: "remove person from dream", method: http.MethodDelete, url: "/dreams/1/persons/1", statusCode: http.StatusOK,
+			response: entity.PersonsResponse{Persons: []entity.PersonResponse{}}},
+		{name: "get persons", method: http.MethodGet, url: "/persons", statusCode: http.StatusOK,
+			response: entity.PersonsResponse{Persons: []entity.PersonResponse{}}},
 	}
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			rec := httptest.NewRecorder()
-			c, _ := gin.CreateTestContext(rec)
-			r := &personsRoute{p: test.uc}
-
-			r.GetAll(c)
-
-			assert.Equal(t, test.expectedStatus, rec.Code)
-			assert.Equal(t, test.expectedBody, rec.Body.String())
-		})
+		test.evaluate(t, g)
 	}
 }

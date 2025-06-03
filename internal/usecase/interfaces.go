@@ -12,7 +12,8 @@ type (
 		Get(uint) (entity.Dream, error)
 		Create(time.Time) (uint, error)
 		Update(uint, time.Time, string) error
-		Delete(uint) (entity.Categories, error)
+		Delete(uint) (entity.Categories, entity.Persons, error)
+		Finalize(uint) error
 	}
 
 	PrivateDreams interface {
@@ -50,8 +51,9 @@ type (
 		Get(uint, bool) (entity.Dream, error)
 		Create(entity.Dream) (uint, error)
 		Update(entity.Dream) error
-		Delete(entity.Dream) (entity.Categories, error)
+		Delete(entity.Dream) (entity.Categories, entity.Persons, error)
 		ToggleVisibility(entity.Dream) error
+		Finalize(uint) error
 	}
 
 	ICategoriesRepo interface {
