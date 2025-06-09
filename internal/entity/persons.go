@@ -28,3 +28,11 @@ func (ps Persons) ToResponse() PersonsResponse {
 	}
 	return PersonsResponse{Persons: resps}
 }
+
+func (pers Persons) ToList() []PersonResponse {
+	var list []PersonResponse
+	for _, p := range pers {
+		list = append(list, p.ToResponse())
+	}
+	return list
+}

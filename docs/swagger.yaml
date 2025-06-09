@@ -44,12 +44,20 @@ definitions:
     type: object
   entity.DreamMetaResponse:
     properties:
+      categories:
+        items:
+          $ref: '#/definitions/entity.CategoryResponse'
+        type: array
       date:
         type: string
       finalized:
         type: boolean
       id:
         type: integer
+      persons:
+        items:
+          $ref: '#/definitions/entity.PersonResponse'
+        type: array
       visible:
         type: boolean
     required:
@@ -61,7 +69,9 @@ definitions:
   entity.DreamResponse:
     properties:
       categories:
-        $ref: '#/definitions/entity.CategoriesResponse'
+        items:
+          $ref: '#/definitions/entity.CategoryResponse'
+        type: array
       date:
         type: string
       description:
@@ -71,16 +81,16 @@ definitions:
       id:
         type: integer
       persons:
-        $ref: '#/definitions/entity.PersonsResponse'
+        items:
+          $ref: '#/definitions/entity.PersonResponse'
+        type: array
       visible:
         type: boolean
     required:
-    - categories
     - date
     - description
     - finalized
     - id
-    - persons
     - visible
     type: object
   entity.DreamsResponse:
@@ -136,6 +146,12 @@ paths:
   /dreams:
     get:
       description: Get all dreams
+      parameters:
+      - description: 'Comma separated list of child objects. Possible entries: categories,
+          persons'
+        in: query
+        name: includes
+        type: string
       produces:
       - application/json
       responses:

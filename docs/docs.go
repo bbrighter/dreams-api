@@ -37,6 +37,14 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Comma separated list of child objects. Possible entries: categories, persons",
+                        "name": "includes",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "List of all dreams",
@@ -459,6 +467,12 @@ const docTemplate = `{
                 "visible"
             ],
             "properties": {
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.CategoryResponse"
+                    }
+                },
                 "date": {
                     "type": "string"
                 },
@@ -468,6 +482,12 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "persons": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.PersonResponse"
+                    }
+                },
                 "visible": {
                     "type": "boolean"
                 }
@@ -476,17 +496,18 @@ const docTemplate = `{
         "entity.DreamResponse": {
             "type": "object",
             "required": [
-                "categories",
                 "date",
                 "description",
                 "finalized",
                 "id",
-                "persons",
                 "visible"
             ],
             "properties": {
                 "categories": {
-                    "$ref": "#/definitions/entity.CategoriesResponse"
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.CategoryResponse"
+                    }
                 },
                 "date": {
                     "type": "string"
@@ -501,7 +522,10 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "persons": {
-                    "$ref": "#/definitions/entity.PersonsResponse"
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.PersonResponse"
+                    }
                 },
                 "visible": {
                     "type": "boolean"

@@ -16,8 +16,8 @@ func NewDreamUseCase(r IDreamsRepo) *DreamsUseCase {
 	}
 }
 
-func (uc *DreamsUseCase) List() entity.Dreams {
-	return uc.repo.List(false)
+func (uc *DreamsUseCase) List(includes []entity.Includes) entity.Dreams {
+	return uc.repo.List(false, includes)
 }
 
 func (uc *DreamsUseCase) Get(id uint) (entity.Dream, error) {

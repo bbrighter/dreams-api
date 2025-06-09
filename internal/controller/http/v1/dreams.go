@@ -46,8 +46,10 @@ func newDreamsRoute(handler *gin.RouterGroup, d usecase.Dreams, p usecase.Person
 // @Produce json
 // @Success 200 {object} entity.DreamsResponse "List of all dreams"
 // @Router /dreams [get]
+// @Param includes query string false "Comma separated list of child objects. Possible entries: categories, persons"
 func (r *dreamsRoutes) GetAll(g *gin.Context) {
-	dreams := r.d.List()
+	includes := entity.ParseIncludes(g.Query("includes"))
+	dreams := r.d.List(includes)
 	g.JSON(200, dreams.ToResponse())
 }
 
