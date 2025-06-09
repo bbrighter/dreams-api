@@ -8,7 +8,7 @@ import (
 
 type (
 	Dreams interface {
-		List() entity.Dreams
+		List([]entity.Includes) entity.Dreams
 		Get(uint) (entity.Dream, error)
 		Create(time.Time) (uint, error)
 		Update(uint, time.Time, string) error
@@ -47,7 +47,7 @@ type (
 
 type (
 	IDreamsRepo interface {
-		List(bool) entity.Dreams
+		List(bool, []entity.Includes) entity.Dreams
 		Get(uint, bool) (entity.Dream, error)
 		Create(entity.Dream) (uint, error)
 		Update(entity.Dream) error

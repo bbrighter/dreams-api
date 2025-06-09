@@ -24,20 +24,43 @@ func setupDreamsTest(t *testing.T) *DreamsRepo {
 }
 
 func TestGetDreams(t *testing.T) {
-	repo := setupDreamsTest(t)
+	tests := map[string]struct {
+		createDreamBefore          bool
+		includePersons             bool
+		includeCategories          bool
+		expectedLength             int
+		expectedNumberOfCategories int
+		expectedNumberOfPersons    int
+	}{
+		"no dreams":              {},
+		"one dream":              {createDreamBefore: true, expectedLength: 1},
+		"one dream + cat":        {createDreamBefore: true, includeCategories: true, expectedLength: 1, expectedNumberOfCategories: 1},
+		"one dream + pers":       {createDreamBefore: true, includePersons: true, expectedLength: 1, expectedNumberOfPersons: 1},
+		"one dream + cat + pers": {createDreamBefore: true, includePersons: true, includeCategories: true, expectedLength: 1, expectedNumberOfCategories: 1, expectedNumberOfPersons: 1},
+	}
 
-	var dreams []entity.Dream
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			repo := setupDreamsTest(t)
+			if test.createDreamBefore {
+				repo.db.Create(&entity.Dream{ID: 1, Categories: entity.Categories{entity.Category{ID: 1}}, Persons: entity.Persons{entity.Person{ID: 1}}})
+			}
 
-	// Test no dreams exist
-	dreams = repo.List(false)
-
-	assert.Len(t, dreams, 0)
-
-	// Test one dream exists
-	repo.db.Create(&entity.Dream{ID: 1})
-	dreams = repo.List(false)
-
-	assert.Len(t, dreams, 1)
+			includes := []entity.Includes{}
+			if test.includeCategories {
+				includes = append(includes, entity.IncludeCategories)
+			}
+			if test.includePersons {
+				includes = append(includes, entity.IncludePersons)
+			}
+			dreams := repo.List(false, includes)
+			assert.Len(t, dreams, test.expectedLength)
+			if test.expectedLength > 0 {
+				assert.Len(t, dreams[0].Categories, test.expectedNumberOfCategories)
+				assert.Len(t, dreams[0].Persons, test.expectedNumberOfPersons)
+			}
+		})
+	}
 
 	// // Test one dream and tag exists
 	// CreateTestDream(1, 1, true, t)

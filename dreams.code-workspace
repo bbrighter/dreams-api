@@ -50,7 +50,7 @@
 				"options": {"cwd": "${workspaceFolder:dreams-api}"}
         	},
 			{
-				"label": "Read OpenAPI Spec",
+				"label": "Create and use OpenAPI spec",
 				"type": "shell",
 				"command": "pnpm openapi",
 				"dependsOn": ["Create OpenAPI Spec"],

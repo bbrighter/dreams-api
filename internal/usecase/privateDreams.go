@@ -16,7 +16,7 @@ func (uc PrivateDreamsUseCase) ToggleVisibility(id uint) error {
 }
 
 func (uc PrivateDreamsUseCase) List() entity.Dreams {
-	return uc.repo.List(true)
+	return uc.repo.List(true, []entity.Includes{})
 }
 
 func (uc PrivateDreamsUseCase) Get(id uint) (entity.Dream, error) {

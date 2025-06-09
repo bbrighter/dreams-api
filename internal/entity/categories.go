@@ -30,3 +30,11 @@ func (cats Categories) ToResponse() CategoriesResponse {
 	}
 	return CategoriesResponse{Categories: resps}
 }
+
+func (cats Categories) ToList() []CategoryResponse {
+	var list []CategoryResponse
+	for _, c := range cats {
+		list = append(list, c.ToResponse())
+	}
+	return list
+}

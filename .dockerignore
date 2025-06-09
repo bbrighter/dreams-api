@@ -1,0 +1,6 @@
+*.exe
+*.sqlite
+dreams.code-workspace
+.devcontainer
+.github
+.vscode

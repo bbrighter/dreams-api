@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"slices"
+
 	"github.com/bbrighter/dreams-api/internal/entity"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -14,9 +16,15 @@ func NewDreamsRepo(db *gorm.DB) *DreamsRepo {
 	return &DreamsRepo{db: db}
 }
 
-func (r *DreamsRepo) List(showAll bool) entity.Dreams {
+func (r *DreamsRepo) List(showAll bool, includes []entity.Includes) entity.Dreams {
 	var dreams entity.Dreams
 	tx := r.db.Model(&entity.Dream{})
+	if slices.Contains(includes, entity.IncludePersons) {
+		tx.Preload("Persons")
+	}
+	if slices.Contains(includes, entity.IncludeCategories) {
+		tx.Preload("Categories")
+	}
 	if !showAll {
 		tx.Where(&entity.Dream{Visible: true})
 	}
