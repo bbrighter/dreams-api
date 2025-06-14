@@ -30,8 +30,6 @@ func setupApiTest(t *testing.T) *gin.Engine {
 	dreamsRepo := repository.NewDreamsRepo(db)
 	dreamsUseCase := usecase.NewDreamUseCase(dreamsRepo)
 	privateDreamsUseCase := usecase.NewPrivateDreamUseCase(dreamsRepo)
-	personsRepo := repository.NewPersonsRepo(db)
-	personsUseCase := usecase.NewPersonsUseCase(personsRepo)
 	categoriesRepo := repository.NewCategoriesRepo(db)
 	categoriesUseCase := usecase.NewCategoriesUseCase(categoriesRepo)
 	statisticsRepo := repository.NewStatisticsRepo(db)
@@ -44,11 +42,9 @@ func setupApiTest(t *testing.T) *gin.Engine {
 		handler,
 		dreamsUseCase,
 		privateDreamsUseCase,
-		personsUseCase,
 		categoriesUseCase,
 		statisticsUseCase,
 		categoriesUseCase,
-		personsUseCase,
 	)
 	return handler
 }

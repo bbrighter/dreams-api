@@ -34,21 +34,34 @@ func TestDreams(t *testing.T) {
 		{name: "patch dream", method: http.MethodPatch, url: "/dreams/1", statusCode: http.StatusOK,
 			body: DreamRequestBody{Description: &desc, Date: date}},
 		{name: "add person to dream", method: http.MethodPut, url: "/dreams/1/persons?name=person", statusCode: http.StatusOK,
-			response: entity.PersonsResponse{Persons: []entity.PersonResponse{{ID: 1, Name: "person"}}}},
+			response: entity.CategoriesResponse{
+				Persons: []entity.CategoryResponse{{ID: 1, Name: "person"}},
+			}},
 		{name: "add category to dream", method: http.MethodPut, url: "/dreams/1/categories?name=cat", statusCode: http.StatusOK,
-			response: entity.CategoriesResponse{Categories: []entity.CategoryResponse{{ID: 1, Name: "cat"}}}},
+			response: entity.CategoriesResponse{
+				Categories: []entity.CategoryResponse{{ID: 2, Name: "cat"}},
+				Persons:    []entity.CategoryResponse{{ID: 1, Name: "person"}},
+			}},
 		{name: "get dreams with persons and categories", method: http.MethodGet, url: "/dreams?includes=persons,categories", statusCode: http.StatusOK,
 			response: entity.DreamsResponse{
 				Dreams: []entity.DreamMetaResponse{{
 					ID: 1, Date: date, Finalized: false, Visible: true,
-					Categories: []entity.CategoryResponse{{ID: 1, Name: "cat"}},
-					Persons:    []entity.PersonResponse{{ID: 1, Name: "person"}}},
+					CategoriesResponse: entity.CategoriesResponse{
+						Categories: []entity.CategoryResponse{{ID: 2, Name: "cat"}},
+						Persons:    []entity.CategoryResponse{{ID: 1, Name: "person"}}},
+				},
 				}}},
-		{name: "remove person to dream", method: http.MethodDelete, url: "/dreams/1/persons/1", statusCode: http.StatusOK,
-			response: entity.PersonsResponse{Persons: []entity.PersonResponse{}}},
-		{name: "remove category to dream", method: http.MethodDelete, url: "/dreams/1/categories/1", statusCode: http.StatusOK,
-			response: entity.CategoriesResponse{Categories: []entity.CategoryResponse{}}},
+		{name: "remove person from dream", method: http.MethodDelete, url: "/dreams/1/persons/1", statusCode: http.StatusOK,
+			response: entity.CategoriesResponse{
+				Categories: []entity.CategoryResponse{{ID: 2, Name: "cat"}},
+			}},
+		{name: "remove category from dream", method: http.MethodDelete, url: "/dreams/1/categories/2", statusCode: http.StatusOK, response: entity.CategoriesResponse{}},
 		{name: "Finalize the dream", method: http.MethodPatch, url: "/dreams/1/finalize", statusCode: http.StatusOK},
+		{name: "Dream is finalized", method: http.MethodGet, url: "/dreams/1", statusCode: http.StatusOK,
+			response: entity.DreamResponse{
+				Description:       desc,
+				DreamMetaResponse: entity.DreamMetaResponse{ID: 1, Date: date, Finalized: true, Visible: true}},
+		},
 		{name: "delete dream", method: http.MethodDelete, url: "/dreams/1", statusCode: http.StatusOK},
 	}
 	for _, test := range tests {

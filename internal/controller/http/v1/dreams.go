@@ -11,12 +11,11 @@ import (
 
 type dreamsRoutes struct {
 	d usecase.Dreams
-	p usecase.PersonsAdderRemover
 	c usecase.CategoriesAdderRemover
 }
 
-func newDreamsRoute(handler *gin.RouterGroup, d usecase.Dreams, p usecase.PersonsAdderRemover, c usecase.CategoriesAdderRemover) {
-	r := &dreamsRoutes{d, p, c}
+func newDreamsRoute(handler *gin.RouterGroup, d usecase.Dreams, c usecase.CategoriesAdderRemover) {
+	r := &dreamsRoutes{d, c}
 
 	h := handler.Group("/dreams")
 	{
@@ -139,7 +138,7 @@ func (r *dreamsRoutes) Delete(g *gin.Context) {
 		return
 	}
 
-	categories, _, err := r.d.Delete(id)
+	categories, err := r.d.Delete(id)
 	if handleError(g, err) {
 		return
 	}
@@ -148,7 +147,7 @@ func (r *dreamsRoutes) Delete(g *gin.Context) {
 
 // @Description Add a person to a dream
 // @Produce json
-// @Success 200 {object} entity.PersonsResponse
+// @Success 200 {object} entity.CategoriesResponse
 // @Failure 400
 // @Failure 404
 // @Router /dreams/{dreamId}/persons [put]
@@ -163,16 +162,16 @@ func (r *dreamsRoutes) PutPersonToDream(g *gin.Context) {
 		return
 	}
 
-	persons, err := r.p.AddToDream(name, dreamId)
+	cats, err := r.c.AddPersonToDream(name, dreamId)
 	if handleError(g, err) {
 		return
 	}
-	g.JSON(http.StatusOK, persons.ToResponse())
+	g.JSON(http.StatusOK, cats.ToResponse())
 }
 
 // @Description Delete a person from a dream
 // @Produce json
-// @Success 200 {object} entity.PersonsResponse
+// @Success 200 {object} entity.CategoriesResponse
 // @Failure 400
 // @Failure 404
 // @Router /dreams/{dreamId}/persons/{personId} [delete]
@@ -186,7 +185,7 @@ func (r *dreamsRoutes) RemovePersonFromDream(g *gin.Context) {
 		return
 	}
 
-	persons, err := r.p.RemoveFromDream(personId, dreamId)
+	persons, err := r.c.RemoveFromDream(personId, dreamId)
 	if handleError(g, err) {
 		return
 	}
@@ -210,11 +209,11 @@ func (r *dreamsRoutes) PutCategoryToDream(g *gin.Context) {
 		return
 	}
 
-	categories, err := r.c.AddToDream(name, dreamId)
+	cats, err := r.c.AddCategoryToDream(name, dreamId)
 	if handleError(g, err) {
 		return
 	}
-	g.JSON(http.StatusOK, categories.ToResponse())
+	g.JSON(http.StatusOK, cats.ToResponse())
 }
 
 // @Description Remove a category from a dream

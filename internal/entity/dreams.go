@@ -12,7 +12,6 @@ type Dream struct {
 	Visible     bool `gorm:"default:true"`
 	Finalized   bool
 	Categories  Categories `gorm:"many2many:categories_dreams;"`
-	Persons     Persons    `gorm:"many2many:people_dreams;"`
 }
 
 type Dreams []Dream
@@ -22,12 +21,11 @@ type DreamsResponse struct {
 }
 
 type DreamMetaResponse struct {
-	ID         uint               `json:"id" validate:"required"`
-	Date       time.Time          `json:"date" validate:"required"`
-	Finalized  bool               `json:"finalized" validate:"required"`
-	Visible    bool               `json:"visible" validate:"required"`
-	Categories []CategoryResponse `json:"categories,omitempty" validate:"optional"`
-	Persons    []PersonResponse   `json:"persons,omitempty" validate:"optional"`
+	ID        uint      `json:"id" validate:"required"`
+	Date      time.Time `json:"date" validate:"required"`
+	Finalized bool      `json:"finalized" validate:"required"`
+	Visible   bool      `json:"visible" validate:"required"`
+	CategoriesResponse
 }
 
 // Response when querying one dream
@@ -39,12 +37,11 @@ type DreamResponse struct {
 func (d Dream) ToResponse() DreamResponse {
 	return DreamResponse{
 		DreamMetaResponse: DreamMetaResponse{
-			ID:         d.ID,
-			Date:       d.Date,
-			Visible:    d.Visible,
-			Finalized:  d.Finalized,
-			Categories: d.Categories.ToList(),
-			Persons:    d.Persons.ToList(),
+			ID:                 d.ID,
+			Date:               d.Date,
+			Visible:            d.Visible,
+			Finalized:          d.Finalized,
+			CategoriesResponse: d.Categories.ToResponse(),
 		},
 		Description: d.Description,
 	}
@@ -55,12 +52,11 @@ func (d Dreams) ToResponse() DreamsResponse {
 	for _, dream := range d {
 		resps = append(resps,
 			DreamMetaResponse{
-				ID:         dream.ID,
-				Date:       dream.Date,
-				Visible:    dream.Visible,
-				Finalized:  dream.Finalized,
-				Categories: dream.Categories.ToList(),
-				Persons:    dream.Persons.ToList(),
+				ID:                 dream.ID,
+				Date:               dream.Date,
+				Visible:            dream.Visible,
+				Finalized:          dream.Finalized,
+				CategoriesResponse: dream.Categories.ToResponse(),
 			},
 		)
 	}

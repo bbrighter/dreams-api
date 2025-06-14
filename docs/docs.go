@@ -293,7 +293,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/entity.PersonsResponse"
+                            "$ref": "#/definitions/entity.CategoriesResponse"
                         }
                     },
                     "400": {
@@ -315,7 +315,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/entity.PersonsResponse"
+                            "$ref": "#/definitions/entity.CategoriesResponse"
                         }
                     },
                     "400": {
@@ -323,22 +323,6 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found"
-                    }
-                }
-            }
-        },
-        "/persons": {
-            "get": {
-                "description": "Get all persons",
-                "produces": [
-                    "application/json"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/entity.PersonsResponse"
-                        }
                     }
                 }
             }
@@ -395,11 +379,14 @@ const docTemplate = `{
     "definitions": {
         "entity.CategoriesResponse": {
             "type": "object",
-            "required": [
-                "categories"
-            ],
             "properties": {
                 "categories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.CategoryResponse"
+                    }
+                },
+                "persons": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/entity.CategoryResponse"
@@ -485,7 +472,7 @@ const docTemplate = `{
                 "persons": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/entity.PersonResponse"
+                        "$ref": "#/definitions/entity.CategoryResponse"
                     }
                 },
                 "visible": {
@@ -524,7 +511,7 @@ const docTemplate = `{
                 "persons": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/entity.PersonResponse"
+                        "$ref": "#/definitions/entity.CategoryResponse"
                     }
                 },
                 "visible": {
@@ -542,35 +529,6 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/entity.DreamMetaResponse"
-                    }
-                }
-            }
-        },
-        "entity.PersonResponse": {
-            "type": "object",
-            "required": [
-                "id",
-                "name"
-            ],
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "entity.PersonsResponse": {
-            "type": "object",
-            "required": [
-                "persons"
-            ],
-            "properties": {
-                "persons": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/entity.PersonResponse"
                     }
                 }
             }

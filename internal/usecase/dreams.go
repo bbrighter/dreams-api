@@ -34,7 +34,7 @@ func (uc *DreamsUseCase) Update(id uint, date time.Time, description string) err
 	return uc.repo.Update(dream)
 }
 
-func (uc *DreamsUseCase) Delete(id uint) (entity.Categories, entity.Persons, error) {
+func (uc *DreamsUseCase) Delete(id uint) (entity.Categories, error) {
 	dream := entity.Dream{ID: id}
 	return uc.repo.Delete(dream)
 }

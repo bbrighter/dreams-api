@@ -15,7 +15,6 @@ func setupCategoriesTest(t *testing.T) *CategoriesRepo {
 	err := repo.db.AutoMigrate(
 		&entity.Dream{},
 		&entity.Category{},
-		&entity.Person{},
 	)
 	assert.NoError(t, err)
 
@@ -28,7 +27,7 @@ func TestGetAllCategories(t *testing.T) {
 	cats := r.List()
 	assert.Len(t, cats, 0)
 
-	r.db.Create(&entity.Category{ID: 1})
+	r.db.Create(&entity.Category{ID: 1, Type: entity.TypeCategory})
 	cats = r.List()
 	assert.Len(t, cats, 1)
 }
@@ -38,57 +37,55 @@ func TestAddCategoryToDream(t *testing.T) {
 	var err error
 
 	var dream = entity.Dream{ID: 1}
-	_, err = r.AddToDream("name", dream)
+	_, err = r.AddToDream("name", dream, entity.TypeCategory)
 	assert.Error(t, err)
 
 	r.db.Create(&dream)
 
 	var cats entity.Categories
-	cats, err = r.AddToDream("name", dream)
+	cats, err = r.AddToDream("name", dream, entity.TypeCategory)
 
 	assert.NoError(t, err)
 	assert.Len(t, cats, 1)
 
-	cats, err = r.AddToDream("name", dream)
+	cats, err = r.AddToDream("name", dream, entity.TypeCategory)
 
 	assert.NoError(t, err)
 	assert.Len(t, cats, 1)
 
-	cats, err = r.AddToDream("new name", dream)
+	cats, err = r.AddToDream("new name", dream, entity.TypeCategory)
 
 	assert.NoError(t, err)
 	assert.Len(t, cats, 2)
 }
 
 func TestRemoveCategoryFromDream(t *testing.T) {
-	r := setupCategoriesTest(t)
-	var err error
+	tests := map[string]struct {
+		exists               bool
+		catInUseByOtherDream bool
+		expectError          error
+		expectedLengthOfCats int
+	}{
+		"no dream and no category": {expectError: entity.ErrorNotFound},
+		"dream + cat":              {exists: true},
+		"cat in use, not removed":  {catInUseByOtherDream: true, expectedLengthOfCats: 1},
+	}
 
-	// No dream and no category
-	var dream = entity.Dream{ID: 1}
-	var cat = entity.Category{ID: 10}
-	_, err = r.RemoveFromDream(cat, dream)
-	assert.Error(t, err)
-
-	// No category
-	r.db.Create(&dream)
-
-	_, err = r.RemoveFromDream(cat, dream)
-	assert.Error(t, err)
-
-	// Category and dream exist
-	r.db.Create(&entity.Category{ID: 10, Dreams: []entity.Dream{dream}})
-
-	var cats entity.Categories
-	cats, err = r.RemoveFromDream(cat, dream)
-	assert.NoError(t, err)
-	assert.Len(t, cats, 0)
-
-	// Category exists and cannot be removed
-	var dream2 = entity.Dream{ID: 2}
-	r.db.Create(&entity.Dreams{dream, dream2})
-	r.db.Create(&entity.Category{ID: 10, Dreams: []entity.Dream{dream, dream2}})
-	cats, err = r.RemoveFromDream(cat, dream)
-	assert.NoError(t, err)
-	assert.Len(t, cats, 1)
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			r := setupCategoriesTest(t)
+			var cat = entity.Categories{entity.Category{ID: 10, Name: "name", Type: entity.TypeCategory}}
+			if test.exists || test.catInUseByOtherDream {
+				var dream = entity.Dream{ID: 1, Categories: cat}
+				r.db.Create(&dream)
+			}
+			if test.catInUseByOtherDream {
+				var otherDream = entity.Dream{ID: 2, Categories: cat}
+				r.db.Debug().Create(&otherDream)
+			}
+			cats, err := r.RemoveFromDream(entity.Category{ID: 10}, entity.Dream{ID: 1})
+			assert.Equal(t, test.expectError, err)
+			assert.Len(t, cats, test.expectedLengthOfCats)
+		})
+	}
 }

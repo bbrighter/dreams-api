@@ -8,17 +8,14 @@ import (
 func NewRouter(handler *gin.Engine,
 	d usecase.Dreams,
 	pd usecase.PrivateDreams,
-	p usecase.PersonsAdderRemover,
 	c usecase.CategoriesAdderRemover,
 	s usecase.Statistics,
 	cl usecase.CategoriesLister,
-	pl usecase.PersonsLister,
 ) {
 	h := handler.Group("/")
 	{
-		newDreamsRoute(h, d, p, c)
+		newDreamsRoute(h, d, c)
 		newPrivateDreamsRoute(h, pd)
-		newPersonsRoute(h, pl)
 		newCategoriesRoute(h, cl)
 		newStatisticsRoute(h, s)
 	}
