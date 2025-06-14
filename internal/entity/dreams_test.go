@@ -18,10 +18,8 @@ func TestDreamToResponse(t *testing.T) {
 		Visible:     true,
 		Finalized:   true,
 		Categories: []entity.Category{
-			{ID: 1, Name: "Category", Dreams: []entity.Dream{{ID: 1}}},
-		},
-		Persons: []entity.Person{
-			{ID: 1, Name: "Name", Dreams: []entity.Dream{{ID: 1}}},
+			{ID: 1, Name: "Category", Type: entity.TypeCategory, Dreams: []entity.Dream{{ID: 1}}},
+			{ID: 2, Name: "Person", Type: entity.TypePerson, Dreams: []entity.Dream{{ID: 1}}},
 		},
 	}
 
@@ -35,8 +33,8 @@ func TestDreamToResponse(t *testing.T) {
 	assert.Equal(t, "Category", resp.Categories[0].Name)
 	assert.EqualValues(t, 1, resp.Categories[0].ID)
 	assert.Len(t, resp.Persons, 1)
-	assert.EqualValues(t, 1, resp.Persons[0].ID)
-	assert.Equal(t, "Name", resp.Persons[0].Name)
+	assert.EqualValues(t, 2, resp.Persons[0].ID)
+	assert.Equal(t, "Person", resp.Persons[0].Name)
 
 }
 
@@ -56,8 +54,7 @@ func TestDreamsToDreamsResponse(t *testing.T) {
 			ID:          1,
 			Date:        time.Now(),
 			Description: "desc",
-			Categories:  []entity.Category{{ID: 1, Name: "Category"}},
-			Persons:     []entity.Person{{ID: 1, Name: "Name"}},
+			Categories:  []entity.Category{{ID: 1, Name: "Category"}, {ID: 2, Name: "Person"}},
 			Visible:     true,
 			Finalized:   true,
 		},

@@ -19,16 +19,17 @@ func (r *CategoriesRepo) List() entity.Categories {
 	return cats
 }
 
-func (r *CategoriesRepo) AddToDream(categoryName string, dream entity.Dream) (entity.Categories, error) {
+func (r *CategoriesRepo) AddToDream(categoryName string, dream entity.Dream, categoryType entity.CategoryType) (entity.Categories, error) {
 	if rowsAffected := r.db.First(&dream).RowsAffected; rowsAffected == 0 {
 		return nil, entity.ErrorNotFound
 	}
 
 	var category = entity.Category{
 		Name:   categoryName,
+		Type:   categoryType,
 		Dreams: entity.Dreams{dream},
 	}
-	r.db.Where(&entity.Category{Name: categoryName}).First(&category)
+	r.db.Where(&entity.Category{Name: categoryName, Type: categoryType}).First(&category)
 	err := r.db.Save(&category).Error
 
 	var categories []entity.Category
@@ -46,7 +47,7 @@ func (r *CategoriesRepo) RemoveFromDream(category entity.Category, dream entity.
 		return categories, entity.ErrorNotFound
 	}
 
-	r.db.Model(&dream).Association("Categories").Delete(category)
+	r.db.Model(&dream).Association("Categories").Delete(&category)
 	categories, err := removeCategoriesIfNeeded(r.db, entity.Categories{category})
 
 	return categories, err

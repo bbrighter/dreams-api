@@ -18,6 +18,7 @@ const (
 	migration5       = "20240728_VisibleNonPointer"
 	migration6       = "20250601_FinalizeDreams"
 	migration7       = "20250603_FixFinalizeDreams"
+	migration8       = "20250612_SimplifyCategories"
 )
 
 var migrations = []*gormigrate.Migration{
@@ -161,13 +162,17 @@ var migrations = []*gormigrate.Migration{
 	{
 		ID: migration4,
 		Migrate: func(tx *gorm.DB) error {
+			type Person struct {
+				ID   uint
+				Name string
+			}
 			type Dream struct {
 				ID          uint
 				Date        time.Time
 				Description string
 				Visible     *bool             `gorm:"default:true"`
 				Categories  []entity.Category `gorm:"many2many:categories_dreams;"`
-				Persons     []entity.Person   `gorm:"many2many:people_dreams;"`
+				Persons     []Person          `gorm:"many2many:people_dreams;"`
 			}
 			return tx.Migrator().AutoMigrate(&Dream{})
 		},
@@ -178,24 +183,32 @@ var migrations = []*gormigrate.Migration{
 	{
 		ID: migration5,
 		Migrate: func(tx *gorm.DB) error {
+			type Person struct {
+				ID   uint
+				Name string
+			}
 			type Dream struct {
 				ID          uint
 				Date        time.Time
 				Description string
 				Visible     bool              `gorm:"default:true"`
 				Categories  []entity.Category `gorm:"many2many:categories_dreams;"`
-				Persons     []entity.Person   `gorm:"many2many:people_dreams;"`
+				Persons     []Person          `gorm:"many2many:people_dreams;"`
 			}
 			return tx.AutoMigrate(&Dream{})
 		},
 		Rollback: func(tx *gorm.DB) error {
+			type Person struct {
+				ID   uint
+				Name string
+			}
 			type Dream struct {
 				ID          uint
 				Date        time.Time
 				Description string
 				Visible     *bool             `gorm:"default:true"`
 				Categories  []entity.Category `gorm:"many2many:categories_dreams;"`
-				Persons     []entity.Person   `gorm:"many2many:people_dreams;"`
+				Persons     []Person          `gorm:"many2many:people_dreams;"`
 			}
 			return tx.AutoMigrate(&Dream{})
 		},
@@ -203,6 +216,10 @@ var migrations = []*gormigrate.Migration{
 	{
 		ID: migration6,
 		Migrate: func(tx *gorm.DB) error {
+			type Person struct {
+				ID   uint
+				Name string
+			}
 			type Dream struct {
 				ID          uint
 				Date        time.Time
@@ -210,7 +227,7 @@ var migrations = []*gormigrate.Migration{
 				Visible     bool `gorm:"default:true"`
 				Finalized   bool
 				Categories  []entity.Category `gorm:"many2many:categories_dreams;"`
-				Persons     []entity.Person   `gorm:"many2many:people_dreams;"`
+				Persons     []Person          `gorm:"many2many:people_dreams;"`
 			}
 			if err := tx.AutoMigrate(&Dream{}); err != nil {
 				return err
@@ -232,13 +249,17 @@ var migrations = []*gormigrate.Migration{
 			return tx.Model(&Dream{}).Where("id IN ?", ids).UpdateColumn("finalized", true).Error
 		},
 		Rollback: func(tx *gorm.DB) error {
+			type Person struct {
+				ID   uint
+				Name string
+			}
 			type Dream struct {
 				ID          uint
 				Date        time.Time
 				Description string
 				Visible     bool              `gorm:"default:true"`
 				Categories  []entity.Category `gorm:"many2many:categories_dreams;"`
-				Persons     []entity.Person   `gorm:"many2many:people_dreams;"`
+				Persons     []Person          `gorm:"many2many:people_dreams;"`
 			}
 			return tx.AutoMigrate(&Dream{})
 		},
@@ -251,6 +272,87 @@ var migrations = []*gormigrate.Migration{
 
 		},
 		Rollback: func(tx *gorm.DB) error {
+			return nil
+		},
+	},
+	{
+		ID: migration8,
+		Migrate: func(tx *gorm.DB) error {
+			type Category struct {
+				ID   uint
+				Name string
+				Type string
+			}
+			if !tx.Migrator().HasColumn(&Category{}, "Type") {
+				if err := tx.Migrator().AddColumn(&Category{}, "Type"); err != nil {
+					return err
+				}
+			}
+
+			if err := tx.Session(&gorm.Session{AllowGlobalUpdate: true}).Model(&Category{}).Update("Type", "category").Error; err != nil {
+				return err
+			}
+
+			type Person struct {
+				ID   uint
+				Name string
+			}
+
+			var persons []Person
+			if err := tx.Find(&persons).Error; err != nil {
+				return err
+			}
+			if len(persons) > 0 {
+				var cats []Category
+				var oldIds = make(map[uint]string)
+				for _, p := range persons {
+					cat := Category{Name: p.Name, Type: "person"}
+					oldIds[p.ID] = p.Name
+					cats = append(cats, cat)
+				}
+				if err := tx.Create(&cats).Error; err != nil {
+					return err
+				}
+
+				type PeopleDream struct {
+					PersonID uint
+					DreamID  uint
+				}
+				var peopleDream []PeopleDream
+				if err := tx.Find(&peopleDream).Error; err != nil {
+					return err
+				}
+				type CategoriesDream struct {
+					CategoryID uint
+					DreamID    uint
+				}
+				var categoriesDream []CategoriesDream
+				for _, pd := range peopleDream {
+					for _, cat := range cats {
+						if cat.Name == oldIds[pd.PersonID] {
+							cd := CategoriesDream{DreamID: pd.DreamID, CategoryID: cat.ID}
+							categoriesDream = append(categoriesDream, cd)
+						}
+					}
+				}
+				if err := tx.Create(&categoriesDream).Error; err != nil {
+					return err
+				}
+			}
+
+			type PeopleDream struct {
+				PersonID uint
+				DreamID  uint
+			}
+			if err := tx.Migrator().DropTable(&PeopleDream{}); err != nil {
+				return err
+			}
+			if err := tx.Migrator().DropTable(&Person{}); err != nil {
+				return err
+			}
+			return nil
+		},
+		Rollback: func(d *gorm.DB) error {
 			return nil
 		},
 	},

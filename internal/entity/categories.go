@@ -1,15 +1,35 @@
 package entity
 
+import (
+	"errors"
+
+	"gorm.io/gorm"
+)
+
+type CategoryType string
+
+const (
+	TypePerson   CategoryType = "person"
+	TypeCategory CategoryType = "category"
+)
+
+var validCategoryTypes = map[CategoryType]bool{
+	TypePerson:   true,
+	TypeCategory: true,
+}
+
 type Category struct {
 	ID     uint
 	Name   string
+	Type   CategoryType
 	Dreams []Dream `gorm:"many2many:categories_dreams;"`
 }
 
 type Categories []Category
 
 type CategoriesResponse struct {
-	Categories []CategoryResponse `json:"categories" validate:"required"`
+	Categories []CategoryResponse `json:"categories,omitempty" validate:"optional"`
+	Persons    []CategoryResponse `json:"persons,omitempty" validate:"optional"`
 }
 
 type CategoryResponse struct {
@@ -24,17 +44,38 @@ func (c Category) ToResponse() CategoryResponse {
 	}
 }
 func (cats Categories) ToResponse() CategoriesResponse {
-	resps := []CategoryResponse{}
+	var categories []CategoryResponse
+	var persons []CategoryResponse
 	for _, c := range cats {
-		resps = append(resps, c.ToResponse())
+		resp := c.ToResponse()
+		switch c.Type {
+		case TypePerson:
+			persons = append(persons, resp)
+		case TypeCategory:
+			categories = append(categories, resp)
+		}
 	}
-	return CategoriesResponse{Categories: resps}
+	return CategoriesResponse{Categories: categories, Persons: persons}
 }
 
-func (cats Categories) ToList() []CategoryResponse {
+func (cats Categories) ToList(t CategoryType) []CategoryResponse {
 	var list []CategoryResponse
 	for _, c := range cats {
 		list = append(list, c.ToResponse())
 	}
 	return list
+}
+
+func (c *Category) BeforeCreate(tx *gorm.DB) error {
+	if !validCategoryTypes[c.Type] {
+		return errors.New("invalid category type")
+	}
+	return nil
+}
+
+func (c *Category) BeforeUpdate(tx *gorm.DB) error {
+	if !validCategoryTypes[c.Type] {
+		return errors.New("invalid category type")
+	}
+	return nil
 }

@@ -13,8 +13,5 @@ func NewStatisticsUseCase(r IStatisticsRepo) *StatisticsUseCase {
 }
 
 func (u StatisticsUseCase) GetStatistics(showAll bool, maxNumber int) (entity.Counts, entity.Counts) {
-	cats := u.repo.CountCategories(showAll, maxNumber)
-	persons := u.repo.CountPersons(showAll, maxNumber)
-
-	return cats, persons
+	return u.repo.CountCategories(showAll, maxNumber)
 }

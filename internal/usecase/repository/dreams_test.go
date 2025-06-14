@@ -16,7 +16,6 @@ func setupDreamsTest(t *testing.T) *DreamsRepo {
 	err := repo.db.AutoMigrate(
 		&entity.Dream{},
 		&entity.Category{},
-		&entity.Person{},
 	)
 	assert.NoError(t, err)
 
@@ -34,8 +33,8 @@ func TestGetDreams(t *testing.T) {
 	}{
 		"no dreams":              {},
 		"one dream":              {createDreamBefore: true, expectedLength: 1},
-		"one dream + cat":        {createDreamBefore: true, includeCategories: true, expectedLength: 1, expectedNumberOfCategories: 1},
-		"one dream + pers":       {createDreamBefore: true, includePersons: true, expectedLength: 1, expectedNumberOfPersons: 1},
+		"one dream + cat":        {createDreamBefore: true, includeCategories: true, expectedLength: 1, expectedNumberOfCategories: 1, expectedNumberOfPersons: 1},
+		"one dream + pers":       {createDreamBefore: true, includePersons: true, expectedLength: 1, expectedNumberOfPersons: 1, expectedNumberOfCategories: 1},
 		"one dream + cat + pers": {createDreamBefore: true, includePersons: true, includeCategories: true, expectedLength: 1, expectedNumberOfCategories: 1, expectedNumberOfPersons: 1},
 	}
 
@@ -43,7 +42,10 @@ func TestGetDreams(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			repo := setupDreamsTest(t)
 			if test.createDreamBefore {
-				repo.db.Create(&entity.Dream{ID: 1, Categories: entity.Categories{entity.Category{ID: 1}}, Persons: entity.Persons{entity.Person{ID: 1}}})
+				repo.db.Create(&entity.Dream{ID: 1, Categories: entity.Categories{
+					entity.Category{ID: 1, Type: entity.TypeCategory},
+					entity.Category{ID: 2, Type: entity.TypePerson},
+				}})
 			}
 
 			includes := []entity.Includes{}
@@ -56,8 +58,18 @@ func TestGetDreams(t *testing.T) {
 			dreams := repo.List(false, includes)
 			assert.Len(t, dreams, test.expectedLength)
 			if test.expectedLength > 0 {
-				assert.Len(t, dreams[0].Categories, test.expectedNumberOfCategories)
-				assert.Len(t, dreams[0].Persons, test.expectedNumberOfPersons)
+				numberOfPersons := 0
+				numberOfCats := 0
+				for _, cat := range dreams[0].Categories {
+					if cat.Type == entity.TypeCategory {
+						numberOfCats++
+					}
+					if cat.Type == entity.TypePerson {
+						numberOfPersons++
+					}
+				}
+				assert.EqualValues(t, numberOfCats, test.expectedNumberOfCategories)
+				assert.EqualValues(t, numberOfPersons, test.expectedNumberOfPersons)
 			}
 		})
 	}
@@ -131,20 +143,21 @@ func TestUpdateDream(t *testing.T) {
 func TestDeleteDream(t *testing.T) {
 	repo := setupDreamsTest(t)
 	err := repo.db.Create(&entity.Dream{
-		ID:         1,
-		Categories: entity.Categories{entity.Category{ID: 1, Name: "Cat"}},
-		Persons:    entity.Persons{entity.Person{ID: 1, Name: "Person"}},
+		ID: 1,
+		Categories: entity.Categories{
+			entity.Category{ID: 1, Name: "Cat", Type: entity.TypeCategory},
+			entity.Category{ID: 2, Name: "Person", Type: entity.TypePerson},
+		},
 	}).Error
 	assert.NoError(t, err)
 
-	cats, pers, err := repo.Delete(entity.Dream{ID: 1})
+	cats, err := repo.Delete(entity.Dream{ID: 1})
 	assert.NoError(t, err)
 	assert.Len(t, cats, 0)
-	assert.Len(t, pers, 0)
 
-	var persons entity.Persons
-	repo.db.Find(&persons)
-	assert.Len(t, persons, 0)
+	var categories entity.Categories
+	repo.db.Find(&categories)
+	assert.Len(t, categories, 0)
 }
 
 func TestToggleVisibility(t *testing.T) {

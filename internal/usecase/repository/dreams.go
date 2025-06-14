@@ -1,8 +1,6 @@
 package repository
 
 import (
-	"slices"
-
 	"github.com/bbrighter/dreams-api/internal/entity"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -19,10 +17,7 @@ func NewDreamsRepo(db *gorm.DB) *DreamsRepo {
 func (r *DreamsRepo) List(showAll bool, includes []entity.Includes) entity.Dreams {
 	var dreams entity.Dreams
 	tx := r.db.Model(&entity.Dream{})
-	if slices.Contains(includes, entity.IncludePersons) {
-		tx.Preload("Persons")
-	}
-	if slices.Contains(includes, entity.IncludeCategories) {
+	if len(includes) > 0 {
 		tx.Preload("Categories")
 	}
 	if !showAll {
@@ -46,10 +41,8 @@ func (r *DreamsRepo) Get(id uint, showAll bool) (entity.Dream, error) {
 }
 
 func (r *DreamsRepo) Create(dream entity.Dream) (uint, error) {
-	if err := r.db.Create(&dream).Error; err != nil {
-		return 0, err
-	}
-	return dream.ID, nil
+	err := r.db.Create(&dream).Error
+	return dream.ID, err
 }
 
 func (r *DreamsRepo) Update(dream entity.Dream) error {
@@ -60,48 +53,32 @@ func (r *DreamsRepo) Update(dream entity.Dream) error {
 	return tx.Error
 }
 
-func (r *DreamsRepo) Delete(dream entity.Dream) (entity.Categories, entity.Persons, error) {
-	var cats *entity.Categories
-	var pers *entity.Persons
+func (r *DreamsRepo) Delete(dream entity.Dream) (entity.Categories, error) {
+	var cats = &entity.Categories{}
 	if rowsAffected := r.db.Preload(clause.Associations).
 		Find(&dream).RowsAffected; rowsAffected == 0 {
-		return entity.Categories{}, entity.Persons{}, entity.ErrorNotFound
+		return *cats, entity.ErrorNotFound
 	}
 	err := r.db.Transaction(func(tx *gorm.DB) error {
 		tx.Select(clause.Associations).Delete(&dream)
 		c, err := removeCategoriesIfNeeded(tx, dream.Categories)
 		cats = &c
-		if err != nil {
-			return err
-		}
-		p, err := removePersonsIfNeeded(tx, dream.Persons)
-		pers = &p
-		if err != nil {
-			return err
-		}
-		return nil
+		return err
 	})
-	if err != nil {
-		return entity.Categories{}, entity.Persons{}, err
-	}
-	return *cats, *pers, nil
+	return *cats, err
 }
 
 func (r *DreamsRepo) ToggleVisibility(dream entity.Dream) error {
 	if rowsAffected := r.db.First(&dream).RowsAffected; rowsAffected == 0 {
 		return entity.ErrorNotFound
 	}
-
-	if err := r.db.Model(&dream).Update("Visible", !dream.Visible).Error; err != nil {
-		return err
-	}
-	return nil
+	return r.db.Model(&dream).Update("Visible", !dream.Visible).Error
 }
 
 func (r *DreamsRepo) Finalize(dreamId uint) error {
 	tx := r.db.Model(&entity.Dream{}).
 		Where("id = ?", dreamId).
-		UpdateColumn("finalized", true)
+		UpdateColumn("Finalized", true)
 	if tx.RowsAffected == 0 {
 		return entity.ErrorNotFound
 	}
@@ -109,27 +86,20 @@ func (r *DreamsRepo) Finalize(dreamId uint) error {
 }
 
 func removeCategoriesIfNeeded(db *gorm.DB, cats entity.Categories) (entity.Categories, error) {
+	var unusedCategories entity.Categories
 	for _, category := range cats {
 		var usedCategory entity.Category
 		db.Where(&entity.Category{Name: category.Name}).Preload("Dreams").Find(&usedCategory)
 		if len(usedCategory.Dreams) == 0 {
-			db.Delete(&category)
+			unusedCategories = append(unusedCategories, category)
 		}
 	}
 	var leftOverCategories entity.Categories
-	db.Find(&leftOverCategories)
-	return leftOverCategories, nil
-}
-
-func removePersonsIfNeeded(db *gorm.DB, persons entity.Persons) (entity.Persons, error) {
-	for _, p := range persons {
-		var usedPerson entity.Person
-		db.Where(&entity.Person{Name: p.Name}).Preload("Dreams").Find(&usedPerson)
-		if len(usedPerson.Dreams) == 0 {
-			db.Delete(&p)
+	if len(unusedCategories) > 0 {
+		if err := db.Delete(&unusedCategories).Error; err != nil {
+			return leftOverCategories, err
 		}
 	}
-	var leftOverPersons entity.Persons
-	db.Find(&leftOverPersons)
-	return leftOverPersons, nil
+	db.Find(&leftOverCategories)
+	return leftOverCategories, nil
 }

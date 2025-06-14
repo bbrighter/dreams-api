@@ -18,8 +18,6 @@ func Run(cfg *config.Config, logger *zap.Logger) {
 	dreamsRepo := repository.NewDreamsRepo(db)
 	dreamsUseCase := usecase.NewDreamUseCase(dreamsRepo)
 	privateDreamsUseCase := usecase.NewPrivateDreamUseCase(dreamsRepo)
-	personsRepo := repository.NewPersonsRepo(db)
-	personsUseCase := usecase.NewPersonsUseCase(personsRepo)
 	categoriesRepo := repository.NewCategoriesRepo(db)
 	categoriesUseCase := usecase.NewCategoriesUseCase(categoriesRepo)
 	statisticsRepo := repository.NewStatisticsRepo(db)
@@ -40,11 +38,9 @@ func Run(cfg *config.Config, logger *zap.Logger) {
 		handler,
 		dreamsUseCase,
 		privateDreamsUseCase,
-		personsUseCase,
 		categoriesUseCase,
 		statisticsUseCase,
 		categoriesUseCase,
-		personsUseCase,
 	)
 
 	var host = cfg.Host + ":" + cfg.Port

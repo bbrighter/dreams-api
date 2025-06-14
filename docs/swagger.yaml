@@ -5,8 +5,10 @@ definitions:
         items:
           $ref: '#/definitions/entity.CategoryResponse'
         type: array
-    required:
-    - categories
+      persons:
+        items:
+          $ref: '#/definitions/entity.CategoryResponse'
+        type: array
     type: object
   entity.CategoryResponse:
     properties:
@@ -56,7 +58,7 @@ definitions:
         type: integer
       persons:
         items:
-          $ref: '#/definitions/entity.PersonResponse'
+          $ref: '#/definitions/entity.CategoryResponse'
         type: array
       visible:
         type: boolean
@@ -82,7 +84,7 @@ definitions:
         type: integer
       persons:
         items:
-          $ref: '#/definitions/entity.PersonResponse'
+          $ref: '#/definitions/entity.CategoryResponse'
         type: array
       visible:
         type: boolean
@@ -101,25 +103,6 @@ definitions:
         type: array
     required:
     - dreams
-    type: object
-  entity.PersonResponse:
-    properties:
-      id:
-        type: integer
-      name:
-        type: string
-    required:
-    - id
-    - name
-    type: object
-  entity.PersonsResponse:
-    properties:
-      persons:
-        items:
-          $ref: '#/definitions/entity.PersonResponse'
-        type: array
-    required:
-    - persons
     type: object
   v1.DreamRequestBody:
     properties:
@@ -283,7 +266,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/entity.PersonsResponse'
+            $ref: '#/definitions/entity.CategoriesResponse'
         "400":
           description: Bad Request
         "404":
@@ -297,7 +280,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/entity.PersonsResponse'
+            $ref: '#/definitions/entity.CategoriesResponse'
         "400":
           description: Bad Request
         "404":
@@ -333,16 +316,6 @@ paths:
       responses:
         "200":
           description: OK
-  /persons:
-    get:
-      description: Get all persons
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/entity.PersonsResponse'
   /private/statistics:
     get:
       description: Get count per category and person

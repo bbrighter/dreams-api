@@ -12,6 +12,8 @@ func TestCategoriesAndPersons(t *testing.T) {
 	g := setupApiTest(t)
 	date := time.Now()
 
+	var emptyCategories = entity.CategoriesResponse{}
+
 	tests := []apiTest{
 		{name: "post dream", method: http.MethodPost, url: "/dreams", statusCode: http.StatusCreated,
 			body: DreamRequestBody{Date: date}},
@@ -19,10 +21,8 @@ func TestCategoriesAndPersons(t *testing.T) {
 			response: entity.CategoriesResponse{Categories: []entity.CategoryResponse{{ID: 1, Name: "cat"}}}},
 		{name: "get categories", method: http.MethodGet, url: "/categories", statusCode: http.StatusOK,
 			response: entity.CategoriesResponse{Categories: []entity.CategoryResponse{{ID: 1, Name: "cat"}}}},
-		{name: "remove category from dream", method: http.MethodDelete, url: "/dreams/1/categories/1", statusCode: http.StatusOK,
-			response: entity.CategoriesResponse{Categories: []entity.CategoryResponse{}}},
-		{name: "get categories", method: http.MethodGet, url: "/categories", statusCode: http.StatusOK,
-			response: entity.CategoriesResponse{Categories: []entity.CategoryResponse{}}},
+		{name: "remove category from dream", method: http.MethodDelete, url: "/dreams/1/categories/1", statusCode: http.StatusOK, response: emptyCategories},
+		{name: "get categories", method: http.MethodGet, url: "/categories", statusCode: http.StatusOK, response: emptyCategories},
 	}
 	for _, test := range tests {
 		test.evaluate(t, g)
