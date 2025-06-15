@@ -104,6 +104,13 @@ definitions:
     required:
     - dreams
     type: object
+  entity.LoginResponse:
+    properties:
+      token:
+        type: string
+    required:
+    - token
+    type: object
   v1.DreamRequestBody:
     properties:
       date:
@@ -112,6 +119,16 @@ definitions:
         type: string
     required:
     - date
+    type: object
+  v1.LoginRequest:
+    properties:
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - name
+    - password
     type: object
 info:
   contact: {}
@@ -295,6 +312,8 @@ paths:
           description: List of all dreams
           schema:
             $ref: '#/definitions/entity.DreamsResponse'
+      security:
+      - BasicAuth: []
   /dreams/private/{dreamId}:
     get:
       description: Get one private dream
@@ -309,6 +328,8 @@ paths:
           description: Bad Request
         "404":
           description: Not Found
+      security:
+      - BasicAuth: []
     patch:
       description: Toggle visibility of a dream
       produces:
@@ -316,6 +337,37 @@ paths:
       responses:
         "200":
           description: OK
+      security:
+      - BasicAuth: []
+  /login:
+    post:
+      description: Login
+      parameters:
+      - description: Password and user name
+        in: body
+        name: loginRequest
+        required: true
+        schema:
+          $ref: '#/definitions/v1.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.LoginResponse'
+        "400":
+          description: Bad Request
+  /logout:
+    post:
+      description: Logout
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: Internal Server Error
   /private/statistics:
     get:
       description: Get count per category and person
@@ -331,6 +383,8 @@ paths:
           description: Counts by category and persons
           schema:
             $ref: '#/definitions/entity.CountsResponse'
+      security:
+      - BasicAuth: []
   /statistics:
     get:
       description: Get count per category and person

@@ -9,12 +9,13 @@ import (
 
 type privateDreamsRoute struct {
 	p usecase.PrivateDreams
+	a usecase.Auth
 }
 
-func newPrivateDreamsRoute(handler *gin.RouterGroup, p usecase.PrivateDreams) {
-	r := &privateDreamsRoute{p: p}
+func newPrivateDreamsRoute(handler *gin.RouterGroup, p usecase.PrivateDreams, a usecase.Auth) {
+	r := &privateDreamsRoute{p: p, a: a}
 
-	h := handler.Group("/dreams/private")
+	h := handler.Group("/dreams/private", a.AuthMiddleware())
 	{
 		h.GET("", r.GetAll)
 		h.GET("/:id", r.Get)
@@ -24,6 +25,7 @@ func newPrivateDreamsRoute(handler *gin.RouterGroup, p usecase.PrivateDreams) {
 
 // @Description Get all dreams - including private
 // @Produce json
+// @Security BasicAuth
 // @Success 200 {object} entity.DreamsResponse "List of all dreams"
 // @Router /dreams/private [get]
 func (r *privateDreamsRoute) GetAll(g *gin.Context) {
@@ -33,6 +35,7 @@ func (r *privateDreamsRoute) GetAll(g *gin.Context) {
 
 // @Description Get one private dream
 // @Produce json
+// @Security BasicAuth
 // @Success 200 {object} entity.DreamResponse "One dream"
 // @Failure 400
 // @Failure 404
@@ -51,6 +54,7 @@ func (r *privateDreamsRoute) Get(g *gin.Context) {
 
 // @Description Toggle visibility of a dream
 // @Produce json
+// @Security BasicAuth
 // @Success 200
 // @Router /dreams/private/{dreamId} [patch]
 func (r *privateDreamsRoute) ToggleVisibility(g *gin.Context) {

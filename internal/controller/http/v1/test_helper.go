@@ -34,6 +34,8 @@ func setupApiTest(t *testing.T) *gin.Engine {
 	categoriesUseCase := usecase.NewCategoriesUseCase(categoriesRepo)
 	statisticsRepo := repository.NewStatisticsRepo(db)
 	statisticsUseCase := usecase.NewStatisticsUseCase(statisticsRepo)
+	authRepo := repository.NewAuthRepo()
+	authUseCase := usecase.NewAuthUseCase(authRepo)
 	repository.Migration(db, logger)
 
 	gin.SetMode(gin.TestMode)
@@ -45,6 +47,7 @@ func setupApiTest(t *testing.T) *gin.Engine {
 		categoriesUseCase,
 		statisticsUseCase,
 		categoriesUseCase,
+		authUseCase,
 	)
 	return handler
 }
@@ -56,6 +59,8 @@ type apiTest struct {
 	body       any
 	statusCode int
 	response   any
+	token      func() *string
+	after      func(resp *httptest.ResponseRecorder)
 }
 
 func (test apiTest) evaluate(t *testing.T, h *gin.Engine) {
@@ -66,6 +71,11 @@ func (test apiTest) evaluate(t *testing.T, h *gin.Engine) {
 			body = bytes.NewBuffer(marBody)
 		}
 		req, _ := http.NewRequest(test.method, test.url, body)
+		if test.token != nil {
+			if test.token() != nil {
+				req.Header.Set("Authorization", *test.token())
+			}
+		}
 		resp := httptest.NewRecorder()
 		h.ServeHTTP(resp, req)
 		assert.Equal(t, test.statusCode, resp.Code)
@@ -76,6 +86,9 @@ func (test apiTest) evaluate(t *testing.T, h *gin.Engine) {
 			err := json.Unmarshal(resp.Body.Bytes(), &actual)
 			assert.NoError(t, err)
 			assert.Equal(t, expected, reflect.Indirect(reflect.ValueOf(actual)).Interface())
+		}
+		if test.after != nil {
+			test.after(resp)
 		}
 	})
 }

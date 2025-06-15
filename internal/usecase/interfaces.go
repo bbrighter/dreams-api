@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/bbrighter/dreams-api/internal/entity"
+	"github.com/gin-gonic/gin"
 )
 
 type (
@@ -35,6 +36,12 @@ type (
 	Statistics interface {
 		GetStatistics(includeHidden bool, limit int) (entity.Counts, entity.Counts)
 	}
+
+	Auth interface {
+		SetAuth(name, pw string) string
+		IsValidToken(token string) bool
+		AuthMiddleware() gin.HandlerFunc
+	}
 )
 
 type (
@@ -56,5 +63,10 @@ type (
 
 	IStatisticsRepo interface {
 		CountCategories(bool, int) (entity.Counts, entity.Counts)
+	}
+
+	IAuthRepo interface {
+		SetAuth(name, pw string) string
+		IsValidToken(token string) bool
 	}
 )

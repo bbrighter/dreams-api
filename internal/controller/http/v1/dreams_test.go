@@ -1,7 +1,9 @@
 package v1
 
 import (
+	"encoding/json"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -73,16 +75,26 @@ func TestPrivateDreams(t *testing.T) {
 	h := setupApiTest(t)
 
 	date := time.Date(2022, 11, 13, 4, 12, 8, 0, time.UTC)
+	var token *string
+	extractToken := func(resp *httptest.ResponseRecorder) {
+		var loginResp entity.LoginResponse
+		if err := json.NewDecoder(resp.Body).Decode(&loginResp); err != nil {
+			t.Fatal("failed to decode login")
+		}
+		token = &loginResp.Token
+	}
+	tokenFn := func() *string { return token }
 
 	tests := []apiTest{
 		{name: "post dream", method: http.MethodPost, url: "/dreams", statusCode: http.StatusCreated, body: DreamRequestBody{Date: date}},
-		{name: "toggle visibility of dream", method: http.MethodPatch, url: "/dreams/private/1", statusCode: http.StatusOK},
+		{name: "login", method: http.MethodPost, url: "/login", statusCode: http.StatusOK, body: LoginRequest{Name: "Benni", Password: "0803"}, after: extractToken},
+		{name: "toggle visibility of dream", method: http.MethodPatch, url: "/dreams/private/1", statusCode: http.StatusOK, token: tokenFn},
 		{name: "private dreams not listed", method: http.MethodGet, url: "/dreams", statusCode: http.StatusOK,
 			response: entity.DreamsResponse{Dreams: []entity.DreamMetaResponse{}}},
-		{name: "private dreams listed", method: http.MethodGet, url: "/dreams/private", statusCode: http.StatusOK,
+		{name: "private dreams listed", method: http.MethodGet, url: "/dreams/private", statusCode: http.StatusOK, token: tokenFn,
 			response: entity.DreamsResponse{Dreams: []entity.DreamMetaResponse{{ID: 1, Date: date, Finalized: false, Visible: false}}}},
 		{name: "private single dream not found", method: http.MethodGet, url: "/dreams/1", statusCode: http.StatusNotFound},
-		{name: "get private single dream", method: http.MethodGet, url: "/dreams/private/1", statusCode: http.StatusOK,
+		{name: "get private single dream", method: http.MethodGet, url: "/dreams/private/1", statusCode: http.StatusOK, token: tokenFn,
 			response: entity.DreamResponse{
 				Description:       "",
 				DreamMetaResponse: entity.DreamMetaResponse{ID: 1, Date: date, Finalized: false, Visible: false}},
