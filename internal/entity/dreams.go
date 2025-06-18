@@ -17,21 +17,21 @@ type Dream struct {
 type Dreams []Dream
 
 type DreamsResponse struct {
-	Dreams []DreamMetaResponse `json:"dreams" validate:"required"`
+	Dreams []DreamMetaResponse `json:"dreams" binding:"required"`
 }
 
 type DreamMetaResponse struct {
-	ID        uint      `json:"id" validate:"required"`
-	Date      time.Time `json:"date" validate:"required"`
-	Finalized bool      `json:"finalized" validate:"required"`
-	Visible   bool      `json:"visible" validate:"required"`
+	ID        uint      `json:"id" binding:"required"`
+	Date      time.Time `json:"date" binding:"required"`
+	Finalized bool      `json:"finalized" binding:"required"`
+	Visible   bool      `json:"visible" binding:"required"`
 	CategoriesResponse
 }
 
 // Response when querying one dream
 type DreamResponse struct {
 	DreamMetaResponse
-	Description string `json:"description" validate:"required"`
+	Description string `json:"description" binding:"required"`
 }
 
 func (d Dream) ToResponse() DreamResponse {

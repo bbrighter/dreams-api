@@ -7,5 +7,5 @@ type User struct {
 }
 
 type LoginResponse struct {
-	Token string `json:"token" validate:"required"`
+	Token string `json:"token" binding:"required"`
 }

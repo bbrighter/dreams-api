@@ -20,8 +20,8 @@ func newLoginRoute(handler *gin.RouterGroup, l usecase.Auth) {
 }
 
 type LoginRequest struct {
-	Name     string `json:"name" validate:"required"`
-	Password string `json:"password" validate:"required"`
+	Name     string `json:"name" binding:"required"`
+	Password string `json:"password" binding:"required"`
 }
 
 // @Description Login

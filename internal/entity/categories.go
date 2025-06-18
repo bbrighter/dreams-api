@@ -33,8 +33,8 @@ type CategoriesResponse struct {
 }
 
 type CategoryResponse struct {
-	ID   uint   `json:"id" validate:"required"`
-	Name string `json:"name" validate:"required"`
+	ID   uint   `json:"id" binding:"required"`
+	Name string `json:"name" binding:"required"`
 }
 
 func (c Category) ToResponse() CategoryResponse {

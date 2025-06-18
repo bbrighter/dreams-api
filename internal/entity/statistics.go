@@ -8,13 +8,13 @@ type Count struct {
 type Counts []Count
 
 type CountResponse struct {
-	ID    uint `json:"id" validate:"required"`
-	Count int  `json:"count" validate:"required"`
+	ID    uint `json:"id" binding:"required"`
+	Count int  `json:"count" binding:"required"`
 }
 
 type CountsResponse struct {
-	Categories []CountResponse `json:"categories" validate:"required"`
-	Persons    []CountResponse `json:"persons" validate:"required"`
+	Categories []CountResponse `json:"categories" binding:"required"`
+	Persons    []CountResponse `json:"persons" binding:"required"`
 }
 
 func (counts Counts) ToResponse() []CountResponse {
