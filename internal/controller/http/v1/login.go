@@ -51,6 +51,6 @@ func (r loginRoutes) Login(g *gin.Context) {
 // @Failure 500
 // @Router /logout [post]
 func (r loginRoutes) Logout(g *gin.Context) {
-	r.l.SetAuth("Benni", "")
+	r.l.ClearToken()
 	g.Status(http.StatusOK)
 }

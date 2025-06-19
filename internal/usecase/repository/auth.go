@@ -1,9 +1,8 @@
 package repository
 
 import (
-	"crypto/sha256"
+	"crypto/rand"
 	"encoding/hex"
-	"time"
 
 	"github.com/bbrighter/dreams-api/internal/entity"
 )
@@ -31,13 +30,20 @@ func (r *AuthRepo) SetAuth(name, pw string) string {
 	if !r.isValidUser() {
 		return ""
 	}
-	h := sha256.New()
-	h.Write([]byte(name + pw + time.Now().String()))
-	sum := h.Sum(nil)
-	r.Auth.Token = hex.EncodeToString(sum)
+	tokenBytes := make([]byte, 32)
+	_, err := rand.Read(tokenBytes)
+	if err != nil {
+		return ""
+	}
+	r.Auth.Token = hex.EncodeToString(tokenBytes)
 	return r.Auth.Token
 }
 
 func (r *AuthRepo) IsValidToken(token string) bool {
 	return r.Auth.Token == token
+}
+
+func (r *AuthRepo) ClearToken() {
+	r.Auth.Token = ""
+	r.Auth.Password = ""
 }

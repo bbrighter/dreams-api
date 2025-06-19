@@ -36,3 +36,7 @@ func (uc AuthUseCase) AuthMiddleware() gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+func (uc AuthUseCase) ClearToken() {
+	uc.r.ClearToken()
+}

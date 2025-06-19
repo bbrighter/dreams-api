@@ -40,6 +40,7 @@ type (
 	Auth interface {
 		SetAuth(name, pw string) string
 		IsValidToken(token string) bool
+		ClearToken()
 		AuthMiddleware() gin.HandlerFunc
 	}
 )
@@ -68,5 +69,6 @@ type (
 	IAuthRepo interface {
 		SetAuth(name, pw string) string
 		IsValidToken(token string) bool
+		ClearToken()
 	}
 )
