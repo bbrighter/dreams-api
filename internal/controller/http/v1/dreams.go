@@ -72,7 +72,7 @@ func (r *dreamsRoutes) Get(g *gin.Context) {
 }
 
 type DreamRequestBody struct {
-	Date        time.Time `json:"date" validate:"required"`
+	Date        time.Time `json:"date" binding:"required"`
 	Description *string   `json:"description"`
 }
 

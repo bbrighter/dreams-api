@@ -34,7 +34,7 @@ func (r *DreamsRepo) Get(id uint, showAll bool) (entity.Dream, error) {
 	}
 
 	dream := entity.Dream{ID: id}
-	if tx.First(&dream).RowsAffected == 0 {
+	if tx.Debug().First(&dream).RowsAffected == 0 {
 		return dream, entity.ErrorNotFound
 	}
 	return dream, tx.Error

@@ -11,10 +11,11 @@ import (
 
 type statisticsRoute struct {
 	c usecase.Statistics
+	a usecase.Auth
 }
 
-func newStatisticsRoute(handler *gin.RouterGroup, c usecase.Statistics) {
-	r := &statisticsRoute{c: c}
+func newStatisticsRoute(handler *gin.RouterGroup, c usecase.Statistics, a usecase.Auth) {
+	r := &statisticsRoute{c: c, a: a}
 
 	h := handler.Group("/statistics")
 	{
@@ -22,7 +23,7 @@ func newStatisticsRoute(handler *gin.RouterGroup, c usecase.Statistics) {
 	}
 	p := handler.Group("/private/statistics")
 	{
-		p.GET("", r.GetPrivateStatistics)
+		p.GET("", r.GetPrivateStatistics, a.AuthMiddleware())
 	}
 }
 
@@ -55,6 +56,7 @@ func (r *statisticsRoute) GetStatistics(g *gin.Context) {
 // @Produce json
 // @Success 200 {object} entity.CountsResponse "Counts by category and persons"
 // @Router /private/statistics [get]
+// @Security BasicAuth
 // @Param limit query number false "Limit of returned results"
 func (r *statisticsRoute) GetPrivateStatistics(g *gin.Context) {
 
