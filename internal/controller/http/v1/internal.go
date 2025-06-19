@@ -34,3 +34,17 @@ func stringToUint(s string) (uint, error) {
 	}
 	return uint(ui), nil
 }
+
+func parseQueryParamInt(g *gin.Context, queryParamName string) (int, error) {
+	str := g.Query(queryParamName)
+	if str == "" {
+		g.AbortWithError(http.StatusBadRequest, entity.ErrorBadParam)
+		return 0, entity.ErrorBadParam
+	}
+	num, err := strconv.ParseInt(str, 10, 62)
+	if err != nil {
+		g.AbortWithError(http.StatusBadRequest, err)
+		return 0, entity.ErrorBadParam
+	}
+	return int(num), nil
+}

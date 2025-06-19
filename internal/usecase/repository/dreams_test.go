@@ -73,21 +73,6 @@ func TestGetDreams(t *testing.T) {
 			}
 		})
 	}
-
-	// // Test one dream and tag exists
-	// CreateTestDream(1, 1, true, t)
-	// CreateTestDream(1, 1, false, t)
-
-	// dreams = repo.GetDreams(&showAll)
-
-	// assert.Len(t, dreams, 2)
-	// d := dreams[1]
-	// assert.Len(t, d.Categories, 0)
-	// assert.Len(t, d.Persons, 0)
-
-	// showAll = true
-	// dreams = repo.GetDreams(&showAll)
-	// assert.Len(t, dreams, 3)
 }
 
 func TestGetDream(t *testing.T) {
@@ -171,4 +156,40 @@ func TestToggleVisibility(t *testing.T) {
 	var dream entity.Dream
 	repo.db.First(&dream)
 	assert.False(t, dream.Visible)
+}
+
+func TestRate(t *testing.T) {
+	expectedRating := 3
+	tests := map[string]struct {
+		id             uint
+		expectedRating *int
+		expectedError  bool
+	}{
+		"rating 3":  {id: 1, expectedRating: &expectedRating},
+		"not found": {id: 100, expectedError: true},
+	}
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			repo := setupDreamsTest(t)
+			err := repo.db.Create(&entity.Dream{ID: 1}).Error
+			assert.NoError(t, err)
+			var dream entity.Dream
+			repo.db.First(&dream)
+			assert.Nil(t, dream.Rating)
+
+			err = repo.Rate(test.id, expectedRating)
+			if test.expectedRating != nil {
+				repo.db.First(&dream)
+				assert.Equal(t, dream.Rating, &expectedRating)
+			}
+			if test.expectedError {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+
+		})
+
+	}
+
 }

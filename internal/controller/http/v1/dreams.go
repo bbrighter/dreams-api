@@ -27,6 +27,7 @@ func newDreamsRoute(handler *gin.RouterGroup, d usecase.Dreams, c usecase.Catego
 			hid.PATCH("", r.Update)
 			hid.DELETE("", r.Delete)
 			hid.PATCH("/finalize", r.Finalize)
+			hid.PATCH("/rate", r.Rate)
 			hCat := hid.Group("/categories")
 			{
 				hCat.PUT("", r.PutCategoryToDream)
@@ -252,6 +253,31 @@ func (r *dreamsRoutes) Finalize(g *gin.Context) {
 	}
 
 	err = r.d.Finalize(dreamId)
+	if handleError(g, err) {
+		return
+	}
+
+	g.Status(http.StatusOK)
+}
+
+// @Description Rate a dream
+// @Produce json
+// @Success 200
+// @Failure 400
+// @Failure 404
+// @Router /dreams/{dreamId}/rate [patch]
+// @Param rating query int true "Rating of the dream"
+func (r *dreamsRoutes) Rate(g *gin.Context) {
+	dreamId, err := parseParamUint(g, "id")
+	if err != nil {
+		return
+	}
+
+	rating, err := parseQueryParamInt(g, "rating")
+	if err != nil {
+		return
+	}
+	err = r.d.Rate(dreamId, rating)
 	if handleError(g, err) {
 		return
 	}

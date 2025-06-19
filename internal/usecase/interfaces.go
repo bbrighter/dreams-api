@@ -15,6 +15,7 @@ type (
 		Update(uint, time.Time, string) error
 		Delete(uint) (entity.Categories, error)
 		Finalize(uint) error
+		Rate(uint, int) error
 	}
 
 	PrivateDreams interface {
@@ -54,6 +55,7 @@ type (
 		Delete(entity.Dream) (entity.Categories, error)
 		ToggleVisibility(entity.Dream) error
 		Finalize(uint) error
+		Rate(uint, int) error
 	}
 
 	ICategoriesRepo interface {

@@ -42,3 +42,7 @@ func (uc *DreamsUseCase) Delete(id uint) (entity.Categories, error) {
 func (uc *DreamsUseCase) Finalize(id uint) error {
 	return uc.repo.Finalize(id)
 }
+
+func (uc *DreamsUseCase) Rate(id uint, rating int) error {
+	return uc.repo.Rate(id, rating)
+}

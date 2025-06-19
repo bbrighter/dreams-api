@@ -15,6 +15,7 @@ func TestDreams(t *testing.T) {
 
 	desc := "description"
 	date := time.Date(2022, 11, 13, 4, 12, 8, 0, time.UTC)
+	rating := 3
 
 	tests := []apiTest{
 		{name: "get dreams, empty", method: http.MethodGet, url: "/dreams", statusCode: http.StatusOK,
@@ -58,12 +59,26 @@ func TestDreams(t *testing.T) {
 				Categories: []entity.CategoryResponse{{ID: 2, Name: "cat"}},
 			}},
 		{name: "remove category from dream", method: http.MethodDelete, url: "/dreams/1/categories/2", statusCode: http.StatusOK, response: entity.CategoriesResponse{}},
+		{name: "rate the dream", method: http.MethodPatch, url: "/dreams/1/rate?rating=3", statusCode: http.StatusOK},
+		{name: "get rated dream", method: http.MethodGet, url: "/dreams/1", statusCode: http.StatusOK,
+			response: entity.DreamResponse{
+				Description:       desc,
+				DreamMetaResponse: entity.DreamMetaResponse{ID: 1, Date: date, Finalized: false, Visible: true, Rating: &rating},
+			}},
 		{name: "Finalize the dream", method: http.MethodPatch, url: "/dreams/1/finalize", statusCode: http.StatusOK},
 		{name: "Dream is finalized", method: http.MethodGet, url: "/dreams/1", statusCode: http.StatusOK,
 			response: entity.DreamResponse{
 				Description:       desc,
-				DreamMetaResponse: entity.DreamMetaResponse{ID: 1, Date: date, Finalized: true, Visible: true}},
+				DreamMetaResponse: entity.DreamMetaResponse{ID: 1, Date: date, Finalized: true, Visible: true, Rating: &rating}},
 		},
+		{name: "Get dreams with rating and finalization", method: http.MethodGet, url: "/dreams", statusCode: http.StatusOK,
+			response: entity.DreamsResponse{
+				Dreams: []entity.DreamMetaResponse{{
+					ID: 1, Date: date, Finalized: true, Visible: true,
+					CategoriesResponse: entity.CategoriesResponse{},
+					Rating:             &rating,
+				},
+				}}},
 		{name: "delete dream", method: http.MethodDelete, url: "/dreams/1", statusCode: http.StatusOK},
 	}
 	for _, test := range tests {

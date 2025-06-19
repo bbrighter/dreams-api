@@ -76,9 +76,17 @@ func (r *DreamsRepo) ToggleVisibility(dream entity.Dream) error {
 }
 
 func (r *DreamsRepo) Finalize(dreamId uint) error {
+	return r.updateColumn(dreamId, "Finalized", true)
+}
+
+func (r *DreamsRepo) Rate(dreamId uint, rating int) error {
+	return r.updateColumn(dreamId, "Rating", rating)
+}
+
+func (r *DreamsRepo) updateColumn(dreamId uint, column string, value any) error {
 	tx := r.db.Model(&entity.Dream{}).
 		Where("id = ?", dreamId).
-		UpdateColumn("Finalized", true)
+		UpdateColumn(column, value)
 	if tx.RowsAffected == 0 {
 		return entity.ErrorNotFound
 	}
