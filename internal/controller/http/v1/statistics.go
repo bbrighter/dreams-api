@@ -33,14 +33,8 @@ func newStatisticsRoute(handler *gin.RouterGroup, c usecase.Statistics, a usecas
 // @Router /statistics [get]
 // @Param limit query number false "Limit of returned results"
 func (r *statisticsRoute) GetStatistics(g *gin.Context) {
-	limitStr, exists := g.GetQuery("limit")
-	var limit int = 0
-	var err error
-	if exists {
-		limit, err = strconv.Atoi(limitStr)
-	}
-	if err != nil {
-		g.Status(http.StatusBadRequest)
+	limit, err := parseQueryParamInt(g, "limit")
+	if handleError(g, err) {
 		return
 	}
 

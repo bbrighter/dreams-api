@@ -122,3 +122,27 @@ func TestPrivateDreams(t *testing.T) {
 		})
 	}
 }
+
+func TestBadParams(t *testing.T) {
+	h := setupApiTest(t)
+
+	date := time.Date(2022, 11, 13, 4, 12, 8, 0, time.UTC)
+	var zeroTime time.Time
+	desc := "desc"
+
+	tests := []apiTest{
+		{name: "post dream no params", method: http.MethodPost, url: "/dreams", statusCode: http.StatusBadRequest, body: PostDreamRequest{}},
+		{name: "post dream only desc", method: http.MethodPost, url: "/dreams", statusCode: http.StatusBadRequest, body: PostDreamRequest{Description: &desc}},
+		{name: "post dream with zero date", method: http.MethodPost, url: "/dreams", statusCode: http.StatusBadRequest, body: PostDreamRequest{Date: zeroTime}},
+		{name: "get dream not found", method: http.MethodGet, url: "/dreams/1", statusCode: http.StatusNotFound},
+		{name: "get dream bad param", method: http.MethodGet, url: "/dreams/x", statusCode: http.StatusBadRequest},
+		{name: "post dream successfully", method: http.MethodPost, url: "/dreams", statusCode: http.StatusCreated, body: PostDreamRequest{Date: date}},
+		{name: "finalize dream without rating", method: http.MethodPatch, url: "/dreams/1/finalize", statusCode: http.StatusBadRequest},
+		{name: "patch dream bad param", method: http.MethodPatch, url: "/dreams/1", statusCode: http.StatusBadRequest, body: UpdateDreamRequest{}},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			test.evaluate(t, h)
+		})
+	}
+}
