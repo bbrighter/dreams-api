@@ -12,7 +12,7 @@ type (
 		List([]entity.Includes) entity.Dreams
 		Get(uint) (entity.Dream, error)
 		Create(time.Time) (uint, error)
-		Update(uint, time.Time, string) error
+		Update(uint, *time.Time, *string, *int) error
 		Delete(uint) (entity.Categories, error)
 		Finalize(uint) error
 	}
@@ -50,10 +50,8 @@ type (
 		List(bool, []entity.Includes) entity.Dreams
 		Get(uint, bool) (entity.Dream, error)
 		Create(entity.Dream) (uint, error)
-		Update(entity.Dream) error
+		Update(uint, map[string]any) error
 		Delete(entity.Dream) (entity.Categories, error)
-		ToggleVisibility(entity.Dream) error
-		Finalize(uint) error
 	}
 
 	ICategoriesRepo interface {

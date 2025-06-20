@@ -12,6 +12,7 @@ type Dream struct {
 	Visible     bool `gorm:"default:true"`
 	Finalized   bool
 	Categories  Categories `gorm:"many2many:categories_dreams;"`
+	Rating      *int
 }
 
 type Dreams []Dream
@@ -25,6 +26,7 @@ type DreamMetaResponse struct {
 	Date      time.Time `json:"date" binding:"required"`
 	Finalized bool      `json:"finalized" binding:"required"`
 	Visible   bool      `json:"visible" binding:"required"`
+	Rating    *int      `json:"rating,omitempty"`
 	CategoriesResponse
 }
 
@@ -34,33 +36,30 @@ type DreamResponse struct {
 	Description string `json:"description" binding:"required"`
 }
 
+func (d Dream) toMetaResponse() DreamMetaResponse {
+	return DreamMetaResponse{
+		ID:                 d.ID,
+		Date:               d.Date,
+		Visible:            d.Visible,
+		Finalized:          d.Finalized,
+		CategoriesResponse: d.Categories.ToResponse(),
+		Rating:             d.Rating,
+	}
+}
+
 func (d Dream) ToResponse() DreamResponse {
 	return DreamResponse{
-		DreamMetaResponse: DreamMetaResponse{
-			ID:                 d.ID,
-			Date:               d.Date,
-			Visible:            d.Visible,
-			Finalized:          d.Finalized,
-			CategoriesResponse: d.Categories.ToResponse(),
-		},
-		Description: d.Description,
+		DreamMetaResponse: d.toMetaResponse(),
+		Description:       d.Description,
 	}
 }
 
 func (d Dreams) ToResponse() DreamsResponse {
-	resps := []DreamMetaResponse{}
+	dreams := []DreamMetaResponse{}
 	for _, dream := range d {
-		resps = append(resps,
-			DreamMetaResponse{
-				ID:                 dream.ID,
-				Date:               dream.Date,
-				Visible:            dream.Visible,
-				Finalized:          dream.Finalized,
-				CategoriesResponse: dream.Categories.ToResponse(),
-			},
-		)
+		dreams = append(dreams, dream.toMetaResponse())
 	}
-	return DreamsResponse{Dreams: resps}
+	return DreamsResponse{Dreams: dreams}
 }
 
 type Includes int

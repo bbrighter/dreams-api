@@ -65,11 +65,11 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "description": "The dream which will be created",
-                        "name": "dreamRequestBody",
+                        "name": "postDreamRequest",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v1.DreamRequestBody"
+                            "$ref": "#/definitions/v1.PostDreamRequest"
                         }
                     }
                 ],
@@ -195,12 +195,12 @@ const docTemplate = `{
                 ],
                 "parameters": [
                     {
-                        "description": "The dream which will be updated",
-                        "name": "dreamRequestBody",
+                        "description": "All parameters of the dream that should be updated",
+                        "name": "updateDreamRequest",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v1.DreamRequestBody"
+                            "$ref": "#/definitions/v1.UpdateDreamRequest"
                         }
                     }
                 ],
@@ -541,6 +541,9 @@ const docTemplate = `{
                         "$ref": "#/definitions/entity.CategoryResponse"
                     }
                 },
+                "rating": {
+                    "type": "integer"
+                },
                 "visible": {
                     "type": "boolean"
                 }
@@ -580,6 +583,9 @@ const docTemplate = `{
                         "$ref": "#/definitions/entity.CategoryResponse"
                     }
                 },
+                "rating": {
+                    "type": "integer"
+                },
                 "visible": {
                     "type": "boolean"
                 }
@@ -610,7 +616,22 @@ const docTemplate = `{
                 }
             }
         },
-        "v1.DreamRequestBody": {
+        "v1.LoginRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "password"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.PostDreamRequest": {
             "type": "object",
             "required": [
                 "date"
@@ -624,18 +645,17 @@ const docTemplate = `{
                 }
             }
         },
-        "v1.LoginRequest": {
+        "v1.UpdateDreamRequest": {
             "type": "object",
-            "required": [
-                "name",
-                "password"
-            ],
             "properties": {
-                "name": {
+                "date": {
                     "type": "string"
                 },
-                "password": {
+                "description": {
                     "type": "string"
+                },
+                "rating": {
+                    "type": "integer"
                 }
             }
         }

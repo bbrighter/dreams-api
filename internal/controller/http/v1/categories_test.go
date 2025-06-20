@@ -16,7 +16,7 @@ func TestCategoriesAndPersons(t *testing.T) {
 
 	tests := []apiTest{
 		{name: "post dream", method: http.MethodPost, url: "/dreams", statusCode: http.StatusCreated,
-			body: DreamRequestBody{Date: date}},
+			body: PostDreamRequest{Date: date}},
 		{name: "add category to dream", method: http.MethodPut, url: "/dreams/1/categories?name=cat", statusCode: http.StatusOK,
 			response: entity.CategoriesResponse{Categories: []entity.CategoryResponse{{ID: 1, Name: "cat"}}}},
 		{name: "get categories", method: http.MethodGet, url: "/categories", statusCode: http.StatusOK,

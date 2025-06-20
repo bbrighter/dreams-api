@@ -60,7 +60,7 @@ func (r *dreamsRoutes) GetAll(g *gin.Context) {
 // @Router /dreams/{dreamId} [get]
 func (r *dreamsRoutes) Get(g *gin.Context) {
 	id, err := parseParamUint(g, "id")
-	if err != nil {
+	if handleError(g, err) {
 		return
 	}
 
@@ -71,7 +71,7 @@ func (r *dreamsRoutes) Get(g *gin.Context) {
 	g.JSON(http.StatusOK, dream.ToResponse())
 }
 
-type DreamRequestBody struct {
+type PostDreamRequest struct {
 	Date        time.Time `json:"date" binding:"required"`
 	Description *string   `json:"description"`
 }
@@ -83,9 +83,9 @@ type DreamRequestBody struct {
 // @Failure 400
 // @Failure 500
 // @Router /dreams [post]
-// @Param dreamRequestBody  body DreamRequestBody true "The dream which will be created"
+// @Param postDreamRequest  body PostDreamRequest true "The dream which will be created"
 func (r *dreamsRoutes) Create(g *gin.Context) {
-	var body DreamRequestBody
+	var body PostDreamRequest
 	if err := g.BindJSON(&body); err != nil {
 		g.AbortWithError(http.StatusBadRequest, err)
 		return
@@ -101,26 +101,31 @@ func (r *dreamsRoutes) Create(g *gin.Context) {
 	g.JSON(http.StatusCreated, id)
 }
 
+type UpdateDreamRequest struct {
+	Date        *time.Time `json:"date,omitempty"`
+	Description *string    `json:"description,omitempty"`
+	Rating      *int       `json:"rating,omitempty"`
+}
+
 // @Description Update an existing dream
 // @Accept json
 // @Success 200
 // @Failure 400
 // @Failure 404
 // @Router /dreams/{dreamId} [patch]
-// @Param dreamRequestBody body DreamRequestBody true "The dream which will be updated"
+// @Param updateDreamRequest body UpdateDreamRequest true "All parameters of the dream that should be updated"
 func (r *dreamsRoutes) Update(g *gin.Context) {
-	var body DreamRequestBody
-	if err := g.BindJSON(&body); err != nil {
-		g.AbortWithError(http.StatusBadRequest, err)
+	var body UpdateDreamRequest
+	err := g.BindJSON(&body)
+	if handleError(g, err) {
 		return
 	}
-	var err error
-	var id uint
-	id, err = parseParamUint(g, "id")
-	if err != nil {
+	id, err := parseParamUint(g, "id")
+	if handleError(g, err) {
 		return
 	}
-	err = r.d.Update(id, body.Date, *body.Description)
+
+	err = r.d.Update(id, body.Date, body.Description, body.Rating)
 	if handleError(g, err) {
 		return
 	}
@@ -134,7 +139,7 @@ func (r *dreamsRoutes) Update(g *gin.Context) {
 // @Router /dreams/{dreamId} [delete]
 func (r *dreamsRoutes) Delete(g *gin.Context) {
 	id, err := parseParamUint(g, "id")
-	if err != nil {
+	if handleError(g, err) {
 		return
 	}
 
@@ -154,11 +159,11 @@ func (r *dreamsRoutes) Delete(g *gin.Context) {
 // @Param name query string true "Name of person"
 func (r *dreamsRoutes) PutPersonToDream(g *gin.Context) {
 	dreamId, err := parseParamUint(g, "id")
-	if err != nil {
+	if handleError(g, err) {
 		return
 	}
 	name, err := parseQueryParamString(g, "name")
-	if err != nil {
+	if handleError(g, err) {
 		return
 	}
 
@@ -177,11 +182,11 @@ func (r *dreamsRoutes) PutPersonToDream(g *gin.Context) {
 // @Router /dreams/{dreamId}/persons/{personId} [delete]
 func (r *dreamsRoutes) RemovePersonFromDream(g *gin.Context) {
 	dreamId, err := parseParamUint(g, "id")
-	if err != nil {
+	if handleError(g, err) {
 		return
 	}
 	personId, err := parseParamUint(g, "personId")
-	if err != nil {
+	if handleError(g, err) {
 		return
 	}
 
@@ -201,11 +206,11 @@ func (r *dreamsRoutes) RemovePersonFromDream(g *gin.Context) {
 // @Param name query string true "Name of a category"
 func (r *dreamsRoutes) PutCategoryToDream(g *gin.Context) {
 	dreamId, err := parseParamUint(g, "id")
-	if err != nil {
+	if handleError(g, err) {
 		return
 	}
 	name, err := parseQueryParamString(g, "name")
-	if err != nil {
+	if handleError(g, err) {
 		return
 	}
 
@@ -224,11 +229,11 @@ func (r *dreamsRoutes) PutCategoryToDream(g *gin.Context) {
 // @Router /dreams/{dreamId}/categories/{categoryId} [delete]
 func (r *dreamsRoutes) RemoveCategoryFromDream(g *gin.Context) {
 	dreamId, err := parseParamUint(g, "id")
-	if err != nil {
+	if handleError(g, err) {
 		return
 	}
 	categoryId, err := parseParamUint(g, "categoryId")
-	if err != nil {
+	if handleError(g, err) {
 		return
 	}
 
@@ -247,7 +252,7 @@ func (r *dreamsRoutes) RemoveCategoryFromDream(g *gin.Context) {
 // @Router /dreams/{dreamId}/finalize [patch]
 func (r *dreamsRoutes) Finalize(g *gin.Context) {
 	dreamId, err := parseParamUint(g, "id")
-	if err != nil {
+	if handleError(g, err) {
 		return
 	}
 

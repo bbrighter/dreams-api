@@ -60,6 +60,8 @@ definitions:
         items:
           $ref: '#/definitions/entity.CategoryResponse'
         type: array
+      rating:
+        type: integer
       visible:
         type: boolean
     required:
@@ -86,6 +88,8 @@ definitions:
         items:
           $ref: '#/definitions/entity.CategoryResponse'
         type: array
+      rating:
+        type: integer
       visible:
         type: boolean
     required:
@@ -111,15 +115,6 @@ definitions:
     required:
     - token
     type: object
-  v1.DreamRequestBody:
-    properties:
-      date:
-        type: string
-      description:
-        type: string
-    required:
-    - date
-    type: object
   v1.LoginRequest:
     properties:
       name:
@@ -129,6 +124,24 @@ definitions:
     required:
     - name
     - password
+    type: object
+  v1.PostDreamRequest:
+    properties:
+      date:
+        type: string
+      description:
+        type: string
+    required:
+    - date
+    type: object
+  v1.UpdateDreamRequest:
+    properties:
+      date:
+        type: string
+      description:
+        type: string
+      rating:
+        type: integer
     type: object
 info:
   contact: {}
@@ -166,10 +179,10 @@ paths:
       parameters:
       - description: The dream which will be created
         in: body
-        name: dreamRequestBody
+        name: postDreamRequest
         required: true
         schema:
-          $ref: '#/definitions/v1.DreamRequestBody'
+          $ref: '#/definitions/v1.PostDreamRequest'
       produces:
       - application/json
       responses:
@@ -209,12 +222,12 @@ paths:
       - application/json
       description: Update an existing dream
       parameters:
-      - description: The dream which will be updated
+      - description: All parameters of the dream that should be updated
         in: body
-        name: dreamRequestBody
+        name: updateDreamRequest
         required: true
         schema:
-          $ref: '#/definitions/v1.DreamRequestBody'
+          $ref: '#/definitions/v1.UpdateDreamRequest'
       responses:
         "200":
           description: OK
