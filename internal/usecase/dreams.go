@@ -29,9 +29,18 @@ func (uc *DreamsUseCase) Create(date time.Time) (uint, error) {
 	return uc.repo.Create(dream)
 }
 
-func (uc *DreamsUseCase) Update(id uint, date time.Time, description string) error {
-	dream := entity.Dream{ID: id, Date: date, Description: description}
-	return uc.repo.Update(dream)
+func (uc *DreamsUseCase) Update(id uint, date *time.Time, description *string, rating *int) error {
+	updates := make(map[string]any)
+	if date != nil {
+		updates["date"] = *date
+	}
+	if description != nil {
+		updates["description"] = *description
+	}
+	if rating != nil {
+		updates["rating"] = *rating
+	}
+	return uc.repo.Update(id, updates)
 }
 
 func (uc *DreamsUseCase) Delete(id uint) (entity.Categories, error) {
@@ -40,9 +49,15 @@ func (uc *DreamsUseCase) Delete(id uint) (entity.Categories, error) {
 }
 
 func (uc *DreamsUseCase) Finalize(id uint) error {
-	return uc.repo.Finalize(id)
+	updates := map[string]any{
+		"finalized": true,
+	}
+	return uc.repo.Update(id, updates)
 }
 
 func (uc *DreamsUseCase) Rate(id uint, rating int) error {
-	return uc.repo.Rate(id, rating)
+	updates := map[string]any{
+		"rating": rating,
+	}
+	return uc.repo.Update(id, updates)
 }

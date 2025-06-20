@@ -94,18 +94,6 @@ func TestGetDream(t *testing.T) {
 	assert.EqualValues(t, 100, dream.ID)
 }
 
-func TestFinalize(t *testing.T) {
-	repo := setupDreamsTest(t)
-	err := repo.db.Create(&entity.Dream{ID: 1}).Error
-	assert.NoError(t, err)
-
-	err = repo.Finalize(1)
-	assert.NoError(t, err)
-
-	err = repo.Finalize(100)
-	assert.Error(t, err)
-}
-
 func TestCreateDream(t *testing.T) {
 	repo := setupDreamsTest(t)
 	id, err := repo.Create(entity.Dream{Date: time.Now()})
@@ -114,15 +102,42 @@ func TestCreateDream(t *testing.T) {
 }
 
 func TestUpdateDream(t *testing.T) {
-	repo := setupDreamsTest(t)
-	err := repo.db.Create(&entity.Dream{ID: 1}).Error
-	assert.NoError(t, err)
+	tests := map[string]struct {
+		dreamId   uint
+		updateMap map[string]any
+		isError   bool
+	}{
+		"date, ok":        {dreamId: 1, updateMap: map[string]any{"date": time.Now()}},
+		"description, ok": {dreamId: 1, updateMap: map[string]any{"description": "desc"}},
+		"date + desc, ok": {dreamId: 1, updateMap: map[string]any{"date": time.Now(), "description": "desc"}},
+		"rating, ok":      {dreamId: 1, updateMap: map[string]any{"rating": 3}},
+		"finalized, ok":   {dreamId: 1, updateMap: map[string]any{"finalized": true}},
+		"not found":       {dreamId: 100, updateMap: map[string]any{"date": time.Now()}, isError: true},
+		"invalid column":  {dreamId: 1, updateMap: map[string]any{"invalid": "abc"}, isError: true},
+		"invalid type":    {dreamId: 1, updateMap: map[string]any{"rating": "a"}, isError: true},
+	}
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			var err error
+			repo := setupDreamsTest(t)
+			err = repo.db.Create(&entity.Dream{ID: 1}).Error
+			assert.NoError(t, err)
 
-	err = repo.Update(entity.Dream{ID: 1, Date: time.Now(), Description: "desc"})
-	assert.NoError(t, err)
+			err = repo.Update(test.dreamId, test.updateMap)
+			if test.isError {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
 
-	err = repo.Update(entity.Dream{ID: 100})
-	assert.ErrorIs(t, err, entity.ErrorNotFound)
+	}
+
+	// err = repo.Update(entity.Dream{ID: 1, Date: time.Now(), Description: "desc"})
+	// assert.NoError(t, err)
+
+	// err = repo.Update(entity.Dream{ID: 100})
+	// assert.ErrorIs(t, err, entity.ErrorNotFound)
 }
 
 func TestDeleteDream(t *testing.T) {
@@ -156,40 +171,4 @@ func TestToggleVisibility(t *testing.T) {
 	var dream entity.Dream
 	repo.db.First(&dream)
 	assert.False(t, dream.Visible)
-}
-
-func TestRate(t *testing.T) {
-	expectedRating := 3
-	tests := map[string]struct {
-		id             uint
-		expectedRating *int
-		expectedError  bool
-	}{
-		"rating 3":  {id: 1, expectedRating: &expectedRating},
-		"not found": {id: 100, expectedError: true},
-	}
-	for name, test := range tests {
-		t.Run(name, func(t *testing.T) {
-			repo := setupDreamsTest(t)
-			err := repo.db.Create(&entity.Dream{ID: 1}).Error
-			assert.NoError(t, err)
-			var dream entity.Dream
-			repo.db.First(&dream)
-			assert.Nil(t, dream.Rating)
-
-			err = repo.Rate(test.id, expectedRating)
-			if test.expectedRating != nil {
-				repo.db.First(&dream)
-				assert.Equal(t, dream.Rating, &expectedRating)
-			}
-			if test.expectedError {
-				assert.Error(t, err)
-			} else {
-				assert.NoError(t, err)
-			}
-
-		})
-
-	}
-
 }

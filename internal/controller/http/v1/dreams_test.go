@@ -21,7 +21,7 @@ func TestDreams(t *testing.T) {
 		{name: "get dreams, empty", method: http.MethodGet, url: "/dreams", statusCode: http.StatusOK,
 			response: entity.DreamsResponse{Dreams: []entity.DreamMetaResponse{}}},
 		{name: "post dream", method: http.MethodPost, url: "/dreams", statusCode: http.StatusCreated,
-			body: DreamRequestBody{Date: date}},
+			body: PostDreamRequest{Date: date}},
 		{name: "get dreams, one exits", method: http.MethodGet, url: "/dreams", statusCode: http.StatusOK,
 			response: entity.DreamsResponse{Dreams: []entity.DreamMetaResponse{{ID: 1, Date: date, Finalized: false, Visible: true}}}},
 		{name: "get dreams with persons and categories", method: http.MethodGet, url: "/dreams?includes=persons,categories", statusCode: http.StatusOK,
@@ -35,7 +35,7 @@ func TestDreams(t *testing.T) {
 			},
 		},
 		{name: "patch dream", method: http.MethodPatch, url: "/dreams/1", statusCode: http.StatusOK,
-			body: DreamRequestBody{Description: &desc, Date: date}},
+			body: UpdateDreamRequest{Description: &desc, Date: &date}},
 		{name: "add person to dream", method: http.MethodPut, url: "/dreams/1/persons?name=person", statusCode: http.StatusOK,
 			response: entity.CategoriesResponse{
 				Persons: []entity.CategoryResponse{{ID: 1, Name: "person"}},
@@ -59,7 +59,8 @@ func TestDreams(t *testing.T) {
 				Categories: []entity.CategoryResponse{{ID: 2, Name: "cat"}},
 			}},
 		{name: "remove category from dream", method: http.MethodDelete, url: "/dreams/1/categories/2", statusCode: http.StatusOK, response: entity.CategoriesResponse{}},
-		{name: "rate the dream", method: http.MethodPatch, url: "/dreams/1/rate?rating=3", statusCode: http.StatusOK},
+		{name: "rate the dream", method: http.MethodPatch, url: "/dreams/1", statusCode: http.StatusOK,
+			body: UpdateDreamRequest{Rating: &rating}},
 		{name: "get rated dream", method: http.MethodGet, url: "/dreams/1", statusCode: http.StatusOK,
 			response: entity.DreamResponse{
 				Description:       desc,
@@ -101,7 +102,7 @@ func TestPrivateDreams(t *testing.T) {
 	tokenFn := func() *string { return token }
 
 	tests := []apiTest{
-		{name: "post dream", method: http.MethodPost, url: "/dreams", statusCode: http.StatusCreated, body: DreamRequestBody{Date: date}},
+		{name: "post dream", method: http.MethodPost, url: "/dreams", statusCode: http.StatusCreated, body: PostDreamRequest{Date: date}},
 		{name: "login", method: http.MethodPost, url: "/login", statusCode: http.StatusOK, body: LoginRequest{Name: "Benni", Password: "0803"}, after: extractToken},
 		{name: "toggle visibility of dream", method: http.MethodPatch, url: "/dreams/private/1", statusCode: http.StatusOK, token: tokenFn},
 		{name: "private dreams not listed", method: http.MethodGet, url: "/dreams", statusCode: http.StatusOK,

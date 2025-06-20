@@ -11,8 +11,12 @@ func NewPrivateDreamUseCase(r IDreamsRepo) *PrivateDreamsUseCase {
 }
 
 func (uc PrivateDreamsUseCase) ToggleVisibility(id uint) error {
-	var dream = entity.Dream{ID: id}
-	return uc.repo.ToggleVisibility(dream)
+	dream, err := uc.repo.Get(id, true)
+	if err != nil {
+		return err
+	}
+	var updates = map[string]any{"visible": !dream.Visible}
+	return uc.repo.Update(id, updates)
 }
 
 func (uc PrivateDreamsUseCase) List() entity.Dreams {

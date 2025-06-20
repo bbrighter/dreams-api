@@ -27,7 +27,6 @@ func newDreamsRoute(handler *gin.RouterGroup, d usecase.Dreams, c usecase.Catego
 			hid.PATCH("", r.Update)
 			hid.DELETE("", r.Delete)
 			hid.PATCH("/finalize", r.Finalize)
-			hid.PATCH("/rate", r.Rate)
 			hCat := hid.Group("/categories")
 			{
 				hCat.PUT("", r.PutCategoryToDream)
@@ -72,7 +71,7 @@ func (r *dreamsRoutes) Get(g *gin.Context) {
 	g.JSON(http.StatusOK, dream.ToResponse())
 }
 
-type DreamRequestBody struct {
+type PostDreamRequest struct {
 	Date        time.Time `json:"date" binding:"required"`
 	Description *string   `json:"description"`
 }
@@ -84,9 +83,9 @@ type DreamRequestBody struct {
 // @Failure 400
 // @Failure 500
 // @Router /dreams [post]
-// @Param dreamRequestBody  body DreamRequestBody true "The dream which will be created"
+// @Param postDreamRequest  body PostDreamRequest true "The dream which will be created"
 func (r *dreamsRoutes) Create(g *gin.Context) {
-	var body DreamRequestBody
+	var body PostDreamRequest
 	if err := g.BindJSON(&body); err != nil {
 		g.AbortWithError(http.StatusBadRequest, err)
 		return
@@ -102,26 +101,31 @@ func (r *dreamsRoutes) Create(g *gin.Context) {
 	g.JSON(http.StatusCreated, id)
 }
 
+type UpdateDreamRequest struct {
+	Date        *time.Time `json:"date,omitempty"`
+	Description *string    `json:"description,omitempty"`
+	Rating      *int       `json:"rating,omitempty"`
+}
+
 // @Description Update an existing dream
 // @Accept json
 // @Success 200
 // @Failure 400
 // @Failure 404
 // @Router /dreams/{dreamId} [patch]
-// @Param dreamRequestBody body DreamRequestBody true "The dream which will be updated"
+// @Param updateDreamRequest body UpdateDreamRequest true "All parameters of the dream that should be updated"
 func (r *dreamsRoutes) Update(g *gin.Context) {
-	var body DreamRequestBody
-	if err := g.BindJSON(&body); err != nil {
-		g.AbortWithError(http.StatusBadRequest, err)
+	var body UpdateDreamRequest
+	err := g.BindJSON(&body)
+	if handleError(g, err) {
 		return
 	}
-	var err error
-	var id uint
-	id, err = parseParamUint(g, "id")
-	if err != nil {
+	id, err := parseParamUint(g, "id")
+	if handleError(g, err) {
 		return
 	}
-	err = r.d.Update(id, body.Date, *body.Description)
+
+	err = r.d.Update(id, body.Date, body.Description, body.Rating)
 	if handleError(g, err) {
 		return
 	}
@@ -253,31 +257,6 @@ func (r *dreamsRoutes) Finalize(g *gin.Context) {
 	}
 
 	err = r.d.Finalize(dreamId)
-	if handleError(g, err) {
-		return
-	}
-
-	g.Status(http.StatusOK)
-}
-
-// @Description Rate a dream
-// @Produce json
-// @Success 200
-// @Failure 400
-// @Failure 404
-// @Router /dreams/{dreamId}/rate [patch]
-// @Param rating query int true "Rating of the dream"
-func (r *dreamsRoutes) Rate(g *gin.Context) {
-	dreamId, err := parseParamUint(g, "id")
-	if err != nil {
-		return
-	}
-
-	rating, err := parseQueryParamInt(g, "rating")
-	if err != nil {
-		return
-	}
-	err = r.d.Rate(dreamId, rating)
 	if handleError(g, err) {
 		return
 	}
