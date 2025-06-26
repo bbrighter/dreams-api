@@ -1,4 +1,8 @@
 definitions:
+  entity.Categories:
+    items:
+      $ref: '#/definitions/entity.Category'
+    type: array
   entity.CategoriesResponse:
     properties:
       categories:
@@ -10,8 +14,23 @@ definitions:
           $ref: '#/definitions/entity.CategoryResponse'
         type: array
     type: object
+  entity.Category:
+    properties:
+      dreams:
+        items:
+          $ref: '#/definitions/entity.Dream'
+        type: array
+      id:
+        type: integer
+      name:
+        type: string
+      type:
+        $ref: '#/definitions/entity.CategoryType'
+    type: object
   entity.CategoryResponse:
     properties:
+      count:
+        type: integer
       id:
         type: integer
       name:
@@ -20,6 +39,14 @@ definitions:
     - id
     - name
     type: object
+  entity.CategoryType:
+    enum:
+    - person
+    - category
+    type: string
+    x-enum-varnames:
+    - TypePerson
+    - TypeCategory
   entity.CountResponse:
     properties:
       count:
@@ -43,6 +70,23 @@ definitions:
     required:
     - categories
     - persons
+    type: object
+  entity.Dream:
+    properties:
+      categories:
+        $ref: '#/definitions/entity.Categories'
+      date:
+        type: string
+      description:
+        type: string
+      finalized:
+        type: boolean
+      id:
+        type: integer
+      rating:
+        type: integer
+      visible:
+        type: boolean
     type: object
   entity.DreamMetaResponse:
     properties:
@@ -125,6 +169,19 @@ definitions:
     - name
     - password
     type: object
+  v1.MergeCategoriesParams:
+    properties:
+      newName:
+        type: string
+      sourceCategoryId:
+        type: integer
+      targetCategoryId:
+        type: integer
+    required:
+    - newName
+    - sourceCategoryId
+    - targetCategoryId
+    type: object
   v1.PostDreamRequest:
     properties:
       date:
@@ -149,6 +206,11 @@ paths:
   /categories:
     get:
       description: Get all categories
+      parameters:
+      - description: 'Comma separated list of child objects. Possible entries: dreamsCount'
+        in: query
+        name: includes
+        type: string
       produces:
       - application/json
       responses:
@@ -156,6 +218,46 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/entity.CategoriesResponse'
+  /categories/:id:
+    delete:
+      description: Delete a category. Must be contained in no dreams.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+    patch:
+      description: Change the type of a category.
+      parameters:
+      - description: New type for this category
+        in: query
+        name: newType
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+  /categories/merge:
+    post:
+      description: Merge two categories.
+      parameters:
+      - description: Which categories should be merged
+        in: body
+        name: mergeCategoriesParams
+        required: true
+        schema:
+          $ref: '#/definitions/v1.MergeCategoriesParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entity.Category'
+            type: array
   /dreams:
     get:
       description: Get all dreams
