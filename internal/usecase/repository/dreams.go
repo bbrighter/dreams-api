@@ -1,10 +1,6 @@
 package repository
 
 import (
-	"fmt"
-	"reflect"
-	"strings"
-
 	"github.com/bbrighter/dreams-api/internal/entity"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -32,13 +28,13 @@ func (r *DreamsRepo) List(showAll bool, includes []entity.Includes) entity.Dream
 }
 
 func (r *DreamsRepo) Get(id uint, showAll bool) (entity.Dream, error) {
-	tx := r.db.Model(&entity.Dream{}).Preload(clause.Associations)
+	tx := r.db.Debug().Model(&entity.Dream{}).Preload(clause.Associations)
 	if !showAll {
 		tx.Where(&entity.Dream{Visible: true})
 	}
 
 	dream := entity.Dream{ID: id}
-	if tx.Debug().First(&dream).RowsAffected == 0 {
+	if tx.First(&dream).RowsAffected == 0 {
 		return dream, entity.ErrorNotFound
 	}
 	return dream, tx.Error
@@ -53,7 +49,7 @@ func (r *DreamsRepo) Update(dreamId uint, updates map[string]any) error {
 	if err := validateTypes(entity.Dream{}, updates); err != nil {
 		return err
 	}
-	tx := r.db.Debug().Model(&entity.Dream{ID: dreamId}).Updates(updates)
+	tx := r.db.Model(&entity.Dream{ID: dreamId}).Updates(updates)
 	if tx.RowsAffected == 0 {
 		return entity.ErrorNotFound
 	}
@@ -99,37 +95,4 @@ func removeCategoriesIfNeeded(db *gorm.DB, cats entity.Categories) (entity.Categ
 	}
 	db.Find(&leftOverCategories)
 	return leftOverCategories, nil
-}
-
-func validateTypes(model any, updates map[string]any) error {
-	modelType := reflect.TypeOf(model)
-	if modelType.Kind() == reflect.Pointer {
-		modelType = modelType.Elem()
-	}
-	for key, value := range updates {
-		field, ok := modelType.FieldByNameFunc(func(s string) bool {
-			return strings.EqualFold(s, key)
-		})
-		if !ok {
-			return fmt.Errorf("invalid field %s", key)
-		}
-		expectedType := field.Type
-		if expectedType.Kind() == reflect.Pointer {
-			expectedType = expectedType.Elem()
-		}
-
-		if value == nil {
-			continue
-		}
-
-		valueType := reflect.TypeOf(value)
-		if valueType.Kind() == reflect.Pointer {
-			valueType = valueType.Elem()
-		}
-
-		if !valueType.AssignableTo(expectedType) && !valueType.ConvertibleTo(expectedType) {
-			return fmt.Errorf("invalid type for field %s, expected %s and got %s", key, expectedType, valueType)
-		}
-	}
-	return nil
 }

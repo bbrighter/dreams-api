@@ -36,6 +36,7 @@ func setupApiTest(t *testing.T) *gin.Engine {
 	statisticsUseCase := usecase.NewStatisticsUseCase(statisticsRepo)
 	authRepo := repository.NewAuthRepo()
 	authUseCase := usecase.NewAuthUseCase(authRepo)
+	categoriesManagerUseCase := usecase.NewCategoriesManager(categoriesRepo)
 	repository.Migration(db, logger)
 
 	gin.SetMode(gin.TestMode)
@@ -48,6 +49,7 @@ func setupApiTest(t *testing.T) *gin.Engine {
 		statisticsUseCase,
 		categoriesUseCase,
 		authUseCase,
+		categoriesManagerUseCase,
 	)
 	return handler
 }

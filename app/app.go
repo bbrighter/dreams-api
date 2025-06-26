@@ -24,6 +24,7 @@ func Run(cfg *config.Config, logger *zap.Logger) {
 	statisticsUseCase := usecase.NewStatisticsUseCase(statisticsRepo)
 	authRepo := repository.NewAuthRepo()
 	authUseCase := usecase.NewAuthUseCase(authRepo)
+	categoriesManagerUseCase := usecase.NewCategoriesManager(categoriesRepo)
 	repository.Migration(db, logger)
 
 	handler := gin.New()
@@ -44,6 +45,7 @@ func Run(cfg *config.Config, logger *zap.Logger) {
 		statisticsUseCase,
 		categoriesUseCase,
 		authUseCase,
+		categoriesManagerUseCase,
 	)
 
 	var host = cfg.Host + ":" + cfg.Port

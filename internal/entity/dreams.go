@@ -65,14 +65,14 @@ func (d Dreams) ToResponse() DreamsResponse {
 type Includes int
 
 const (
-	IncludePersons Includes = iota
-	IncludeCategories
+	IncludeCategories Includes = iota + 1
+	IncludeDreamsCount
 )
 
 func ParseIncludes(raw string) []Includes {
 	valid := map[string]Includes{
-		"categories": IncludeCategories,
-		"persons":    IncludePersons,
+		"categories":  IncludeCategories,
+		"dreamsCount": IncludeDreamsCount,
 	}
 
 	set := make(map[Includes]struct{})

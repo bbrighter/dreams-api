@@ -1,8 +1,6 @@
 package entity
 
 import (
-	"errors"
-
 	"gorm.io/gorm"
 )
 
@@ -16,6 +14,13 @@ const (
 var validCategoryTypes = map[CategoryType]bool{
 	TypePerson:   true,
 	TypeCategory: true,
+}
+
+func NewCategoryType(str string) (CategoryType, error) {
+	if !validCategoryTypes[CategoryType(str)] {
+		return TypePerson, ErrorBadParamWithReasons("invalid category type")
+	}
+	return CategoryType(str), nil
 }
 
 type Category struct {
@@ -33,14 +38,16 @@ type CategoriesResponse struct {
 }
 
 type CategoryResponse struct {
-	ID   uint   `json:"id" binding:"required"`
-	Name string `json:"name" binding:"required"`
+	ID    uint   `json:"id" binding:"required"`
+	Name  string `json:"name" binding:"required"`
+	Count int    `json:"count,omitempty" validate:"optional"`
 }
 
 func (c Category) ToResponse() CategoryResponse {
 	return CategoryResponse{
-		ID:   c.ID,
-		Name: c.Name,
+		ID:    c.ID,
+		Name:  c.Name,
+		Count: len(c.Dreams),
 	}
 }
 func (cats Categories) ToResponse() CategoriesResponse {
@@ -68,14 +75,14 @@ func (cats Categories) ToList(t CategoryType) []CategoryResponse {
 
 func (c *Category) BeforeCreate(tx *gorm.DB) error {
 	if !validCategoryTypes[c.Type] {
-		return errors.New("invalid category type")
+		return ErrorBadParamWithReasons("invalid category type")
 	}
 	return nil
 }
 
 func (c *Category) BeforeUpdate(tx *gorm.DB) error {
 	if !validCategoryTypes[c.Type] {
-		return errors.New("invalid category type")
+		return ErrorBadParamWithReasons("invalid category type")
 	}
 	return nil
 }
