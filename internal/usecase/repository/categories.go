@@ -73,13 +73,18 @@ func (r *CategoriesRepo) Update(categoryId uint, updates map[string]any) error {
 
 func (r *CategoriesRepo) CountByNameAndType(name string, categoryType entity.CategoryType) int64 {
 	var numSameNames int64
-	r.db.Where("name = ?", name).Where("type = ?", categoryType).Find(&entity.Category{}).Count(&numSameNames)
+	r.db.Model(&entity.Category{}).
+		Where("name = ?", name).
+		Where("type = ?", categoryType).
+		Count(&numSameNames)
 	return numSameNames
 }
 
 func (r *CategoriesRepo) Delete(categoryId uint) error {
 	var count int64
-	tx := r.db.Table("categories_dreams").Where("category_id = ?", categoryId).Count(&count)
+	tx := r.db.Table("categories_dreams").
+		Where("category_id = ?", categoryId).
+		Count(&count)
 	if tx.Error != nil {
 		return tx.Error
 	}

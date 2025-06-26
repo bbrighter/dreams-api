@@ -26,13 +26,15 @@ func TestGetDreams(t *testing.T) {
 	tests := map[string]struct {
 		createDreamBefore          bool
 		includeCategories          bool
+		showAll                    bool
 		expectedLength             int
 		expectedNumberOfCategories int
 		expectedNumberOfPersons    int
 	}{
-		"no dreams":       {},
-		"one dream":       {createDreamBefore: true, expectedLength: 1},
-		"one dream + cat": {createDreamBefore: true, includeCategories: true, expectedLength: 1, expectedNumberOfCategories: 1, expectedNumberOfPersons: 1},
+		"no dreams":              {},
+		"one dream":              {createDreamBefore: true, expectedLength: 1},
+		"one dream + cat":        {createDreamBefore: true, includeCategories: true, expectedLength: 1, expectedNumberOfCategories: 1, expectedNumberOfPersons: 1},
+		"include private dreams": {createDreamBefore: true, showAll: true, expectedLength: 2},
 	}
 
 	for name, test := range tests {
@@ -43,13 +45,15 @@ func TestGetDreams(t *testing.T) {
 					entity.Category{ID: 1, Type: entity.TypeCategory},
 					entity.Category{ID: 2, Type: entity.TypePerson},
 				}})
+				repo.db.Create(&entity.Dream{ID: 2, Visible: false})
+				repo.db.Model(&entity.Dream{ID: 2}).UpdateColumn("visible", false)
 			}
 
 			includes := []entity.Includes{}
 			if test.includeCategories {
 				includes = append(includes, entity.IncludeCategories)
 			}
-			dreams := repo.List(false, includes)
+			dreams := repo.List(test.showAll, includes)
 			assert.Len(t, dreams, test.expectedLength)
 			if test.expectedLength > 0 {
 				numberOfPersons := 0

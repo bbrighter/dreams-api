@@ -18,12 +18,12 @@ func (r *DreamsRepo) List(showAll bool, includes []entity.Includes) entity.Dream
 	var dreams entity.Dreams
 	tx := r.db.Model(&entity.Dream{})
 	if len(includes) > 0 {
-		tx.Preload("Categories")
+		tx = tx.Preload("Categories")
 	}
 	if !showAll {
-		tx.Where(&entity.Dream{Visible: true})
+		tx = tx.Where(&entity.Dream{Visible: true})
 	}
-	tx.Find(&dreams)
+	tx.Debug().Find(&dreams)
 	return dreams
 }
 
