@@ -226,12 +226,27 @@ paths:
       responses:
         "200":
           description: OK
+  /categories/:id/name:
+    patch:
+      description: Change the name of a category.
+      parameters:
+      - description: New name for this category
+        in: query
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+  /categories/:id/type:
     patch:
       description: Change the type of a category.
       parameters:
       - description: New type for this category
         in: query
-        name: newType
+        name: type
         required: true
         type: string
       produces:

@@ -15,15 +15,15 @@ func TestCategories(t *testing.T) {
 	var emptyCategories = entity.CategoriesResponse{}
 
 	tests := []apiTest{
-		{name: "post dream", method: http.MethodPost, url: "/dreams", statusCode: http.StatusCreated,
-			body: PostDreamRequest{Date: date}},
+		{name: "post dream", method: http.MethodPost, url: "/dreams", statusCode: http.StatusCreated, body: PostDreamRequest{Date: date}},
 		{name: "add category to dream", method: http.MethodPut, url: "/dreams/1/categories?name=cat", statusCode: http.StatusOK,
 			response: entity.CategoriesResponse{Categories: []entity.CategoryResponse{{ID: 1, Name: "cat"}}}},
-		{name: "change type of category", method: http.MethodPatch, url: "/categories/1?newType=person", statusCode: http.StatusOK},
+		{name: "change type of category", method: http.MethodPatch, url: "/categories/1/type?type=person", statusCode: http.StatusOK},
 		{name: "get categories", method: http.MethodGet, url: "/categories", statusCode: http.StatusOK,
 			response: entity.CategoriesResponse{Persons: []entity.CategoryResponse{{ID: 1, Name: "cat"}}}},
+		{name: "change name of category", method: http.MethodPatch, url: "/categories/1/name?name=newCat", statusCode: http.StatusOK},
 		{name: "get categories and number of dreams", method: http.MethodGet, url: "/categories?includes=dreamsCount", statusCode: http.StatusOK,
-			response: entity.CategoriesResponse{Persons: []entity.CategoryResponse{{ID: 1, Name: "cat", Count: 1}}}},
+			response: entity.CategoriesResponse{Persons: []entity.CategoryResponse{{ID: 1, Name: "newCat", Count: 1}}}},
 		{name: "remove category from dream", method: http.MethodDelete, url: "/dreams/1/categories/1", statusCode: http.StatusOK, response: emptyCategories},
 		{name: "get categories", method: http.MethodGet, url: "/categories", statusCode: http.StatusOK, response: emptyCategories},
 	}

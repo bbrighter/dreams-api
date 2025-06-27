@@ -25,9 +25,9 @@ func (r *CategoriesRepo) List(includes []entity.Includes) entity.Categories {
 	return cats
 }
 
-func (r *CategoriesRepo) AddToDream(categoryName string, dream entity.Dream, categoryType entity.CategoryType) (entity.Categories, error) {
+func (r *CategoriesRepo) AddToDream(categoryName string, dream entity.Dream, categoryType entity.CategoryType) error {
 	if rowsAffected := r.db.First(&dream).RowsAffected; rowsAffected == 0 {
-		return nil, entity.ErrorNotFound
+		return entity.ErrorNotFound
 	}
 
 	categoryName = strings.TrimSpace(categoryName)
@@ -37,27 +37,21 @@ func (r *CategoriesRepo) AddToDream(categoryName string, dream entity.Dream, cat
 		Dreams: entity.Dreams{dream},
 	}
 	r.db.Where(&entity.Category{Name: categoryName, Type: categoryType}).First(&category)
-	err := r.db.Save(&category).Error
-
-	var categories []entity.Category
-	r.db.Find(&categories)
-	return categories, err
+	return r.db.Save(&category).Error
 }
 
-func (r *CategoriesRepo) RemoveFromDream(category entity.Category, dream entity.Dream) (entity.Categories, error) {
-	var categories = []entity.Category{}
-
+func (r *CategoriesRepo) RemoveFromDream(category entity.Category, dream entity.Dream) error {
 	if rowsAffected := r.db.First(&dream).RowsAffected; rowsAffected == 0 {
-		return categories, entity.ErrorNotFound
+		return entity.ErrorNotFound
 	}
 	if rowsAffected := r.db.First(&category).RowsAffected; rowsAffected == 0 {
-		return categories, entity.ErrorNotFound
+		return entity.ErrorNotFound
 	}
 
 	r.db.Model(&dream).Association("Categories").Delete(&category)
-	categories, err := removeCategoriesIfNeeded(r.db, entity.Categories{category})
+	_, err := removeCategoriesIfNeeded(r.db, entity.Categories{category})
 
-	return categories, err
+	return err
 }
 
 func (r *CategoriesRepo) Update(categoryId uint, updates map[string]any) error {

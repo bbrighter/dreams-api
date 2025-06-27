@@ -23,9 +23,14 @@ func newCategoriesRoute(
 	h := handler.Group("/categories")
 	{
 		h.GET("", r.GetAll)
-		h.PATCH("/:id", r.ChangeType)
-		h.DELETE("/:id", r.Delete)
+
 		h.POST("/merge", r.Merge)
+		idGroup := h.Group("/:id")
+		{
+			idGroup.PATCH("/type", r.ChangeType)
+			idGroup.PATCH("/name", r.ChangeName)
+			idGroup.DELETE("", r.Delete)
+		}
 	}
 }
 
@@ -63,14 +68,14 @@ func (r *categoriesRoute) Delete(g *gin.Context) {
 // @Success 200
 // @Error 400
 // @Error 404
-// @Router /categories/:id [patch]
-// @Param newType query string true "New type for this category"
+// @Router /categories/:id/type [patch]
+// @Param type query string true "New type for this category"
 func (r *categoriesRoute) ChangeType(g *gin.Context) {
 	id, err := parseParamUint(g, "id")
 	if handleError(g, err) {
 		return
 	}
-	newTypeStr, err := parseQueryParamString(g, "newType")
+	newTypeStr, err := parseQueryParamString(g, "type")
 	if handleError(g, err) {
 		return
 	}
@@ -80,6 +85,30 @@ func (r *categoriesRoute) ChangeType(g *gin.Context) {
 	}
 
 	err = r.m.ChangeType(id, newType)
+	if handleError(g, err) {
+		return
+	}
+	g.Status(http.StatusOK)
+}
+
+// @Description Change the name of a category.
+// @Produce json
+// @Success 200
+// @Error 400
+// @Error 404
+// @Router /categories/:id/name [patch]
+// @Param name query string true "New name for this category"
+func (r *categoriesRoute) ChangeName(g *gin.Context) {
+	id, err := parseParamUint(g, "id")
+	if handleError(g, err) {
+		return
+	}
+	newName, err := parseQueryParamString(g, "name")
+	if handleError(g, err) {
+		return
+	}
+
+	err = r.m.ChangeName(id, newName)
 	if handleError(g, err) {
 		return
 	}

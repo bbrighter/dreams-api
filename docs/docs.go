@@ -50,7 +50,31 @@ const docTemplate = `{
                         "description": "OK"
                     }
                 }
-            },
+            }
+        },
+        "/categories/:id/name": {
+            "patch": {
+                "description": "Change the name of a category.",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "New name for this category",
+                        "name": "name",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/categories/:id/type": {
             "patch": {
                 "description": "Change the type of a category.",
                 "produces": [
@@ -60,7 +84,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "New type for this category",
-                        "name": "newType",
+                        "name": "type",
                         "in": "query",
                         "required": true
                     }

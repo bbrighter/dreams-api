@@ -34,6 +34,7 @@ type (
 	}
 
 	ICategoriesManager interface {
+		ChangeName(uint, string) error
 		ChangeType(uint, entity.CategoryType) error
 		Delete(uint) error
 		Merge(uint, uint, string) (entity.Categories, error)
@@ -62,8 +63,8 @@ type (
 
 	ICategoriesRepo interface {
 		List([]entity.Includes) entity.Categories
-		AddToDream(string, entity.Dream, entity.CategoryType) (entity.Categories, error)
-		RemoveFromDream(entity.Category, entity.Dream) (entity.Categories, error)
+		AddToDream(string, entity.Dream, entity.CategoryType) error
+		RemoveFromDream(entity.Category, entity.Dream) error
 		Update(uint, map[string]any) error
 		Delete(uint) error
 		CountByNameAndType(string, entity.CategoryType) int64

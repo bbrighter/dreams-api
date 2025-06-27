@@ -58,26 +58,21 @@ func TestAddCategoryToDream(t *testing.T) {
 	var err error
 
 	var dream = entity.Dream{ID: 1}
-	_, err = r.AddToDream("name", dream, entity.TypeCategory)
+	err = r.AddToDream("name", dream, entity.TypeCategory)
 	assert.Error(t, err)
 
 	r.db.Create(&dream)
 
-	var cats entity.Categories
-	cats, err = r.AddToDream("name", dream, entity.TypeCategory)
+	err = r.AddToDream("name", dream, entity.TypeCategory)
+	assert.NoError(t, err)
+
+	err = r.AddToDream("name", dream, entity.TypeCategory)
 
 	assert.NoError(t, err)
-	assert.Len(t, cats, 1)
 
-	cats, err = r.AddToDream("name", dream, entity.TypeCategory)
-
-	assert.NoError(t, err)
-	assert.Len(t, cats, 1)
-
-	cats, err = r.AddToDream("new name", dream, entity.TypeCategory)
+	err = r.AddToDream("new name", dream, entity.TypeCategory)
 
 	assert.NoError(t, err)
-	assert.Len(t, cats, 2)
 }
 
 func TestRemoveCategoryFromDream(t *testing.T) {
@@ -104,8 +99,10 @@ func TestRemoveCategoryFromDream(t *testing.T) {
 				var otherDream = entity.Dream{ID: 2, Categories: cat}
 				r.db.Debug().Create(&otherDream)
 			}
-			cats, err := r.RemoveFromDream(entity.Category{ID: 10}, entity.Dream{ID: 1})
+			err := r.RemoveFromDream(entity.Category{ID: 10}, entity.Dream{ID: 1})
 			assert.Equal(t, test.expectError, err)
+			var cats entity.Categories
+			r.db.Find(&cats)
 			assert.Len(t, cats, test.expectedLengthOfCats)
 		})
 	}
