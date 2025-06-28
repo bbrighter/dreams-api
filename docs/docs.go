@@ -117,10 +117,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/entity.Category"
-                            }
+                            "$ref": "#/definitions/entity.CategoriesResponse"
                         }
                     }
                 }
@@ -538,12 +535,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "entity.Categories": {
-            "type": "array",
-            "items": {
-                "$ref": "#/definitions/entity.Category"
-            }
-        },
         "entity.CategoriesResponse": {
             "type": "object",
             "properties": {
@@ -558,26 +549,6 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/entity.CategoryResponse"
                     }
-                }
-            }
-        },
-        "entity.Category": {
-            "type": "object",
-            "properties": {
-                "dreams": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/entity.Dream"
-                    }
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "type": {
-                    "$ref": "#/definitions/entity.CategoryType"
                 }
             }
         },
@@ -598,17 +569,6 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
-        },
-        "entity.CategoryType": {
-            "type": "string",
-            "enum": [
-                "person",
-                "category"
-            ],
-            "x-enum-varnames": [
-                "TypePerson",
-                "TypeCategory"
-            ]
         },
         "entity.CountResponse": {
             "type": "object",
@@ -643,32 +603,6 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/entity.CountResponse"
                     }
-                }
-            }
-        },
-        "entity.Dream": {
-            "type": "object",
-            "properties": {
-                "categories": {
-                    "$ref": "#/definitions/entity.Categories"
-                },
-                "date": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "finalized": {
-                    "type": "boolean"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "rating": {
-                    "type": "integer"
-                },
-                "visible": {
-                    "type": "boolean"
                 }
             }
         },

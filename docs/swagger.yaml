@@ -1,8 +1,4 @@
 definitions:
-  entity.Categories:
-    items:
-      $ref: '#/definitions/entity.Category'
-    type: array
   entity.CategoriesResponse:
     properties:
       categories:
@@ -13,19 +9,6 @@ definitions:
         items:
           $ref: '#/definitions/entity.CategoryResponse'
         type: array
-    type: object
-  entity.Category:
-    properties:
-      dreams:
-        items:
-          $ref: '#/definitions/entity.Dream'
-        type: array
-      id:
-        type: integer
-      name:
-        type: string
-      type:
-        $ref: '#/definitions/entity.CategoryType'
     type: object
   entity.CategoryResponse:
     properties:
@@ -39,14 +22,6 @@ definitions:
     - id
     - name
     type: object
-  entity.CategoryType:
-    enum:
-    - person
-    - category
-    type: string
-    x-enum-varnames:
-    - TypePerson
-    - TypeCategory
   entity.CountResponse:
     properties:
       count:
@@ -70,23 +45,6 @@ definitions:
     required:
     - categories
     - persons
-    type: object
-  entity.Dream:
-    properties:
-      categories:
-        $ref: '#/definitions/entity.Categories'
-      date:
-        type: string
-      description:
-        type: string
-      finalized:
-        type: boolean
-      id:
-        type: integer
-      rating:
-        type: integer
-      visible:
-        type: boolean
     type: object
   entity.DreamMetaResponse:
     properties:
@@ -270,9 +228,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/entity.Category'
-            type: array
+            $ref: '#/definitions/entity.CategoriesResponse'
   /dreams:
     get:
       description: Get all dreams

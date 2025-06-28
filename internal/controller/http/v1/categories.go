@@ -123,7 +123,7 @@ type MergeCategoriesParams struct {
 
 // @Description Merge two categories.
 // @Produce json
-// @Success 200 {object} entity.Categories
+// @Success 200 {object} entity.CategoriesResponse
 // @Router /categories/merge [post]
 // @Param mergeCategoriesParams body MergeCategoriesParams true "Which categories should be merged"
 func (r *categoriesRoute) Merge(g *gin.Context) {
