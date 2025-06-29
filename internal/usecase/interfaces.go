@@ -24,13 +24,20 @@ type (
 	}
 
 	CategoriesLister interface {
-		List() entity.Categories
+		List([]entity.Includes) entity.Categories
 	}
 
 	CategoriesAdderRemover interface {
 		AddCategoryToDream(categoryName string, dreamId uint) (entity.Categories, error)
 		AddPersonToDream(categoryName string, dreamId uint) (entity.Categories, error)
 		RemoveFromDream(categoryId uint, dreamId uint) (entity.Categories, error)
+	}
+
+	ICategoriesManager interface {
+		ChangeName(uint, string) error
+		ChangeType(uint, entity.CategoryType) error
+		Delete(uint) error
+		Merge(uint, uint, string) (entity.Categories, error)
 	}
 
 	Statistics interface {
@@ -55,9 +62,14 @@ type (
 	}
 
 	ICategoriesRepo interface {
-		List() entity.Categories
-		AddToDream(string, entity.Dream, entity.CategoryType) (entity.Categories, error)
-		RemoveFromDream(entity.Category, entity.Dream) (entity.Categories, error)
+		List([]entity.Includes) entity.Categories
+		AddToDream(string, entity.Dream, entity.CategoryType) error
+		RemoveFromDream(entity.Category, entity.Dream) error
+		Update(uint, map[string]any) error
+		Delete(uint) error
+		CountByNameAndType(string, entity.CategoryType) int64
+		First(uint) (entity.Category, error)
+		Merge(uint, uint, string) error
 	}
 
 	IStatisticsRepo interface {

@@ -21,6 +21,98 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Comma separated list of child objects. Possible entries: dreamsCount",
+                        "name": "includes",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/entity.CategoriesResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/categories/:id": {
+            "delete": {
+                "description": "Delete a category. Must be contained in no dreams.",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/categories/:id/name": {
+            "patch": {
+                "description": "Change the name of a category.",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "New name for this category",
+                        "name": "name",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/categories/:id/type": {
+            "patch": {
+                "description": "Change the type of a category.",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "New type for this category",
+                        "name": "type",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/categories/merge": {
+            "post": {
+                "description": "Merge two categories.",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "description": "Which categories should be merged",
+                        "name": "mergeCategoriesParams",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.MergeCategoriesParams"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -467,6 +559,9 @@ const docTemplate = `{
                 "name"
             ],
             "properties": {
+                "count": {
+                    "type": "integer"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -628,6 +723,25 @@ const docTemplate = `{
                 },
                 "password": {
                     "type": "string"
+                }
+            }
+        },
+        "v1.MergeCategoriesParams": {
+            "type": "object",
+            "required": [
+                "newName",
+                "sourceCategoryId",
+                "targetCategoryId"
+            ],
+            "properties": {
+                "newName": {
+                    "type": "string"
+                },
+                "sourceCategoryId": {
+                    "type": "integer"
+                },
+                "targetCategoryId": {
+                    "type": "integer"
                 }
             }
         },

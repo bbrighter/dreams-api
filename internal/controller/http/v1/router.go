@@ -12,12 +12,13 @@ func NewRouter(handler *gin.Engine,
 	s usecase.Statistics,
 	cl usecase.CategoriesLister,
 	l usecase.Auth,
+	cm usecase.ICategoriesManager,
 ) {
 	h := handler.Group("/")
 	{
 		newDreamsRoute(h, d, c)
 		newPrivateDreamsRoute(h, pd, l)
-		newCategoriesRoute(h, cl)
+		newCategoriesRoute(h, cl, cm)
 		newStatisticsRoute(h, s, l)
 		newLoginRoute(h, l)
 	}

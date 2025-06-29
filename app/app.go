@@ -16,14 +16,15 @@ import (
 func Run(cfg *config.Config, logger *zap.Logger) {
 	db := repository.NewDatabase(cfg.DbName, logger)
 	dreamsRepo := repository.NewDreamsRepo(db)
-	dreamsUseCase := usecase.NewDreamUseCase(dreamsRepo)
+	dreamsUseCase := usecase.NewDreamUseCase(dreamsRepo, logger)
 	privateDreamsUseCase := usecase.NewPrivateDreamUseCase(dreamsRepo)
 	categoriesRepo := repository.NewCategoriesRepo(db)
-	categoriesUseCase := usecase.NewCategoriesUseCase(categoriesRepo)
+	categoriesUseCase := usecase.NewCategoriesUseCase(categoriesRepo, logger)
 	statisticsRepo := repository.NewStatisticsRepo(db)
 	statisticsUseCase := usecase.NewStatisticsUseCase(statisticsRepo)
 	authRepo := repository.NewAuthRepo()
 	authUseCase := usecase.NewAuthUseCase(authRepo)
+	categoriesManagerUseCase := usecase.NewCategoriesManager(categoriesRepo, logger)
 	repository.Migration(db, logger)
 
 	handler := gin.New()
@@ -44,6 +45,7 @@ func Run(cfg *config.Config, logger *zap.Logger) {
 		statisticsUseCase,
 		categoriesUseCase,
 		authUseCase,
+		categoriesManagerUseCase,
 	)
 
 	var host = cfg.Host + ":" + cfg.Port

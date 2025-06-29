@@ -12,6 +12,8 @@ definitions:
     type: object
   entity.CategoryResponse:
     properties:
+      count:
+        type: integer
       id:
         type: integer
       name:
@@ -125,6 +127,19 @@ definitions:
     - name
     - password
     type: object
+  v1.MergeCategoriesParams:
+    properties:
+      newName:
+        type: string
+      sourceCategoryId:
+        type: integer
+      targetCategoryId:
+        type: integer
+    required:
+    - newName
+    - sourceCategoryId
+    - targetCategoryId
+    type: object
   v1.PostDreamRequest:
     properties:
       date:
@@ -149,6 +164,64 @@ paths:
   /categories:
     get:
       description: Get all categories
+      parameters:
+      - description: 'Comma separated list of child objects. Possible entries: dreamsCount'
+        in: query
+        name: includes
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.CategoriesResponse'
+  /categories/:id:
+    delete:
+      description: Delete a category. Must be contained in no dreams.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+  /categories/:id/name:
+    patch:
+      description: Change the name of a category.
+      parameters:
+      - description: New name for this category
+        in: query
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+  /categories/:id/type:
+    patch:
+      description: Change the type of a category.
+      parameters:
+      - description: New type for this category
+        in: query
+        name: type
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+  /categories/merge:
+    post:
+      description: Merge two categories.
+      parameters:
+      - description: Which categories should be merged
+        in: body
+        name: mergeCategoriesParams
+        required: true
+        schema:
+          $ref: '#/definitions/v1.MergeCategoriesParams'
       produces:
       - application/json
       responses:

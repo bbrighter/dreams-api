@@ -25,17 +25,18 @@ func setupTestDB(t *testing.T) *gorm.DB {
 }
 
 func setupApiTest(t *testing.T) *gin.Engine {
-	logger := zap.L()
+	logger := zap.NewExample()
 	db := setupTestDB(t)
 	dreamsRepo := repository.NewDreamsRepo(db)
-	dreamsUseCase := usecase.NewDreamUseCase(dreamsRepo)
+	dreamsUseCase := usecase.NewDreamUseCase(dreamsRepo, logger)
 	privateDreamsUseCase := usecase.NewPrivateDreamUseCase(dreamsRepo)
 	categoriesRepo := repository.NewCategoriesRepo(db)
-	categoriesUseCase := usecase.NewCategoriesUseCase(categoriesRepo)
+	categoriesUseCase := usecase.NewCategoriesUseCase(categoriesRepo, logger)
 	statisticsRepo := repository.NewStatisticsRepo(db)
 	statisticsUseCase := usecase.NewStatisticsUseCase(statisticsRepo)
 	authRepo := repository.NewAuthRepo()
 	authUseCase := usecase.NewAuthUseCase(authRepo)
+	categoriesManagerUseCase := usecase.NewCategoriesManager(categoriesRepo, logger)
 	repository.Migration(db, logger)
 
 	gin.SetMode(gin.TestMode)
@@ -48,6 +49,7 @@ func setupApiTest(t *testing.T) *gin.Engine {
 		statisticsUseCase,
 		categoriesUseCase,
 		authUseCase,
+		categoriesManagerUseCase,
 	)
 	return handler
 }
