@@ -17,7 +17,7 @@ func NewCategoriesRepo(db *gorm.DB) *CategoriesRepo {
 
 func (r *CategoriesRepo) List(includes []entity.Includes) entity.Categories {
 	var cats entity.Categories
-	tx := r.db.Debug()
+	tx := r.db
 	if len(includes) > 0 {
 		tx = tx.Preload("Dreams")
 	}
@@ -104,7 +104,7 @@ func (r *CategoriesRepo) First(categoryId uint) (entity.Category, error) {
 }
 
 func (r *CategoriesRepo) Merge(sourceCategoryId, targetCategoryId uint, newName string) error {
-	return r.db.Debug().Transaction(func(tx *gorm.DB) error {
+	return r.db.Transaction(func(tx *gorm.DB) error {
 		var fromDreamIds []uint
 		if err := tx.Table("categories_dreams").
 			Where("category_id = ?", sourceCategoryId).

@@ -97,7 +97,7 @@ func TestRemoveCategoryFromDream(t *testing.T) {
 			}
 			if test.catInUseByOtherDream {
 				var otherDream = entity.Dream{ID: 2, Categories: cat}
-				r.db.Debug().Create(&otherDream)
+				r.db.Create(&otherDream)
 			}
 			err := r.RemoveFromDream(entity.Category{ID: 10}, entity.Dream{ID: 1})
 			assert.Equal(t, test.expectError, err)

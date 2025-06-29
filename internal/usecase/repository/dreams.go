@@ -23,12 +23,12 @@ func (r *DreamsRepo) List(showAll bool, includes []entity.Includes) entity.Dream
 	if !showAll {
 		tx = tx.Where(&entity.Dream{Visible: true})
 	}
-	tx.Debug().Find(&dreams)
+	tx.Find(&dreams)
 	return dreams
 }
 
 func (r *DreamsRepo) Get(id uint, showAll bool) (entity.Dream, error) {
-	tx := r.db.Debug().Model(&entity.Dream{}).Preload(clause.Associations)
+	tx := r.db.Model(&entity.Dream{}).Preload(clause.Associations)
 	if !showAll {
 		tx.Where(&entity.Dream{Visible: true})
 	}

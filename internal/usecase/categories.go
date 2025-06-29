@@ -89,5 +89,5 @@ func (u *CategoriesManager) Merge(sourceCategoryId uint, targetCategoryId uint, 
 		u.HandleError(err)
 		return entity.Categories{}, err
 	}
-	return u.repo.List([]entity.Includes{}), nil
+	return u.repo.List([]entity.Includes{entity.IncludeDreamsCount}), nil
 }
