@@ -10,14 +10,6 @@
                 "produces": [
                     "application/json"
                 ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Comma separated list of child objects. Possible entries: dreamsCount",
-                        "name": "includes",
-                        "in": "query"
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -98,7 +90,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v1.MergeCategoriesParams"
+                            "$ref": "#/definitions/controller.MergeCategoriesParams"
                         }
                     }
                 ],
@@ -106,7 +98,31 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/entity.CategoriesResponse"
+                            "$ref": "#/definitions/entity.CategoriesCountResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/count-categories": {
+            "get": {
+                "description": "Get count per category and person",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "type": "number",
+                        "description": "Limit of returned results",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Counts by category and persons",
+                        "schema": {
+                            "$ref": "#/definitions/entity.CategoriesCountResponse"
                         }
                     }
                 }
@@ -117,14 +133,6 @@
                 "description": "Get all dreams",
                 "produces": [
                     "application/json"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Comma separated list of child objects. Possible entries: categories, persons",
-                        "name": "includes",
-                        "in": "query"
-                    }
                 ],
                 "responses": {
                     "200": {
@@ -150,7 +158,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v1.PostDreamRequest"
+                            "$ref": "#/definitions/controller.PostDreamRequest"
                         }
                     }
                 ],
@@ -281,7 +289,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v1.UpdateDreamRequest"
+                            "$ref": "#/definitions/controller.UpdateDreamRequest"
                         }
                     }
                 ],
@@ -298,26 +306,28 @@
                 }
             }
         },
-        "/dreams/{dreamId}/categories": {
-            "put": {
-                "description": "Add a category to a dream",
+        "/dreams/{dreamId}/category": {
+            "post": {
+                "description": "Add a new person or category to a dream",
                 "produces": [
                     "application/json"
                 ],
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Name of a category",
-                        "name": "name",
-                        "in": "query",
-                        "required": true
+                        "description": "Name and category. Allowed values for 'catgory' are: 'person', 'category'",
+                        "name": "params",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.PostCategoryRequestBody"
+                        }
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "201": {
+                        "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/entity.CategoriesResponse"
+                            "type": "number"
                         }
                     },
                     "400": {
@@ -329,18 +339,32 @@
                 }
             }
         },
-        "/dreams/{dreamId}/categories/{categoryId}": {
-            "delete": {
-                "description": "Remove a category from a dream",
+        "/dreams/{dreamId}/category/{categoryId}": {
+            "put": {
+                "description": "Add an exiting person or category to a dream",
                 "produces": [
                     "application/json"
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/entity.CategoriesResponse"
-                        }
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a category or person from a dream",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
                     },
                     "400": {
                         "description": "Bad Request"
@@ -370,59 +394,6 @@
                 }
             }
         },
-        "/dreams/{dreamId}/persons": {
-            "put": {
-                "description": "Add a person to a dream",
-                "produces": [
-                    "application/json"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Name of person",
-                        "name": "name",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/entity.CategoriesResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    }
-                }
-            }
-        },
-        "/dreams/{dreamId}/persons/{personId}": {
-            "delete": {
-                "description": "Delete a person from a dream",
-                "produces": [
-                    "application/json"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/entity.CategoriesResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    }
-                }
-            }
-        },
         "/login": {
             "post": {
                 "description": "Login",
@@ -436,7 +407,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v1.LoginRequest"
+                            "$ref": "#/definitions/controller.LoginRequest"
                         }
                     }
                 ],
@@ -468,62 +439,93 @@
                     }
                 }
             }
-        },
-        "/private/statistics": {
-            "get": {
-                "security": [
-                    {
-                        "BasicAuth": []
-                    }
-                ],
-                "description": "Get count per category and person",
-                "produces": [
-                    "application/json"
-                ],
-                "parameters": [
-                    {
-                        "type": "number",
-                        "description": "Limit of returned results",
-                        "name": "limit",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Counts by category and persons",
-                        "schema": {
-                            "$ref": "#/definitions/entity.CountsResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/statistics": {
-            "get": {
-                "description": "Get count per category and person",
-                "produces": [
-                    "application/json"
-                ],
-                "parameters": [
-                    {
-                        "type": "number",
-                        "description": "Limit of returned results",
-                        "name": "limit",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Counts by category and persons",
-                        "schema": {
-                            "$ref": "#/definitions/entity.CountsResponse"
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
+        "controller.LoginRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "password"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.MergeCategoriesParams": {
+            "type": "object",
+            "required": [
+                "newName",
+                "sourceCategoryId",
+                "targetCategoryId"
+            ],
+            "properties": {
+                "newName": {
+                    "type": "string"
+                },
+                "sourceCategoryId": {
+                    "type": "integer"
+                },
+                "targetCategoryId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "controller.PostCategoryRequestBody": {
+            "type": "object",
+            "properties": {
+                "categoryType": {
+                    "$ref": "#/definitions/entity.CategoryType"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.PostDreamRequest": {
+            "type": "object",
+            "required": [
+                "date"
+            ],
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.UpdateDreamRequest": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "rating": {
+                    "type": "integer"
+                }
+            }
+        },
+        "entity.CategoriesCountResponse": {
+            "type": "object",
+            "properties": {
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.CountByCat"
+                    }
+                }
+            }
+        },
         "entity.CategoriesResponse": {
             "type": "object",
             "properties": {
@@ -548,9 +550,6 @@
                 "name"
             ],
             "properties": {
-                "count": {
-                    "type": "integer"
-                },
                 "id": {
                     "type": "integer"
                 },
@@ -559,39 +558,25 @@
                 }
             }
         },
-        "entity.CountResponse": {
-            "type": "object",
-            "required": [
-                "count",
-                "id"
+        "entity.CategoryType": {
+            "type": "string",
+            "enum": [
+                "person",
+                "category"
             ],
+            "x-enum-varnames": [
+                "TypePerson",
+                "TypeCategory"
+            ]
+        },
+        "entity.CountByCat": {
+            "type": "object",
             "properties": {
                 "count": {
                     "type": "integer"
                 },
                 "id": {
                     "type": "integer"
-                }
-            }
-        },
-        "entity.CountsResponse": {
-            "type": "object",
-            "required": [
-                "categories",
-                "persons"
-            ],
-            "properties": {
-                "categories": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/entity.CountResponse"
-                    }
-                },
-                "persons": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/entity.CountResponse"
-                    }
                 }
             }
         },
@@ -697,68 +682,6 @@
             "properties": {
                 "token": {
                     "type": "string"
-                }
-            }
-        },
-        "v1.LoginRequest": {
-            "type": "object",
-            "required": [
-                "name",
-                "password"
-            ],
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "v1.MergeCategoriesParams": {
-            "type": "object",
-            "required": [
-                "newName",
-                "sourceCategoryId",
-                "targetCategoryId"
-            ],
-            "properties": {
-                "newName": {
-                    "type": "string"
-                },
-                "sourceCategoryId": {
-                    "type": "integer"
-                },
-                "targetCategoryId": {
-                    "type": "integer"
-                }
-            }
-        },
-        "v1.PostDreamRequest": {
-            "type": "object",
-            "required": [
-                "date"
-            ],
-            "properties": {
-                "date": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                }
-            }
-        },
-        "v1.UpdateDreamRequest": {
-            "type": "object",
-            "properties": {
-                "date": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "rating": {
-                    "type": "integer"
                 }
             }
         }

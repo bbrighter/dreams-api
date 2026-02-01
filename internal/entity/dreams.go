@@ -11,7 +11,7 @@ type Dream struct {
 	Description string
 	Visible     bool `gorm:"default:true"`
 	Finalized   bool
-	Categories  Categories `gorm:"many2many:categories_dreams;"`
+	Categories  Categories `gorm:"many2many:categories_dreams"`
 	Rating      *int
 }
 

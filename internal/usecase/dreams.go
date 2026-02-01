@@ -1,11 +1,21 @@
 package usecase
 
 import (
+	"context"
 	"time"
 
 	"github.com/bbrighter/dreams-api/internal/entity"
 	"go.uber.org/zap"
 )
+
+type IDreams interface {
+	List(context.Context) (entity.Dreams, error)
+	Get(context.Context, uint) (entity.Dream, error)
+	Create(context.Context, time.Time) (uint, error)
+	Update(context.Context, uint, *time.Time, *string, *int) error
+	Delete(context.Context, uint) error
+	Finalize(context.Context, uint) error
+}
 
 type DreamsUseCase struct {
 	BaseUseCase
@@ -18,24 +28,22 @@ func NewDreamUseCase(r IDreamsRepo, logger *zap.Logger) *DreamsUseCase {
 	}
 }
 
-func (uc *DreamsUseCase) List(includes []entity.Includes) entity.Dreams {
-	return uc.repo.List(false, includes)
+func (uc *DreamsUseCase) List(ctx context.Context) (entity.Dreams, error) {
+	return uc.repo.List(ctx, false)
 }
 
-func (uc *DreamsUseCase) Get(id uint) (entity.Dream, error) {
-	dream, err := uc.repo.Get(id, false)
-	uc.HandleError(err)
+func (uc *DreamsUseCase) Get(ctx context.Context, id uint) (entity.Dream, error) {
+	dream, err := uc.repo.Get(ctx, id, false)
 	return dream, err
 }
 
-func (uc *DreamsUseCase) Create(date time.Time) (uint, error) {
-	dream := entity.Dream{Date: date}
-	id, err := uc.repo.Create(dream)
-	uc.HandleError(err)
+func (uc *DreamsUseCase) Create(ctx context.Context, date time.Time) (uint, error) {
+	dream := &entity.Dream{Date: date}
+	id, err := uc.repo.Create(ctx, dream)
 	return id, err
 }
 
-func (uc *DreamsUseCase) Update(id uint, date *time.Time, description *string, rating *int) error {
+func (uc *DreamsUseCase) Update(ctx context.Context, id uint, date *time.Time, description *string, rating *int) error {
 	updates := make(map[string]any)
 	if date != nil {
 		updates["date"] = *date
@@ -49,21 +57,17 @@ func (uc *DreamsUseCase) Update(id uint, date *time.Time, description *string, r
 	if len(updates) == 0 {
 		return entity.ErrorBadParamWithReasons("no params provided")
 	}
-	err := uc.repo.Update(id, updates)
-	uc.HandleError(err)
+	err := uc.repo.Update(ctx, id, updates)
 	return err
 }
 
-func (uc *DreamsUseCase) Delete(id uint) (entity.Categories, error) {
-	dream := entity.Dream{ID: id}
-	cats, err := uc.repo.Delete(dream)
-	uc.HandleError(err)
-	return cats, err
+func (uc *DreamsUseCase) Delete(ctx context.Context, id uint) error {
+	return uc.repo.Delete(ctx, id)
 }
 
-func (uc *DreamsUseCase) Finalize(id uint) error {
-	dream, err := uc.repo.Get(id, true)
-	if uc.HandleError(err) {
+func (uc *DreamsUseCase) Finalize(ctx context.Context, id uint) error {
+	dream, err := uc.repo.Get(ctx, id, true)
+	if err != nil {
 		return err
 	}
 	if dream.Rating == nil {
@@ -73,7 +77,5 @@ func (uc *DreamsUseCase) Finalize(id uint) error {
 	updates := map[string]any{
 		"finalized": true,
 	}
-	err = uc.repo.Update(id, updates)
-	uc.HandleError(err)
-	return err
+	return uc.repo.Update(ctx, id, updates)
 }

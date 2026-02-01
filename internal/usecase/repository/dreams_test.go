@@ -1,12 +1,14 @@
 package repository
 
 import (
+	"context"
 	"testing"
 	"time"
 
 	"github.com/bbrighter/dreams-api/internal/entity"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 func setupDreamsTest(t *testing.T) *DreamsRepo {
@@ -22,84 +24,36 @@ func setupDreamsTest(t *testing.T) *DreamsRepo {
 	return repo
 }
 
-func TestGetDreams(t *testing.T) {
+func (s *RepoTestSuite) TestListDreams() {
 	tests := map[string]struct {
-		createDreamBefore          bool
-		includeCategories          bool
-		showAll                    bool
-		expectedLength             int
-		expectedNumberOfCategories int
-		expectedNumberOfPersons    int
+		createDreamBefore bool
+		showAll           bool
+		expectedLength    int
 	}{
 		"no dreams":              {},
 		"one dream":              {createDreamBefore: true, expectedLength: 1},
-		"one dream + cat":        {createDreamBefore: true, includeCategories: true, expectedLength: 1, expectedNumberOfCategories: 1, expectedNumberOfPersons: 1},
 		"include private dreams": {createDreamBefore: true, showAll: true, expectedLength: 2},
 	}
 
 	for name, test := range tests {
-		t.Run(name, func(t *testing.T) {
-			repo := setupDreamsTest(t)
+		s.Run(name, func() {
 			if test.createDreamBefore {
-				repo.db.Create(&entity.Dream{ID: 1, Categories: entity.Categories{
+				s.db.Create(&entity.Dream{ID: 1, Categories: entity.Categories{
 					entity.Category{ID: 1, Type: entity.TypeCategory},
 					entity.Category{ID: 2, Type: entity.TypePerson},
 				}})
-				repo.db.Create(&entity.Dream{ID: 2, Visible: false})
-				repo.db.Model(&entity.Dream{ID: 2}).UpdateColumn("visible", false)
+				s.db.Create(&entity.Dream{ID: 2, Visible: false})
+				s.db.Model(&entity.Dream{ID: 2}).UpdateColumn("visible", false)
 			}
 
-			includes := []entity.Includes{}
-			if test.includeCategories {
-				includes = append(includes, entity.IncludeCategories)
-			}
-			dreams := repo.List(test.showAll, includes)
-			assert.Len(t, dreams, test.expectedLength)
-			if test.expectedLength > 0 {
-				numberOfPersons := 0
-				numberOfCats := 0
-				for _, cat := range dreams[0].Categories {
-					if cat.Type == entity.TypeCategory {
-						numberOfCats++
-					}
-					if cat.Type == entity.TypePerson {
-						numberOfPersons++
-					}
-				}
-				assert.EqualValues(t, numberOfCats, test.expectedNumberOfCategories)
-				assert.EqualValues(t, numberOfPersons, test.expectedNumberOfPersons)
-			}
+			dreams, err := s.dreams.List(s.ctx, test.showAll)
+			s.NoError(err)
+			s.Len(dreams, test.expectedLength)
 		})
 	}
 }
 
-func TestGetDream(t *testing.T) {
-	repo := setupDreamsTest(t)
-
-	var dream entity.Dream
-	var err error
-
-	// Test no dreams exist
-	_, err = repo.Get(1, false)
-
-	assert.Error(t, err)
-
-	// Test dream exists
-	repo.db.Create(&entity.Dream{ID: 100})
-	dream, err = repo.Get(100, false)
-
-	assert.NoError(t, err)
-	assert.EqualValues(t, 100, dream.ID)
-}
-
-func TestCreateDream(t *testing.T) {
-	repo := setupDreamsTest(t)
-	id, err := repo.Create(entity.Dream{Date: time.Now()})
-	assert.NoError(t, err)
-	assert.EqualValues(t, 1, id)
-}
-
-func TestUpdateDream(t *testing.T) {
+func (s *RepoTestSuite) TestUpdateDream() {
 	tests := map[string]struct {
 		dreamId   uint
 		updateMap map[string]any
@@ -115,58 +69,88 @@ func TestUpdateDream(t *testing.T) {
 		"invalid type":    {dreamId: 1, updateMap: map[string]any{"rating": "a"}, isError: true},
 	}
 	for name, test := range tests {
-		t.Run(name, func(t *testing.T) {
+		s.Run(name, func() {
 			var err error
-			repo := setupDreamsTest(t)
-			err = repo.db.Create(&entity.Dream{ID: 1}).Error
-			assert.NoError(t, err)
+			err = s.db.Create(&entity.Dream{ID: 1}).Error
+			s.NoError(err)
 
-			err = repo.Update(test.dreamId, test.updateMap)
+			err = s.dreams.Update(s.ctx, test.dreamId, test.updateMap)
+
 			if test.isError {
-				assert.Error(t, err)
-			} else {
-				assert.NoError(t, err)
+				s.Error(err)
+				return
 			}
+			s.NoError(err)
 		})
-
 	}
-
-	// err = repo.Update(entity.Dream{ID: 1, Date: time.Now(), Description: "desc"})
-	// assert.NoError(t, err)
-
-	// err = repo.Update(entity.Dream{ID: 100})
-	// assert.ErrorIs(t, err, entity.ErrorNotFound)
 }
 
-func TestDeleteDream(t *testing.T) {
-	repo := setupDreamsTest(t)
-	err := repo.db.Create(&entity.Dream{
+func (s *RepoTestSuite) TestDeleteDream() {
+	err := s.db.Create(&entity.Dream{
 		ID: 1,
 		Categories: entity.Categories{
 			entity.Category{ID: 1, Name: "Cat", Type: entity.TypeCategory},
 			entity.Category{ID: 2, Name: "Person", Type: entity.TypePerson},
 		},
 	}).Error
-	assert.NoError(t, err)
+	s.NoError(err)
 
-	cats, err := repo.Delete(entity.Dream{ID: 1})
-	assert.NoError(t, err)
-	assert.Len(t, cats, 0)
+	err = s.dreams.Delete(context.Background(), 1)
+	s.NoError(err)
 
-	var categories entity.Categories
-	repo.db.Find(&categories)
-	assert.Len(t, categories, 0)
+	var count int64
+	s.db.Table("categories_dreams").Count(&count)
+	s.EqualValues(count, 0)
 }
 
-func TestToggleVisibility(t *testing.T) {
-	repo := setupDreamsTest(t)
-	err := repo.db.Create(&entity.Dream{ID: 1}).Error
-	assert.NoError(t, err)
+func (s *RepoTestSuite) TestToggleVisibility() {
+	err := s.db.Create(&entity.Dream{ID: 1}).Error
+	s.NoError(err)
 
-	err = repo.ToggleVisibility(entity.Dream{ID: 1})
-	assert.NoError(t, err)
+	err = s.dreams.ToggleVisibility(s.ctx, 1)
+	s.NoError(err)
 
 	var dream entity.Dream
-	repo.db.First(&dream)
-	assert.False(t, dream.Visible)
+	s.db.First(&dream)
+	s.False(dream.Visible)
+
+	err = s.dreams.ToggleVisibility(s.ctx, 200)
+	s.ErrorIs(err, gorm.ErrRecordNotFound)
+}
+
+func (s *RepoTestSuite) TestCreateDream() {
+	id, err := s.dreams.Create(s.ctx, &entity.Dream{
+		ID: 1,
+		Categories: entity.Categories{
+			entity.Category{ID: 1, Name: "Cat", Type: entity.TypeCategory},
+			entity.Category{ID: 2, Name: "Person", Type: entity.TypePerson},
+		},
+	})
+	s.NoError(err)
+	s.EqualValues(1, id)
+}
+
+func (s *RepoTestSuite) TestGetDream() {
+	tests := map[string]struct {
+		useNonExistingId bool
+		expectedError    error
+	}{
+		"not found": {useNonExistingId: true, expectedError: gorm.ErrRecordNotFound},
+		"ok":        {},
+	}
+	for name, test := range tests {
+		s.Run(name, func() {
+			var id uint = s.CreateDream(true, false).ID
+			if test.useNonExistingId {
+				id = 1000
+			}
+			dream, err := s.dreams.Get(s.ctx, id, false)
+			if test.expectedError != nil {
+				s.ErrorIs(err, test.expectedError)
+				return
+			}
+			s.NoError(err)
+			s.Len(dream.Categories, 1)
+		})
+	}
 }

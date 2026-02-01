@@ -1,4 +1,4 @@
-package v1
+package controller
 
 import (
 	"bytes"
@@ -13,20 +13,29 @@ import (
 	"github.com/bbrighter/dreams-api/internal/usecase/repository"
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/sqlite"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
-func setupTestDB(t *testing.T) *gorm.DB {
-	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
-	assert.NoError(t, err)
-	return db
+type ApiTestSuite struct {
+	suite.Suite
+	g  *gin.Engine
+	db *gorm.DB
 }
 
-func setupApiTest(t *testing.T) *gin.Engine {
+func TestApiTestSuite(t *testing.T) {
+	suite.Run(t, new(ApiTestSuite))
+}
+
+func (s *ApiTestSuite) SetupTest() {
 	logger := zap.NewExample()
-	db := setupTestDB(t)
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	s.Require().NoError(err)
+	err = db.Exec("PRAGMA foreign_keys = ON").Error
+	s.Require().NoError(err)
+	s.db = db
+
 	dreamsRepo := repository.NewDreamsRepo(db)
 	dreamsUseCase := usecase.NewDreamUseCase(dreamsRepo, logger)
 	privateDreamsUseCase := usecase.NewPrivateDreamUseCase(dreamsRepo)
@@ -36,7 +45,8 @@ func setupApiTest(t *testing.T) *gin.Engine {
 	statisticsUseCase := usecase.NewStatisticsUseCase(statisticsRepo)
 	authRepo := repository.NewAuthRepo()
 	authUseCase := usecase.NewAuthUseCase(authRepo)
-	categoriesManagerUseCase := usecase.NewCategoriesManager(categoriesRepo, logger)
+	managerRepo := repository.NewManagementRepo(db)
+	categoriesManagerUseCase := usecase.NewCategoriesManager(managerRepo, statisticsRepo, logger)
 	repository.Migration(db, logger)
 
 	gin.SetMode(gin.TestMode)
@@ -47,11 +57,11 @@ func setupApiTest(t *testing.T) *gin.Engine {
 		privateDreamsUseCase,
 		categoriesUseCase,
 		statisticsUseCase,
-		categoriesUseCase,
 		authUseCase,
 		categoriesManagerUseCase,
 	)
-	return handler
+
+	s.g = handler
 }
 
 type apiTest struct {
@@ -65,8 +75,8 @@ type apiTest struct {
 	after      func(resp *httptest.ResponseRecorder)
 }
 
-func (test apiTest) evaluate(t *testing.T, h *gin.Engine) {
-	t.Run(test.name, func(t *testing.T) {
+func (s *ApiTestSuite) evaluate(test apiTest) {
+	s.Run(test.name, func() {
 		var body io.Reader
 		if test.body != nil {
 			marBody, _ := json.Marshal(test.body)
@@ -79,15 +89,15 @@ func (test apiTest) evaluate(t *testing.T, h *gin.Engine) {
 			}
 		}
 		resp := httptest.NewRecorder()
-		h.ServeHTTP(resp, req)
-		assert.Equal(t, test.statusCode, resp.Code)
+		s.g.ServeHTTP(resp, req)
+		s.Equal(test.statusCode, resp.Code)
 
 		if test.response != nil {
 			expected := test.response
 			actual := reflect.New(reflect.TypeOf(expected)).Interface()
 			err := json.Unmarshal(resp.Body.Bytes(), &actual)
-			assert.NoError(t, err)
-			assert.Equal(t, expected, reflect.Indirect(reflect.ValueOf(actual)).Interface())
+			s.NoError(err)
+			s.Equal(expected, reflect.Indirect(reflect.ValueOf(actual)).Interface())
 		}
 		if test.after != nil {
 			test.after(resp)

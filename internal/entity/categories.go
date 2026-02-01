@@ -25,9 +25,9 @@ func NewCategoryType(str string) (CategoryType, error) {
 
 type Category struct {
 	ID     uint
-	Name   string
-	Type   CategoryType
-	Dreams []Dream `gorm:"many2many:categories_dreams;"`
+	Name   string       `gorm:"uniqueIndex:idx_category_type"`
+	Type   CategoryType `gorm:"uniqueIndex:idx_category_type"`
+	Dreams []Dream      `gorm:"many2many:categories_dreams"`
 }
 
 type Categories []Category
@@ -38,16 +38,14 @@ type CategoriesResponse struct {
 }
 
 type CategoryResponse struct {
-	ID    uint   `json:"id" binding:"required"`
-	Name  string `json:"name" binding:"required"`
-	Count int    `json:"count,omitempty" validate:"optional"`
+	ID   uint   `json:"id" binding:"required"`
+	Name string `json:"name" binding:"required"`
 }
 
 func (c Category) ToResponse() CategoryResponse {
 	return CategoryResponse{
-		ID:    c.ID,
-		Name:  c.Name,
-		Count: len(c.Dreams),
+		ID:   c.ID,
+		Name: c.Name,
 	}
 }
 func (cats Categories) ToResponse() CategoriesResponse {

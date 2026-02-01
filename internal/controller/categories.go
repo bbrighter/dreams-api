@@ -1,4 +1,4 @@
-package v1
+package controller
 
 import (
 	"net/http"
@@ -9,21 +9,20 @@ import (
 )
 
 type categoriesRoute struct {
-	c usecase.CategoriesLister
 	m usecase.ICategoriesManager
+	c usecase.ICategories
 }
 
 func newCategoriesRoute(
 	handler *gin.RouterGroup,
-	c usecase.CategoriesLister,
 	m usecase.ICategoriesManager,
+	c usecase.ICategories,
 ) {
-	r := &categoriesRoute{c: c, m: m}
+	r := &categoriesRoute{m: m, c: c}
 
 	h := handler.Group("/categories")
 	{
-		h.GET("", r.GetAll)
-
+		h.GET("", r.List)
 		h.POST("/merge", r.Merge)
 		idGroup := h.Group("/:id")
 		{
@@ -38,10 +37,11 @@ func newCategoriesRoute(
 // @Produce json
 // @Success 200 {object} entity.CategoriesResponse
 // @Router /categories [get]
-// @Param includes query string false "Comma separated list of child objects. Possible entries: dreamsCount"
-func (r *categoriesRoute) GetAll(g *gin.Context) {
-	includes := entity.ParseIncludes(g.Query("includes"))
-	categories := r.c.List(includes)
+func (r *categoriesRoute) List(g *gin.Context) {
+	categories, err := r.c.List(g.Request.Context())
+	if handleError(g, err) {
+		return
+	}
 	g.JSON(http.StatusOK, categories.ToResponse())
 }
 
@@ -56,7 +56,7 @@ func (r *categoriesRoute) Delete(g *gin.Context) {
 	if handleError(g, err) {
 		return
 	}
-	err = r.m.Delete(id)
+	err = r.m.Delete(g.Request.Context(), id)
 	if handleError(g, err) {
 		return
 	}
@@ -84,7 +84,7 @@ func (r *categoriesRoute) ChangeType(g *gin.Context) {
 		return
 	}
 
-	err = r.m.ChangeType(id, newType)
+	err = r.m.ChangeType(g.Request.Context(), id, newType)
 	if handleError(g, err) {
 		return
 	}
@@ -108,7 +108,7 @@ func (r *categoriesRoute) ChangeName(g *gin.Context) {
 		return
 	}
 
-	err = r.m.ChangeName(id, newName)
+	err = r.m.ChangeName(g.Request.Context(), id, newName)
 	if handleError(g, err) {
 		return
 	}
@@ -123,7 +123,7 @@ type MergeCategoriesParams struct {
 
 // @Description Merge two categories.
 // @Produce json
-// @Success 200 {object} entity.CategoriesResponse
+// @Success 200 {object} entity.CategoriesCountResponse
 // @Router /categories/merge [post]
 // @Param mergeCategoriesParams body MergeCategoriesParams true "Which categories should be merged"
 func (r *categoriesRoute) Merge(g *gin.Context) {
@@ -132,7 +132,7 @@ func (r *categoriesRoute) Merge(g *gin.Context) {
 		g.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	cats, err := r.m.Merge(params.SourceCategoryId, params.TargetCategoryId, params.NewName)
+	cats, err := r.m.Merge(g.Request.Context(), params.SourceCategoryId, params.TargetCategoryId, params.NewName)
 	if handleError(g, err) {
 		return
 	}

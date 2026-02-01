@@ -13,4 +13,5 @@ var Migrations = []*gormigrate.Migration{
 	migration8,
 	migration9,
 	migration10,
+	migration11,
 }

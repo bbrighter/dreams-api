@@ -1,62 +1,54 @@
-package v1
+package controller
 
 import (
 	"net/http"
-	"testing"
 	"time"
 
 	"github.com/bbrighter/dreams-api/internal/entity"
 )
 
-func TestCategories(t *testing.T) {
-	g := setupApiTest(t)
+func (s *ApiTestSuite) TestCategories() {
 	date := time.Now()
-
-	var emptyCategories = entity.CategoriesResponse{}
 
 	tests := []apiTest{
 		{name: "post dream", method: http.MethodPost, url: "/dreams", statusCode: http.StatusCreated, body: PostDreamRequest{Date: date}},
-		{name: "add category to dream", method: http.MethodPut, url: "/dreams/1/categories?name=cat", statusCode: http.StatusOK,
-			response: entity.CategoriesResponse{Categories: []entity.CategoryResponse{{ID: 1, Name: "cat"}}}},
+		{name: "add category to dream", method: http.MethodPost, url: "/dreams/1/categories", statusCode: http.StatusCreated,
+			body: PostCategoryRequestBody{Name: "cat", Type: entity.TypeCategory},
+		},
 		{name: "change type of category", method: http.MethodPatch, url: "/categories/1/type?type=person", statusCode: http.StatusOK},
 		{name: "get categories", method: http.MethodGet, url: "/categories", statusCode: http.StatusOK,
 			response: entity.CategoriesResponse{Persons: []entity.CategoryResponse{{ID: 1, Name: "cat"}}}},
 		{name: "change name of category", method: http.MethodPatch, url: "/categories/1/name?name=newCat", statusCode: http.StatusOK},
-		{name: "get categories and number of dreams", method: http.MethodGet, url: "/categories?includes=dreamsCount", statusCode: http.StatusOK,
-			response: entity.CategoriesResponse{Persons: []entity.CategoryResponse{{ID: 1, Name: "newCat", Count: 1}}}},
-		{name: "remove category from dream", method: http.MethodDelete, url: "/dreams/1/categories/1", statusCode: http.StatusOK, response: emptyCategories},
-		{name: "get categories", method: http.MethodGet, url: "/categories", statusCode: http.StatusOK, response: emptyCategories},
+		{name: "remove category from dream", method: http.MethodDelete, url: "/dreams/1/categories/1", statusCode: http.StatusOK},
+		{name: "get categories", method: http.MethodGet, url: "/categories", statusCode: http.StatusOK,
+			response: entity.CategoriesResponse{Persons: []entity.CategoryResponse{{ID: 1, Name: "newCat"}}}},
 	}
 	for _, test := range tests {
-		test.evaluate(t, g)
+		s.evaluate(test)
 	}
 }
 
-func TestMergeCategories(t *testing.T) {
-	g := setupApiTest(t)
+func (s *ApiTestSuite) TestMergeCategories() {
 	date := time.Date(2020, 9, 13, 12, 30, 12, 0, time.UTC)
-
-	var cat1 = entity.CategoryResponse{ID: 1, Name: "cat"}
-	var cat2 = entity.CategoryResponse{ID: 2, Name: "new-cat"}
-	var person1 = entity.CategoryResponse{ID: 3, Name: "person"}
 
 	tests := []apiTest{
 		{name: "post dream", method: http.MethodPost, url: "/dreams", statusCode: http.StatusCreated,
 			body: PostDreamRequest{Date: date}},
-		{name: "add category to dream", method: http.MethodPut, url: "/dreams/1/categories?name=cat", statusCode: http.StatusOK,
-			response: entity.CategoriesResponse{Categories: []entity.CategoryResponse{cat1}}},
-		{name: "add 2nd category to dream", method: http.MethodPut, url: "/dreams/1/categories?name=new-cat", statusCode: http.StatusOK,
-			response: entity.CategoriesResponse{Categories: []entity.CategoryResponse{cat1, cat2}}},
+		{name: "add category to dream", method: http.MethodPost, url: "/dreams/1/categories", statusCode: http.StatusCreated,
+			body: PostCategoryRequestBody{Name: "cat", Type: entity.TypeCategory},
+		},
+		{name: "add 2nd category to dream", method: http.MethodPost, url: "/dreams/1/categories", statusCode: http.StatusCreated,
+			body: PostCategoryRequestBody{Name: "new-cat", Type: entity.TypeCategory}},
 		{name: "post 2nd dream", method: http.MethodPost, url: "/dreams", statusCode: http.StatusCreated,
 			body: PostDreamRequest{Date: date}},
-		{name: "add person to 2nd dream", method: http.MethodPut, url: "/dreams/2/persons?name=person", statusCode: http.StatusOK,
-			response: entity.CategoriesResponse{Categories: []entity.CategoryResponse{cat1, cat2}, Persons: []entity.CategoryResponse{person1}}},
+		{name: "add person to 2nd dream", method: http.MethodPost, url: "/dreams/2/categories", statusCode: http.StatusCreated,
+			body: PostCategoryRequestBody{Name: "person", Type: entity.TypePerson},
+		},
 		{name: "merge categories in same dream", method: http.MethodPost, url: "/categories/merge", statusCode: http.StatusOK,
 			body: MergeCategoriesParams{SourceCategoryId: 1, TargetCategoryId: 2, NewName: "merged"},
-			response: entity.CategoriesResponse{
-				Categories: []entity.CategoryResponse{{ID: 2, Name: "merged", Count: 1}},
-				Persons:    []entity.CategoryResponse{{ID: 3, Name: "person", Count: 1}},
-			}},
+			response: entity.CategoriesCountResponse{Categories: []entity.CountByCat{
+				{CategoryId: 2, Count: 1}, {CategoryId: 3, Count: 1}}},
+		},
 		{name: "only 1 cat left in dream 1", method: http.MethodGet, url: "/dreams/1", statusCode: http.StatusOK,
 			response: entity.DreamResponse{
 				Description: "", DreamMetaResponse: entity.DreamMetaResponse{
@@ -66,7 +58,7 @@ func TestMergeCategories(t *testing.T) {
 		},
 		{name: "merge categories in different dreams", method: http.MethodPost, url: "/categories/merge", statusCode: http.StatusOK,
 			body:     MergeCategoriesParams{SourceCategoryId: 2, TargetCategoryId: 3, NewName: "final merged"},
-			response: entity.CategoriesResponse{Persons: []entity.CategoryResponse{{ID: 3, Name: "final merged", Count: 2}}},
+			response: entity.CategoriesCountResponse{Categories: []entity.CountByCat{{CategoryId: 3, Count: 2}}},
 		},
 		{name: "only 1 cat left in dream 1", method: http.MethodGet, url: "/dreams/1", statusCode: http.StatusOK,
 			response: entity.DreamResponse{
@@ -77,6 +69,6 @@ func TestMergeCategories(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
-		test.evaluate(t, g)
+		s.evaluate(test)
 	}
 }
