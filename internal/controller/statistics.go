@@ -18,11 +18,8 @@ func newStatisticsRoute(handler *gin.RouterGroup, c usecase.Statistics, a usecas
 	h := handler.Group("/count-categories")
 	{
 		h.GET("", r.GetCategoriesCount)
+		h.GET("/monthly", r.GetMonthlCount)
 	}
-	// p := handler.Group("/private/statistics")
-	// {
-	// 	p.GET("", r.GetPrivateStatistics, a.AuthMiddleware())
-	// }
 }
 
 // @Description Get count per category and person
@@ -43,29 +40,15 @@ func (r *statisticsRoute) GetCategoriesCount(g *gin.Context) {
 	g.JSON(http.StatusOK, counts.ToResponse())
 }
 
-// // @Description Get count per category and person
-// // @Produce json
-// // @Success 200 {object} entity.CountsResponse "Counts by category and persons"
-// // @Router /private/statistics [get]
-// // @Security BasicAuth
-// // @Param limit query number false "Limit of returned results"
-// func (r *statisticsRoute) GetPrivateStatistics(g *gin.Context) {
+// @Description Get count per month
+// @Produce json
+// @Success 200 {object} entity.Statistics "Monthly statistics"
+// @Router /count-categories/monthly [get]
+func (r *statisticsRoute) GetMonthlCount(g *gin.Context) {
+	cats, dreams, err := r.c.CountByMonth(g.Request.Context(), true)
+	if handleError(g, err) {
+		return
+	}
+	g.JSON(http.StatusOK, dreams.ToResponse(cats))
 
-// 	limitStr, exists := g.GetQuery("limit")
-// 	var limit int = 0
-// 	var err error
-// 	if exists {
-// 		limit, err = strconv.Atoi(limitStr)
-// 	}
-// 	if err != nil {
-// 		g.Status(http.StatusBadRequest)
-// 		return
-// 	}
-
-// 	cats, pers := r.c.GetStatistics(true, limit)
-// 	var resp = entity.CategoriesCountResponse{
-// 		Categories: cats.ToResponse(),
-// 		Persons:    pers.ToResponse(),
-// 	}
-// 	g.JSON(http.StatusOK, resp)
-// }
+}

@@ -27,30 +27,30 @@ type DreamMetaResponse struct {
 	Finalized bool      `json:"finalized" binding:"required"`
 	Visible   bool      `json:"visible" binding:"required"`
 	Rating    *int      `json:"rating,omitempty"`
-	CategoriesResponse
 }
 
 // Response when querying one dream
 type DreamResponse struct {
 	DreamMetaResponse
 	Description string `json:"description" binding:"required"`
+	CategoriesResponse
 }
 
 func (d Dream) toMetaResponse() DreamMetaResponse {
 	return DreamMetaResponse{
-		ID:                 d.ID,
-		Date:               d.Date,
-		Visible:            d.Visible,
-		Finalized:          d.Finalized,
-		CategoriesResponse: d.Categories.ToResponse(),
-		Rating:             d.Rating,
+		ID:        d.ID,
+		Date:      d.Date,
+		Visible:   d.Visible,
+		Finalized: d.Finalized,
+		Rating:    d.Rating,
 	}
 }
 
 func (d Dream) ToResponse() DreamResponse {
 	return DreamResponse{
-		DreamMetaResponse: d.toMetaResponse(),
-		Description:       d.Description,
+		DreamMetaResponse:  d.toMetaResponse(),
+		Description:        d.Description,
+		CategoriesResponse: d.Categories.ToResponse(),
 	}
 }
 

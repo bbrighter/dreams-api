@@ -45,12 +45,13 @@ func (s *ApiTestSuite) TestDreams() {
 		{name: "get single dream with all changes made", method: http.MethodGet, url: "/dreams/1", statusCode: http.StatusOK,
 			response: entity.DreamResponse{
 				Description: desc,
+				CategoriesResponse: entity.CategoriesResponse{
+					Categories: []entity.CategoryResponse{
+						{ID: 1, Name: "person", Type: entity.TypePerson},
+						{ID: 2, Name: "cat", Type: entity.TypeCategory}},
+				},
 				DreamMetaResponse: entity.DreamMetaResponse{
 					ID: 1, Date: date, Finalized: false, Visible: true,
-					CategoriesResponse: entity.CategoriesResponse{
-						Categories: []entity.CategoryResponse{{ID: 2, Name: "cat"}},
-						Persons:    []entity.CategoryResponse{{ID: 1, Name: "person"}},
-					},
 				},
 			}},
 		{name: "remove person from dream", method: http.MethodDelete, url: "/dreams/1/categories/1", statusCode: http.StatusOK},
@@ -72,8 +73,7 @@ func (s *ApiTestSuite) TestDreams() {
 			response: entity.DreamsResponse{
 				Dreams: []entity.DreamMetaResponse{{
 					ID: 1, Date: date, Finalized: true, Visible: true,
-					CategoriesResponse: entity.CategoriesResponse{},
-					Rating:             &rating,
+					Rating: &rating,
 				},
 				}}},
 		{name: "delete dream", method: http.MethodDelete, url: "/dreams/1", statusCode: http.StatusOK},

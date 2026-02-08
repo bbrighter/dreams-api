@@ -7,7 +7,7 @@ import (
 )
 
 type Statistics interface {
-	CountByMonth(ctx context.Context, showAll bool, maxNumber int) ([]entity.CountByCatAndMonth, entity.CountByMonths, error)
+	CountByMonth(ctx context.Context, showAll bool) ([]entity.CountByCatAndMonth, entity.CountByMonths, error)
 	CountCategories(ctx context.Context, limit int) (entity.CategoriesCount, error)
 }
 
@@ -21,7 +21,7 @@ func NewStatisticsUseCase(r IStatisticsRepo) *StatisticsUseCase {
 	}
 }
 
-func (u StatisticsUseCase) CountByMonth(ctx context.Context, showAll bool, maxNumber int) ([]entity.CountByCatAndMonth, entity.CountByMonths, error) {
+func (u StatisticsUseCase) CountByMonth(ctx context.Context, showAll bool) ([]entity.CountByCatAndMonth, entity.CountByMonths, error) {
 	catByMonth, err := u.repo.CountByCategoryAndMonth(ctx)
 	if err != nil {
 		return []entity.CountByCatAndMonth{}, []entity.CountByMonth{}, err

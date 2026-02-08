@@ -32,7 +32,7 @@ func (r *StatisticsRepo) CountByCategory(ctx context.Context, limit int) (entity
 func (r StatisticsRepo) CountByCategoryAndMonth(ctx context.Context) ([]entity.CountByCatAndMonth, error) {
 	var aggs []entity.CountByCatAndMonth
 
-	err := r.db.WithContext(ctx).
+	err := r.db.Debug().WithContext(ctx).
 		Model(&entity.Dream{}).
 		Select(
 			"categories.id as category_id",
@@ -53,7 +53,7 @@ func (r *StatisticsRepo) CountByDreamAndMonth(ctx context.Context) ([]entity.Cou
 		Model(&entity.Dream{}).
 		Select(
 			"strftime('%Y/%m', dreams.date) as month",
-			"count(dreams.id) as count",
+			"count(distinct dreams.id) as count",
 		).
 		Joins("LEFT JOIN categories_dreams on dreams.id = categories_dreams.dream_id").
 		Joins("LEFT JOIN categories on categories_dreams.category_id = categories.id").

@@ -17,11 +17,11 @@ func (s *ApiTestSuite) TestCategories() {
 		},
 		{name: "change type of category", method: http.MethodPatch, url: "/categories/1/type?type=person", statusCode: http.StatusOK},
 		{name: "get categories", method: http.MethodGet, url: "/categories", statusCode: http.StatusOK,
-			response: entity.CategoriesResponse{Persons: []entity.CategoryResponse{{ID: 1, Name: "cat"}}}},
+			response: entity.CategoriesResponse{Categories: []entity.CategoryResponse{{ID: 1, Name: "cat", Type: entity.TypePerson}}}},
 		{name: "change name of category", method: http.MethodPatch, url: "/categories/1/name?name=newCat", statusCode: http.StatusOK},
 		{name: "remove category from dream", method: http.MethodDelete, url: "/dreams/1/categories/1", statusCode: http.StatusOK},
 		{name: "get categories", method: http.MethodGet, url: "/categories", statusCode: http.StatusOK,
-			response: entity.CategoriesResponse{Persons: []entity.CategoryResponse{{ID: 1, Name: "newCat"}}}},
+			response: entity.CategoriesResponse{Categories: []entity.CategoryResponse{{ID: 1, Name: "newCat", Type: entity.TypePerson}}}},
 	}
 	for _, test := range tests {
 		s.evaluate(test)
@@ -51,9 +51,9 @@ func (s *ApiTestSuite) TestMergeCategories() {
 		},
 		{name: "only 1 cat left in dream 1", method: http.MethodGet, url: "/dreams/1", statusCode: http.StatusOK,
 			response: entity.DreamResponse{
-				Description: "", DreamMetaResponse: entity.DreamMetaResponse{
+				CategoriesResponse: entity.CategoriesResponse{Categories: []entity.CategoryResponse{{ID: 2, Name: "merged", Type: entity.TypeCategory}}},
+				Description:        "", DreamMetaResponse: entity.DreamMetaResponse{
 					ID: 1, Date: date, Finalized: false, Visible: true, Rating: nil,
-					CategoriesResponse: entity.CategoriesResponse{Categories: []entity.CategoryResponse{{ID: 2, Name: "merged"}}},
 				}},
 		},
 		{name: "merge categories in different dreams", method: http.MethodPost, url: "/categories/merge", statusCode: http.StatusOK,
@@ -62,9 +62,9 @@ func (s *ApiTestSuite) TestMergeCategories() {
 		},
 		{name: "only 1 cat left in dream 1", method: http.MethodGet, url: "/dreams/1", statusCode: http.StatusOK,
 			response: entity.DreamResponse{
-				Description: "", DreamMetaResponse: entity.DreamMetaResponse{
+				CategoriesResponse: entity.CategoriesResponse{Categories: []entity.CategoryResponse{{ID: 3, Name: "final merged", Type: entity.TypePerson}}},
+				Description:        "", DreamMetaResponse: entity.DreamMetaResponse{
 					ID: 1, Date: date, Finalized: false, Visible: true, Rating: nil,
-					CategoriesResponse: entity.CategoriesResponse{Persons: []entity.CategoryResponse{{ID: 3, Name: "final merged"}}},
 				}},
 		},
 	}

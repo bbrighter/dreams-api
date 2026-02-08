@@ -1,14 +1,14 @@
 package entity
 
 type CountByCat struct {
-	CategoryId uint  `json:"id" gorm:"column:category_id"`
-	Count      int64 `json:"count" gorm:"column:count"`
+	CategoryId uint  `json:"id" gorm:"column:category_id" binding:"required"`
+	Count      int64 `json:"count" gorm:"column:count" binding:"required"`
 }
 
 type CategoriesCount []CountByCat
 
 type CategoriesCountResponse struct {
-	Categories []CountByCat `json:"categories"`
+	Categories []CountByCat `json:"categories" binding:"required"`
 }
 
 func (cc CategoriesCount) ToResponse() CategoriesCountResponse {
@@ -21,29 +21,31 @@ type CountByCatAndMonth struct {
 }
 
 type CountByMonth struct {
-	Month string `gorm:"column:month"`
-	Count int64  `gorm:"column:count"`
+	Month string `gorm:"column:month" binding:"required"`
+	Count int64  `gorm:"column:count" binding:"required"`
 }
 type CountByMonths []CountByMonth
 
 type Statistic struct {
-	Month      string       `json:"month"`
-	Categories []CountByCat `json:"categories"`
-	DreamCount int64        `json:"dreamCount"`
+	Month      string       `json:"month" binding:"required"`
+	Categories []CountByCat `json:"categories" binding:"required"`
+	DreamCount int64        `json:"dreamCount" binding:"required"`
 }
 
-type Statistics []Statistic
+type Statistics struct {
+	Statistics []Statistic `json:"statistics" binding:"required"`
+}
 
 func (cs CountByMonths) ToResponse(ms []CountByCatAndMonth) Statistics {
-	var statistics = Statistics{}
+	var statistics = []Statistic{}
 	for _, c := range cs {
+		var cats = []CountByCat{}
 		for _, m := range ms {
-			var cats = []CountByCat{}
 			if c.Month == m.Month {
 				cats = append(cats, CountByCat{CategoryId: m.CategoryId, Count: m.Count})
 			}
-			statistics = append(statistics, Statistic{Month: c.Month, Categories: cats, DreamCount: c.Count})
 		}
+		statistics = append(statistics, Statistic{Month: c.Month, Categories: cats, DreamCount: c.Count})
 	}
-	return statistics
+	return Statistics{Statistics: statistics}
 }

@@ -128,6 +128,22 @@
                 }
             }
         },
+        "/count-categories/monthly": {
+            "get": {
+                "description": "Get count per month",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Monthly statistics",
+                        "schema": {
+                            "$ref": "#/definitions/entity.Statistics"
+                        }
+                    }
+                }
+            }
+        },
         "/dreams": {
             "get": {
                 "description": "Get all dreams",
@@ -306,7 +322,7 @@
                 }
             }
         },
-        "/dreams/{dreamId}/category": {
+        "/dreams/{dreamId}/categories": {
             "post": {
                 "description": "Add a new person or category to a dream",
                 "produces": [
@@ -339,7 +355,7 @@
                 }
             }
         },
-        "/dreams/{dreamId}/category/{categoryId}": {
+        "/dreams/{dreamId}/categories/{categoryId}": {
             "put": {
                 "description": "Add an exiting person or category to a dream",
                 "produces": [
@@ -478,6 +494,10 @@
         },
         "controller.PostCategoryRequestBody": {
             "type": "object",
+            "required": [
+                "categoryType",
+                "name"
+            ],
             "properties": {
                 "categoryType": {
                     "$ref": "#/definitions/entity.CategoryType"
@@ -517,6 +537,9 @@
         },
         "entity.CategoriesCountResponse": {
             "type": "object",
+            "required": [
+                "categories"
+            ],
             "properties": {
                 "categories": {
                     "type": "array",
@@ -528,14 +551,11 @@
         },
         "entity.CategoriesResponse": {
             "type": "object",
+            "required": [
+                "categories"
+            ],
             "properties": {
                 "categories": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/entity.CategoryResponse"
-                    }
-                },
-                "persons": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/entity.CategoryResponse"
@@ -547,7 +567,8 @@
             "type": "object",
             "required": [
                 "id",
-                "name"
+                "name",
+                "type"
             ],
             "properties": {
                 "id": {
@@ -555,6 +576,9 @@
                 },
                 "name": {
                     "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/entity.CategoryType"
                 }
             }
         },
@@ -571,6 +595,10 @@
         },
         "entity.CountByCat": {
             "type": "object",
+            "required": [
+                "count",
+                "id"
+            ],
             "properties": {
                 "count": {
                     "type": "integer"
@@ -589,12 +617,6 @@
                 "visible"
             ],
             "properties": {
-                "categories": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/entity.CategoryResponse"
-                    }
-                },
                 "date": {
                     "type": "string"
                 },
@@ -603,12 +625,6 @@
                 },
                 "id": {
                     "type": "integer"
-                },
-                "persons": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/entity.CategoryResponse"
-                    }
                 },
                 "rating": {
                     "type": "integer"
@@ -621,6 +637,7 @@
         "entity.DreamResponse": {
             "type": "object",
             "required": [
+                "categories",
                 "date",
                 "description",
                 "finalized",
@@ -645,12 +662,6 @@
                 },
                 "id": {
                     "type": "integer"
-                },
-                "persons": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/entity.CategoryResponse"
-                    }
                 },
                 "rating": {
                     "type": "integer"
@@ -682,6 +693,42 @@
             "properties": {
                 "token": {
                     "type": "string"
+                }
+            }
+        },
+        "entity.Statistic": {
+            "type": "object",
+            "required": [
+                "categories",
+                "dreamCount",
+                "month"
+            ],
+            "properties": {
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.CountByCat"
+                    }
+                },
+                "dreamCount": {
+                    "type": "integer"
+                },
+                "month": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.Statistics": {
+            "type": "object",
+            "required": [
+                "statistics"
+            ],
+            "properties": {
+                "statistics": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Statistic"
+                    }
                 }
             }
         }

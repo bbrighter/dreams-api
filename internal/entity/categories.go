@@ -33,34 +33,28 @@ type Category struct {
 type Categories []Category
 
 type CategoriesResponse struct {
-	Categories []CategoryResponse `json:"categories,omitempty" validate:"optional"`
-	Persons    []CategoryResponse `json:"persons,omitempty" validate:"optional"`
+	Categories []CategoryResponse `json:"categories" binding:"required"`
 }
 
 type CategoryResponse struct {
-	ID   uint   `json:"id" binding:"required"`
-	Name string `json:"name" binding:"required"`
+	ID   uint         `json:"id" binding:"required"`
+	Name string       `json:"name" binding:"required"`
+	Type CategoryType `json:"type" binding:"required"`
 }
 
 func (c Category) ToResponse() CategoryResponse {
 	return CategoryResponse{
 		ID:   c.ID,
 		Name: c.Name,
+		Type: c.Type,
 	}
 }
 func (cats Categories) ToResponse() CategoriesResponse {
 	var categories []CategoryResponse
-	var persons []CategoryResponse
 	for _, c := range cats {
-		resp := c.ToResponse()
-		switch c.Type {
-		case TypePerson:
-			persons = append(persons, resp)
-		case TypeCategory:
-			categories = append(categories, resp)
-		}
+		categories = append(categories, c.ToResponse())
 	}
-	return CategoriesResponse{Categories: categories, Persons: persons}
+	return CategoriesResponse{Categories: categories}
 }
 
 func (cats Categories) ToList(t CategoryType) []CategoryResponse {

@@ -139,6 +139,22 @@ const docTemplate = `{
                 }
             }
         },
+        "/count-categories/monthly": {
+            "get": {
+                "description": "Get count per month",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Monthly statistics",
+                        "schema": {
+                            "$ref": "#/definitions/entity.Statistics"
+                        }
+                    }
+                }
+            }
+        },
         "/dreams": {
             "get": {
                 "description": "Get all dreams",
@@ -317,7 +333,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/dreams/{dreamId}/category": {
+        "/dreams/{dreamId}/categories": {
             "post": {
                 "description": "Add a new person or category to a dream",
                 "produces": [
@@ -350,7 +366,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/dreams/{dreamId}/category/{categoryId}": {
+        "/dreams/{dreamId}/categories/{categoryId}": {
             "put": {
                 "description": "Add an exiting person or category to a dream",
                 "produces": [
@@ -489,6 +505,10 @@ const docTemplate = `{
         },
         "controller.PostCategoryRequestBody": {
             "type": "object",
+            "required": [
+                "categoryType",
+                "name"
+            ],
             "properties": {
                 "categoryType": {
                     "$ref": "#/definitions/entity.CategoryType"
@@ -528,6 +548,9 @@ const docTemplate = `{
         },
         "entity.CategoriesCountResponse": {
             "type": "object",
+            "required": [
+                "categories"
+            ],
             "properties": {
                 "categories": {
                     "type": "array",
@@ -539,14 +562,11 @@ const docTemplate = `{
         },
         "entity.CategoriesResponse": {
             "type": "object",
+            "required": [
+                "categories"
+            ],
             "properties": {
                 "categories": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/entity.CategoryResponse"
-                    }
-                },
-                "persons": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/entity.CategoryResponse"
@@ -558,7 +578,8 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "id",
-                "name"
+                "name",
+                "type"
             ],
             "properties": {
                 "id": {
@@ -566,6 +587,9 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/entity.CategoryType"
                 }
             }
         },
@@ -582,6 +606,10 @@ const docTemplate = `{
         },
         "entity.CountByCat": {
             "type": "object",
+            "required": [
+                "count",
+                "id"
+            ],
             "properties": {
                 "count": {
                     "type": "integer"
@@ -600,12 +628,6 @@ const docTemplate = `{
                 "visible"
             ],
             "properties": {
-                "categories": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/entity.CategoryResponse"
-                    }
-                },
                 "date": {
                     "type": "string"
                 },
@@ -614,12 +636,6 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
-                },
-                "persons": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/entity.CategoryResponse"
-                    }
                 },
                 "rating": {
                     "type": "integer"
@@ -632,6 +648,7 @@ const docTemplate = `{
         "entity.DreamResponse": {
             "type": "object",
             "required": [
+                "categories",
                 "date",
                 "description",
                 "finalized",
@@ -656,12 +673,6 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
-                },
-                "persons": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/entity.CategoryResponse"
-                    }
                 },
                 "rating": {
                     "type": "integer"
@@ -693,6 +704,42 @@ const docTemplate = `{
             "properties": {
                 "token": {
                     "type": "string"
+                }
+            }
+        },
+        "entity.Statistic": {
+            "type": "object",
+            "required": [
+                "categories",
+                "dreamCount",
+                "month"
+            ],
+            "properties": {
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.CountByCat"
+                    }
+                },
+                "dreamCount": {
+                    "type": "integer"
+                },
+                "month": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.Statistics": {
+            "type": "object",
+            "required": [
+                "statistics"
+            ],
+            "properties": {
+                "statistics": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Statistic"
+                    }
                 }
             }
         }

@@ -162,7 +162,8 @@ func (s *RepoTestSuite) TestCountByDreamAndMonth() {
 		s.Run(name, func() {
 			var dreams = []entity.Dream{}
 			for range test.numberOfDreamsInNov {
-				dreams = append(dreams, entity.Dream{Date: time.Date(2022, 11, 4, 0, 0, 0, 0, time.UTC)})
+				dreams = append(dreams, entity.Dream{Date: time.Date(2022, 11, 4, 0, 0, 0, 0, time.UTC),
+					Categories: entity.Categories{entity.Category{ID: 1, Type: entity.TypeCategory}}})
 			}
 			for range test.numberOfDreamsInFeb {
 				dreams = append(dreams, entity.Dream{Date: time.Date(2022, 2, 4, 0, 0, 0, 0, time.UTC)})

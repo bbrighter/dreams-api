@@ -149,7 +149,7 @@ func (r *dreamsRoutes) Delete(g *gin.Context) {
 // @Success 200
 // @Failure 400
 // @Failure 404
-// @Router /dreams/{dreamId}/category/{categoryId} [put]
+// @Router /dreams/{dreamId}/categories/{categoryId} [put]
 func (r *dreamsRoutes) PutCategoryToDream(g *gin.Context) {
 	dreamId, err := parseParamUint(g, "dreamId")
 	if handleError(g, err) {
@@ -167,8 +167,8 @@ func (r *dreamsRoutes) PutCategoryToDream(g *gin.Context) {
 }
 
 type PostCategoryRequestBody struct {
-	Name string              `json:"name"`
-	Type entity.CategoryType `json:"categoryType"`
+	Name string              `json:"name" binding:"required"`
+	Type entity.CategoryType `json:"categoryType" binding:"required"`
 }
 
 // @Description Add a new person or category to a dream
@@ -176,7 +176,7 @@ type PostCategoryRequestBody struct {
 // @Success 201 {number} ID
 // @Failure 400
 // @Failure 404
-// @Router /dreams/{dreamId}/category [post]
+// @Router /dreams/{dreamId}/categories [post]
 // @Param params body PostCategoryRequestBody true "Name and category. Allowed values for 'catgory' are: 'person', 'category'"
 func (r *dreamsRoutes) AddCategoryToDream(g *gin.Context) {
 	dreamId, err := parseParamUint(g, "dreamId")
@@ -201,7 +201,7 @@ func (r *dreamsRoutes) AddCategoryToDream(g *gin.Context) {
 // @Success 200
 // @Failure 400
 // @Failure 404
-// @Router /dreams/{dreamId}/category/{categoryId} [delete]
+// @Router /dreams/{dreamId}/categories/{categoryId} [delete]
 func (r *dreamsRoutes) RemoveCategoryFromDream(g *gin.Context) {
 	dreamId, err := parseParamUint(g, "dreamId")
 	if handleError(g, err) {

@@ -26,7 +26,7 @@ var migration11 = &gormigrate.Migration{
 		var results []result
 		if err := tx.Model(&Category{}).
 			Select("name", "count(*) as count").
-			Group("name").Having("count > ?", 0).
+			Group("name").Having("count > ?", 1).
 			Find(&results).Error; err != nil {
 			return err
 		}
