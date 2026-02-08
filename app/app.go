@@ -5,7 +5,7 @@ import (
 
 	"github.com/bbrighter/dreams-api/config"
 	"github.com/bbrighter/dreams-api/docs"
-	v1 "github.com/bbrighter/dreams-api/internal/controller/http/v1"
+	"github.com/bbrighter/dreams-api/internal/controller"
 	"github.com/bbrighter/dreams-api/internal/usecase"
 	"github.com/bbrighter/dreams-api/internal/usecase/repository"
 	"github.com/gin-contrib/cors"
@@ -24,7 +24,8 @@ func Run(cfg *config.Config, logger *zap.Logger) {
 	statisticsUseCase := usecase.NewStatisticsUseCase(statisticsRepo)
 	authRepo := repository.NewAuthRepo()
 	authUseCase := usecase.NewAuthUseCase(authRepo)
-	categoriesManagerUseCase := usecase.NewCategoriesManager(categoriesRepo, logger)
+	mgmtRepo := repository.NewManagementRepo(db)
+	categoriesManagerUseCase := usecase.NewCategoriesManager(mgmtRepo, statisticsRepo, logger)
 	repository.Migration(db, logger)
 
 	handler := gin.New()
@@ -37,13 +38,12 @@ func Run(cfg *config.Config, logger *zap.Logger) {
 		}),
 	)
 
-	v1.NewRouter(
+	controller.NewRouter(
 		handler,
 		dreamsUseCase,
 		privateDreamsUseCase,
 		categoriesUseCase,
 		statisticsUseCase,
-		categoriesUseCase,
 		authUseCase,
 		categoriesManagerUseCase,
 	)

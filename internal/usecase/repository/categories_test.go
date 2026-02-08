@@ -6,6 +6,7 @@ import (
 	"github.com/bbrighter/dreams-api/internal/entity"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 func setupCategoriesTest(t *testing.T) *CategoriesRepo {
@@ -21,230 +22,126 @@ func setupCategoriesTest(t *testing.T) *CategoriesRepo {
 	return repo
 }
 
-func TestGetAllCategories(t *testing.T) {
+func (s *RepoTestSuite) TestGetAllCategories() {
 	tests := map[string]struct {
-		createCats          bool
-		preload             bool
-		expectedCount       int
-		expectedCountDreams int
+		createCats    bool
+		expectedCount int
 	}{
-		"0 found":          {},
-		"1 found":          {createCats: true, expectedCount: 1},
-		"0 found, preload": {preload: true},
-		"1 found, preload": {preload: true, createCats: true, expectedCount: 1, expectedCountDreams: 1},
+		"0 found": {},
+		"1 found": {createCats: true, expectedCount: 1},
 	}
 	for name, test := range tests {
-		t.Run(name, func(t *testing.T) {
-			r := setupCategoriesTest(t)
+		s.Run(name, func() {
 			if test.createCats {
-				r.db.Create(&entity.Dream{ID: 1, Categories: entity.Categories{entity.Category{ID: 1, Type: entity.TypeCategory}}})
+				s.db.Create(&entity.Dream{ID: 1, Categories: entity.Categories{entity.Category{ID: 1, Type: entity.TypeCategory}}})
 			}
 
-			var includes []entity.Includes
-			if test.preload {
-				includes = append(includes, entity.IncludeDreamsCount)
-			}
-			cats := r.List(includes)
-			assert.Len(t, cats, test.expectedCount)
-			if test.expectedCount > 0 {
-				assert.Len(t, cats[0].Dreams, test.expectedCountDreams)
-			}
+			cats, err := s.cats.List(s.ctx)
+			s.NoError(err)
+			s.Len(cats, test.expectedCount)
 		})
 	}
 }
 
-func TestAddCategoryToDream(t *testing.T) {
-	r := setupCategoriesTest(t)
-	var err error
-
-	var dream = entity.Dream{ID: 1}
-	err = r.AddToDream("name", dream, entity.TypeCategory)
-	assert.Error(t, err)
-
-	r.db.Create(&dream)
-
-	err = r.AddToDream("name", dream, entity.TypeCategory)
-	assert.NoError(t, err)
-
-	err = r.AddToDream("name", dream, entity.TypeCategory)
-
-	assert.NoError(t, err)
-
-	err = r.AddToDream("new name", dream, entity.TypeCategory)
-
-	assert.NoError(t, err)
-}
-
-func TestRemoveCategoryFromDream(t *testing.T) {
+func (s *RepoTestSuite) TestRemoveCategoryFromDream() {
 	tests := map[string]struct {
-		exists               bool
-		catInUseByOtherDream bool
-		expectError          error
-		expectedLengthOfCats int
+		dreamExists bool
+		catExits    bool
+		expectError error
 	}{
-		"no dream and no category": {expectError: entity.ErrorNotFound},
-		"dream + cat":              {exists: true},
-		"cat in use, not removed":  {catInUseByOtherDream: true, expectedLengthOfCats: 1},
+		"no dream":    {catExits: true, expectError: nil},
+		"no cat":      {dreamExists: true, expectError: nil},
+		"dream + cat": {dreamExists: true, catExits: true},
 	}
 
 	for name, test := range tests {
-		t.Run(name, func(t *testing.T) {
-			r := setupCategoriesTest(t)
-			var cat = entity.Categories{entity.Category{ID: 10, Name: "name", Type: entity.TypeCategory}}
-			if test.exists || test.catInUseByOtherDream {
-				var dream = entity.Dream{ID: 1, Categories: cat}
-				r.db.Create(&dream)
+		s.Run(name, func() {
+			var cat = entity.Category{ID: 10, Name: "name", Type: entity.TypeCategory}
+			var dream = entity.Dream{ID: 1}
+			if test.catExits && !test.dreamExists {
+				err := gorm.G[entity.Category](s.db).Create(s.ctx, &cat)
+				s.Require().NoError(err)
 			}
-			if test.catInUseByOtherDream {
-				var otherDream = entity.Dream{ID: 2, Categories: cat}
-				r.db.Create(&otherDream)
+			if test.dreamExists && !test.catExits {
+				err := gorm.G[entity.Dream](s.db).Create(s.ctx, &dream)
+				s.Require().NoError(err)
 			}
-			err := r.RemoveFromDream(entity.Category{ID: 10}, entity.Dream{ID: 1})
-			assert.Equal(t, test.expectError, err)
-			var cats entity.Categories
-			r.db.Find(&cats)
-			assert.Len(t, cats, test.expectedLengthOfCats)
+			if test.dreamExists && test.catExits {
+				dream.Categories = entity.Categories{cat}
+				err := gorm.G[entity.Dream](s.db).Create(s.ctx, &dream)
+				s.Require().NoError(err)
+			}
+
+			err := s.cats.RemoveFromDream(s.ctx, 1, 10)
+			if test.expectError != nil {
+				s.Equal(test.expectError, err)
+				return
+			}
+			s.NoError(err)
 		})
 	}
 }
 
-func TestCategoryUpdate(t *testing.T) {
+func (s *RepoTestSuite) TestCreateCategory() {
 	tests := map[string]struct {
-		id           uint
-		categoryType entity.CategoryType
-		name         string
-		expectedErr  error
+		categories    []entity.Category
+		expectedError error
 	}{
-		"not found": {
-			id:           100,
-			categoryType: entity.TypeCategory,
-			expectedErr:  entity.ErrorNotFound,
-		},
-		"ok": {
-			id:           1,
-			categoryType: entity.TypeCategory,
-			name:         "new name",
-		},
+		"ok": {categories: []entity.Category{{Name: "name", Type: entity.TypeCategory}}},
+		"same name, different type": {categories: []entity.Category{
+			{Name: "name", Type: entity.TypeCategory},
+			{Name: "name", Type: entity.TypePerson},
+		}},
+		"same name, same type": {categories: []entity.Category{
+			{Name: "name", Type: entity.TypeCategory},
+			{Name: "name", Type: entity.TypeCategory},
+		}, expectedError: gorm.ErrDuplicatedKey},
 	}
-
 	for name, test := range tests {
-		t.Run(name, func(t *testing.T) {
-			r := setupCategoriesTest(t)
-			r.db.Create(&entity.Dream{ID: 1, Categories: entity.Categories{entity.Category{ID: 1, Name: "cat", Type: entity.TypePerson}}})
-
-			updates := make(map[string]any)
-			if test.categoryType != "" {
-				updates["type"] = test.categoryType
+		s.Run(name, func() {
+			var err error
+			for _, cat := range test.categories {
+				_, err = s.cats.Create(s.ctx, cat.Name, cat.Type)
 			}
-			if test.name != "" {
-				updates["name"] = test.name
+			if test.expectedError != nil {
+				s.ErrorIs(err, test.expectedError)
+				return
 			}
-			err := r.Update(test.id, updates)
-			if test.expectedErr == nil {
-				assert.NoError(t, err)
-			} else {
-				assert.Equal(t, err.Error(), test.expectedErr.Error())
-			}
+			s.NoError(err)
 		})
 	}
 }
 
-func TestCategoryDelete(t *testing.T) {
+func (s *RepoTestSuite) TestAddToDream() {
 	tests := map[string]struct {
-		catId       uint
-		expectedErr error
+		dreamExists   bool
+		catExists     bool
+		expectedError error
 	}{
-		"ok":           {catId: 10},
-		"not found":    {catId: 100, expectedErr: entity.ErrorNotFound},
-		"still in use": {catId: 1, expectedErr: entity.ErrorBadParam},
+		"cat and dream exist": {dreamExists: true, catExists: true},
+		"not cat":             {dreamExists: true, expectedError: gorm.ErrRecordNotFound},
+		"no dream":            {catExists: true, expectedError: gorm.ErrForeignKeyViolated},
 	}
 	for name, test := range tests {
-		t.Run(name, func(t *testing.T) {
-			r := setupCategoriesTest(t)
-			r.db.Create(&entity.Dream{ID: 1, Categories: entity.Categories{entity.Category{ID: 1, Name: "cat", Type: entity.TypePerson}}})
-			r.db.Create(&entity.Category{ID: 10, Type: entity.TypeCategory})
-
-			err := r.Delete(test.catId)
-			if test.expectedErr == nil {
-				assert.NoError(t, err)
-			} else {
-				assert.ErrorContains(t, err, test.expectedErr.Error())
+		s.Run(name, func() {
+			if test.dreamExists {
+				err := gorm.G[entity.Dream](s.db).Create(s.ctx, &entity.Dream{ID: 1})
+				s.Require().NoError(err)
 			}
-		})
-	}
-}
-
-func TestCountByNameAndType(t *testing.T) {
-	tests := map[string]struct {
-		name          string
-		catType       entity.CategoryType
-		expectedCount int64
-	}{
-		"1":                 {name: "cat", catType: entity.TypeCategory, expectedCount: 1},
-		"0: different type": {name: "cat", catType: entity.TypePerson, expectedCount: 0},
-		"0: different name": {name: "cat2", catType: entity.TypeCategory, expectedCount: 0},
-	}
-	for name, test := range tests {
-		t.Run(name, func(t *testing.T) {
-			r := setupCategoriesTest(t)
-			r.db.Create(&entity.Categories{
-				entity.Category{ID: 1, Name: "cat", Type: entity.TypeCategory},
-				entity.Category{ID: 3, Name: "pers", Type: entity.TypePerson},
-			})
-
-			count := r.CountByNameAndType(test.name, test.catType)
-			assert.Equal(t, test.expectedCount, count)
-		})
-	}
-}
-
-func TestMerge(t *testing.T) {
-	type CategoryDream struct {
-		CategoryID uint
-		DreamID    uint
-	}
-
-	var cat1 = entity.Category{ID: 1, Name: "cat1", Type: entity.TypeCategory}
-	var cat2 = entity.Category{ID: 2, Name: "cat2", Type: entity.TypeCategory}
-	var cat3 = entity.Category{ID: 3, Name: "cat3", Type: entity.TypeCategory}
-
-	tests := map[string]struct {
-		fromId             uint
-		toId               uint
-		newName            string
-		expectedError      error
-		expectedCategories entity.Categories
-		expectedRelations  []CategoryDream
-	}{
-		"ok": {fromId: 1, toId: 3, newName: "new",
-			expectedCategories: entity.Categories{{ID: 3, Name: "new", Type: entity.TypeCategory}, cat2},
-			expectedRelations:  []CategoryDream{{CategoryID: 3, DreamID: 2}, {CategoryID: 2, DreamID: 1}, {CategoryID: 3, DreamID: 1}},
-		},
-		"ok, but both cats in same dream": {fromId: 1, toId: 2, newName: "new",
-			expectedCategories: entity.Categories{{ID: 2, Name: "new", Type: entity.TypeCategory}, cat3},
-			expectedRelations:  []CategoryDream{{CategoryID: 3, DreamID: 2}, {CategoryID: 2, DreamID: 1}},
-		},
-	}
-	for name, test := range tests {
-		t.Run(name, func(t *testing.T) {
-			r := setupCategoriesTest(t)
-			r.db.Create(&entity.Dream{ID: 1, Categories: entity.Categories{cat1, cat2}})
-			r.db.Create(&entity.Dream{ID: 2, Categories: entity.Categories{cat3}})
-
-			err := r.Merge(test.fromId, test.toId, test.newName)
-			if test.expectedError == nil {
-				assert.NoError(t, err)
-			} else {
-				assert.ErrorContains(t, err, test.expectedError.Error())
+			if test.catExists {
+				err := gorm.G[entity.Category](s.db).Create(s.ctx, &entity.Category{ID: 2, Type: entity.TypeCategory})
+				s.Require().NoError(err)
 			}
-			var cats entity.Categories
-			r.db.Find(&cats)
-			assert.ElementsMatch(t, test.expectedCategories, cats)
 
-			var actual []CategoryDream
-			r.db.Table("categories_dreams").Find(&actual)
-			assert.ElementsMatch(t, actual, test.expectedRelations)
+			err := s.cats.AddToDream(s.ctx, 1, 2)
+			if test.expectedError != nil {
+				s.ErrorIs(err, test.expectedError)
+				return
+			}
+			s.NoError(err)
+
+			count := s.db.Model(&entity.Dream{ID: 1}).Association("Categories").Count()
+			s.EqualValues(count, 1)
 		})
-
 	}
 }

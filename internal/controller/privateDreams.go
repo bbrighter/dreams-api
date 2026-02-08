@@ -1,4 +1,4 @@
-package v1
+package controller
 
 import (
 	"net/http"
@@ -29,7 +29,7 @@ func newPrivateDreamsRoute(handler *gin.RouterGroup, p usecase.PrivateDreams, a 
 // @Success 200 {object} entity.DreamsResponse "List of all dreams"
 // @Router /dreams/private [get]
 func (r *privateDreamsRoute) GetAll(g *gin.Context) {
-	dreams := r.p.List()
+	dreams, _ := r.p.List(g.Request.Context())
 	g.JSON(200, dreams.ToResponse())
 }
 
@@ -45,7 +45,7 @@ func (r *privateDreamsRoute) Get(g *gin.Context) {
 	if err != nil {
 		return
 	}
-	dream, err := r.p.Get(id)
+	dream, err := r.p.Get(g.Request.Context(), id)
 	if handleError(g, err) {
 		return
 	}
@@ -62,7 +62,7 @@ func (r *privateDreamsRoute) ToggleVisibility(g *gin.Context) {
 	if err != nil {
 		return
 	}
-	err = r.p.ToggleVisibility(id)
+	err = r.p.ToggleVisibility(g.Request.Context(), id)
 	if handleError(g, err) {
 		return
 	}

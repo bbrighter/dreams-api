@@ -1,28 +1,95 @@
 definitions:
+  controller.LoginRequest:
+    properties:
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - name
+    - password
+    type: object
+  controller.MergeCategoriesParams:
+    properties:
+      newName:
+        type: string
+      sourceCategoryId:
+        type: integer
+      targetCategoryId:
+        type: integer
+    required:
+    - newName
+    - sourceCategoryId
+    - targetCategoryId
+    type: object
+  controller.PostCategoryRequestBody:
+    properties:
+      categoryType:
+        $ref: '#/definitions/entity.CategoryType'
+      name:
+        type: string
+    required:
+    - categoryType
+    - name
+    type: object
+  controller.PostDreamRequest:
+    properties:
+      date:
+        type: string
+      description:
+        type: string
+    required:
+    - date
+    type: object
+  controller.UpdateDreamRequest:
+    properties:
+      date:
+        type: string
+      description:
+        type: string
+      rating:
+        type: integer
+    type: object
+  entity.CategoriesCountResponse:
+    properties:
+      categories:
+        items:
+          $ref: '#/definitions/entity.CountByCat'
+        type: array
+    required:
+    - categories
+    type: object
   entity.CategoriesResponse:
     properties:
       categories:
         items:
           $ref: '#/definitions/entity.CategoryResponse'
         type: array
-      persons:
-        items:
-          $ref: '#/definitions/entity.CategoryResponse'
-        type: array
+    required:
+    - categories
     type: object
   entity.CategoryResponse:
     properties:
-      count:
-        type: integer
       id:
         type: integer
       name:
         type: string
+      type:
+        $ref: '#/definitions/entity.CategoryType'
     required:
     - id
     - name
+    - type
     type: object
-  entity.CountResponse:
+  entity.CategoryType:
+    enum:
+    - person
+    - category
+    type: string
+    x-enum-varnames:
+    - TypePerson
+    - TypeCategory
+  entity.CountByCat:
     properties:
       count:
         type: integer
@@ -32,36 +99,14 @@ definitions:
     - count
     - id
     type: object
-  entity.CountsResponse:
-    properties:
-      categories:
-        items:
-          $ref: '#/definitions/entity.CountResponse'
-        type: array
-      persons:
-        items:
-          $ref: '#/definitions/entity.CountResponse'
-        type: array
-    required:
-    - categories
-    - persons
-    type: object
   entity.DreamMetaResponse:
     properties:
-      categories:
-        items:
-          $ref: '#/definitions/entity.CategoryResponse'
-        type: array
       date:
         type: string
       finalized:
         type: boolean
       id:
         type: integer
-      persons:
-        items:
-          $ref: '#/definitions/entity.CategoryResponse'
-        type: array
       rating:
         type: integer
       visible:
@@ -86,15 +131,12 @@ definitions:
         type: boolean
       id:
         type: integer
-      persons:
-        items:
-          $ref: '#/definitions/entity.CategoryResponse'
-        type: array
       rating:
         type: integer
       visible:
         type: boolean
     required:
+    - categories
     - date
     - description
     - finalized
@@ -117,46 +159,29 @@ definitions:
     required:
     - token
     type: object
-  v1.LoginRequest:
+  entity.Statistic:
     properties:
-      name:
-        type: string
-      password:
+      categories:
+        items:
+          $ref: '#/definitions/entity.CountByCat'
+        type: array
+      dreamCount:
+        type: integer
+      month:
         type: string
     required:
-    - name
-    - password
+    - categories
+    - dreamCount
+    - month
     type: object
-  v1.MergeCategoriesParams:
+  entity.Statistics:
     properties:
-      newName:
-        type: string
-      sourceCategoryId:
-        type: integer
-      targetCategoryId:
-        type: integer
+      statistics:
+        items:
+          $ref: '#/definitions/entity.Statistic'
+        type: array
     required:
-    - newName
-    - sourceCategoryId
-    - targetCategoryId
-    type: object
-  v1.PostDreamRequest:
-    properties:
-      date:
-        type: string
-      description:
-        type: string
-    required:
-    - date
-    type: object
-  v1.UpdateDreamRequest:
-    properties:
-      date:
-        type: string
-      description:
-        type: string
-      rating:
-        type: integer
+    - statistics
     type: object
 info:
   contact: {}
@@ -164,11 +189,6 @@ paths:
   /categories:
     get:
       description: Get all categories
-      parameters:
-      - description: 'Comma separated list of child objects. Possible entries: dreamsCount'
-        in: query
-        name: includes
-        type: string
       produces:
       - application/json
       responses:
@@ -221,23 +241,42 @@ paths:
         name: mergeCategoriesParams
         required: true
         schema:
-          $ref: '#/definitions/v1.MergeCategoriesParams'
+          $ref: '#/definitions/controller.MergeCategoriesParams'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/entity.CategoriesResponse'
+            $ref: '#/definitions/entity.CategoriesCountResponse'
+  /count-categories:
+    get:
+      description: Get count per category and person
+      parameters:
+      - description: Limit of returned results
+        in: query
+        name: limit
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Counts by category and persons
+          schema:
+            $ref: '#/definitions/entity.CategoriesCountResponse'
+  /count-categories/monthly:
+    get:
+      description: Get count per month
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Monthly statistics
+          schema:
+            $ref: '#/definitions/entity.Statistics'
   /dreams:
     get:
       description: Get all dreams
-      parameters:
-      - description: 'Comma separated list of child objects. Possible entries: categories,
-          persons'
-        in: query
-        name: includes
-        type: string
       produces:
       - application/json
       responses:
@@ -255,7 +294,7 @@ paths:
         name: postDreamRequest
         required: true
         schema:
-          $ref: '#/definitions/v1.PostDreamRequest'
+          $ref: '#/definitions/controller.PostDreamRequest'
       produces:
       - application/json
       responses:
@@ -300,7 +339,7 @@ paths:
         name: updateDreamRequest
         required: true
         schema:
-          $ref: '#/definitions/v1.UpdateDreamRequest'
+          $ref: '#/definitions/controller.UpdateDreamRequest'
       responses:
         "200":
           description: OK
@@ -309,35 +348,46 @@ paths:
         "404":
           description: Not Found
   /dreams/{dreamId}/categories:
-    put:
-      description: Add a category to a dream
+    post:
+      description: Add a new person or category to a dream
       parameters:
-      - description: Name of a category
-        in: query
-        name: name
+      - description: 'Name and category. Allowed values for ''catgory'' are: ''person'',
+          ''category'''
+        in: body
+        name: params
         required: true
-        type: string
+        schema:
+          $ref: '#/definitions/controller.PostCategoryRequestBody'
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
-            $ref: '#/definitions/entity.CategoriesResponse'
+            type: number
         "400":
           description: Bad Request
         "404":
           description: Not Found
   /dreams/{dreamId}/categories/{categoryId}:
     delete:
-      description: Remove a category from a dream
+      description: Delete a category or person from a dream
       produces:
       - application/json
       responses:
         "200":
           description: OK
-          schema:
-            $ref: '#/definitions/entity.CategoriesResponse'
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+    put:
+      description: Add an exiting person or category to a dream
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
         "400":
           description: Bad Request
         "404":
@@ -350,40 +400,6 @@ paths:
       responses:
         "200":
           description: OK
-        "400":
-          description: Bad Request
-        "404":
-          description: Not Found
-  /dreams/{dreamId}/persons:
-    put:
-      description: Add a person to a dream
-      parameters:
-      - description: Name of person
-        in: query
-        name: name
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/entity.CategoriesResponse'
-        "400":
-          description: Bad Request
-        "404":
-          description: Not Found
-  /dreams/{dreamId}/persons/{personId}:
-    delete:
-      description: Delete a person from a dream
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/entity.CategoriesResponse'
         "400":
           description: Bad Request
         "404":
@@ -434,7 +450,7 @@ paths:
         name: loginRequest
         required: true
         schema:
-          $ref: '#/definitions/v1.LoginRequest'
+          $ref: '#/definitions/controller.LoginRequest'
       produces:
       - application/json
       responses:
@@ -454,36 +470,4 @@ paths:
           description: OK
         "500":
           description: Internal Server Error
-  /private/statistics:
-    get:
-      description: Get count per category and person
-      parameters:
-      - description: Limit of returned results
-        in: query
-        name: limit
-        type: number
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Counts by category and persons
-          schema:
-            $ref: '#/definitions/entity.CountsResponse'
-      security:
-      - BasicAuth: []
-  /statistics:
-    get:
-      description: Get count per category and person
-      parameters:
-      - description: Limit of returned results
-        in: query
-        name: limit
-        type: number
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Counts by category and persons
-          schema:
-            $ref: '#/definitions/entity.CountsResponse'
 swagger: "2.0"

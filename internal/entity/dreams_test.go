@@ -29,12 +29,13 @@ func TestDreamToResponse(t *testing.T) {
 	assert.Equal(t, true, resp.Visible)
 	assert.True(t, resp.Finalized)
 	assert.Equal(t, time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), resp.Date)
-	assert.Len(t, resp.Categories, 1)
+	assert.Len(t, resp.Categories, 2)
 	assert.Equal(t, "Category", resp.Categories[0].Name)
 	assert.EqualValues(t, 1, resp.Categories[0].ID)
-	assert.Len(t, resp.Persons, 1)
-	assert.EqualValues(t, 2, resp.Persons[0].ID)
-	assert.Equal(t, "Person", resp.Persons[0].Name)
+	assert.Equal(t, entity.TypeCategory, resp.Categories[0].Type)
+	assert.EqualValues(t, 2, resp.Categories[1].ID)
+	assert.Equal(t, "Person", resp.Categories[1].Name)
+	assert.Equal(t, entity.TypePerson, resp.Categories[1].Type)
 
 }
 

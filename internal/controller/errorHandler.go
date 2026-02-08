@@ -1,10 +1,13 @@
-package v1
+package controller
 
 import (
 	"net/http"
 
+	"errors"
+
 	"github.com/bbrighter/dreams-api/internal/entity"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func handleError(g *gin.Context, err error) bool {
@@ -20,6 +23,11 @@ func handleError(g *gin.Context, err error) bool {
 			g.AbortWithError(http.StatusBadRequest, err)
 			return true
 		}
+	}
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		g.AbortWithStatus(http.StatusNotFound)
+		return true
 	}
 	g.AbortWithError(http.StatusInternalServerError, err)
 	return true
