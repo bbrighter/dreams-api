@@ -19,6 +19,18 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v4
+
+    - name: Check go version
+      run: |
+        GO_MOD_VERSION=$(grep '^go ' go.mod | awk '{print $2}')
+        GO_DOCKER_VERSION=$(grep '^ARG GO_VERSION=' Dockerfile | awk -F'"' '{print $2}')
+        if [ "$GO_MOD_VERSION" != "$GO_DOCKER_VERSION" ]; then
+            echo "Go version mismatch: go.mod ($GO_MOD_VERSION) vs Dockerfile ($GO_DOCKER_VERSION)"
+            exit 1
+        else
+            echo "Go versions match: $GO_MOD_VERSION"
+        fi
+
           
     - name: Set up Go
       uses: actions/setup-go@v4
