@@ -52,9 +52,7 @@ func (s *ApiTestSuite) TestMergeCategories() {
 		{name: "only 1 cat left in dream 1", method: http.MethodGet, url: "/dreams/1", statusCode: http.StatusOK,
 			response: entity.DreamResponse{
 				CategoriesResponse: entity.CategoriesResponse{Categories: []entity.CategoryResponse{{ID: 2, Name: "merged", Type: entity.TypeCategory}}},
-				Description:        "", DreamMetaResponse: entity.DreamMetaResponse{
-					ID: 1, Date: date, Finalized: false, Visible: true, Rating: nil,
-				}},
+				Description:        "", ID: 1, Date: date, Finalized: false, Visible: true, Rating: nil},
 		},
 		{name: "merge categories in different dreams", method: http.MethodPost, url: "/categories/merge", statusCode: http.StatusOK,
 			body:     MergeCategoriesParams{SourceCategoryId: 2, TargetCategoryId: 3, NewName: "final merged"},
@@ -63,9 +61,7 @@ func (s *ApiTestSuite) TestMergeCategories() {
 		{name: "only 1 cat left in dream 1", method: http.MethodGet, url: "/dreams/1", statusCode: http.StatusOK,
 			response: entity.DreamResponse{
 				CategoriesResponse: entity.CategoriesResponse{Categories: []entity.CategoryResponse{{ID: 3, Name: "final merged", Type: entity.TypePerson}}},
-				Description:        "", DreamMetaResponse: entity.DreamMetaResponse{
-					ID: 1, Date: date, Finalized: false, Visible: true, Rating: nil,
-				}},
+				Description:        "", ID: 1, Date: date, Finalized: false, Visible: true, Rating: nil},
 		},
 	}
 	for _, test := range tests {

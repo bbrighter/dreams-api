@@ -10,6 +10,10 @@ import (
 )
 
 func (s *ApiTestSuite) TestDreams() {
+	var catResp = entity.CategoriesResponse{Categories: []entity.CategoryResponse{
+		{ID: 1, Name: "person", Type: entity.TypePerson},
+		{ID: 2, Name: "cat", Type: entity.TypeCategory}},
+	}
 
 	desc := "description"
 	date := time.Date(2022, 11, 13, 4, 12, 8, 0, time.UTC)
@@ -17,63 +21,57 @@ func (s *ApiTestSuite) TestDreams() {
 
 	tests := []apiTest{
 		{name: "get dreams, empty", method: http.MethodGet, url: "/dreams", statusCode: http.StatusOK,
-			response: entity.DreamsResponse{Dreams: []entity.DreamMetaResponse{}}},
+			response: entity.DreamsResponse{Dreams: []entity.DreamResponse{}}},
 		{name: "post dream", method: http.MethodPost, url: "/dreams", statusCode: http.StatusCreated,
 			body: PostDreamRequest{Date: date}},
 		{name: "get dreams, one exits", method: http.MethodGet, url: "/dreams", statusCode: http.StatusOK,
-			response: entity.DreamsResponse{Dreams: []entity.DreamMetaResponse{{ID: 1, Date: date, Finalized: false, Visible: true}}}},
-		{name: "get dreams with persons and categories", method: http.MethodGet, url: "/dreams?includes=persons,categories", statusCode: http.StatusOK,
-			response: entity.DreamsResponse{Dreams: []entity.DreamMetaResponse{{
-				ID: 1, Date: date, Finalized: false, Visible: true,
-			}}}},
+			response: entity.DreamsResponse{
+				Dreams: []entity.DreamResponse{{ID: 1, Date: date, Finalized: false, Visible: true, CategoriesResponse: entity.CategoriesResponse{}}}}},
 		{name: "get single dream", method: http.MethodGet, url: "/dreams/1", statusCode: http.StatusOK,
 			response: entity.DreamResponse{
-				Description:       "",
-				DreamMetaResponse: entity.DreamMetaResponse{ID: 1, Date: date, Finalized: false, Visible: true},
+				Description: "", ID: 1, Date: date, Finalized: false, Visible: true,
 			},
 		},
-		{name: "patch dream", method: http.MethodPatch, url: "/dreams/1", statusCode: http.StatusOK,
-			body: UpdateDreamRequest{Description: &desc, Date: &date}},
-		{name: "patch dream only date", method: http.MethodPatch, url: "/dreams/1", statusCode: http.StatusOK,
-			body: UpdateDreamRequest{Date: &date}},
-		{name: "add person to dream", method: http.MethodPost, url: "/dreams/1/categories", statusCode: http.StatusCreated,
-			body: PostCategoryRequestBody{Name: "person", Type: entity.TypePerson},
-		},
-		{name: "add category to dream", method: http.MethodPost, url: "/dreams/1/categories", statusCode: http.StatusCreated,
-			body: PostCategoryRequestBody{Name: "cat", Type: entity.TypeCategory},
-		},
+		{name: "patch dream", method: http.MethodPatch, url: "/dreams/1", statusCode: http.StatusOK, body: UpdateDreamRequest{Description: &desc, Date: &date}},
+		{name: "patch dream only date", method: http.MethodPatch, url: "/dreams/1", statusCode: http.StatusOK, body: UpdateDreamRequest{Date: &date}},
+		{name: "add person to dream", method: http.MethodPost, url: "/dreams/1/categories", statusCode: http.StatusCreated, body: PostCategoryRequestBody{Name: "person", Type: entity.TypePerson}},
+		{name: "add category to dream", method: http.MethodPost, url: "/dreams/1/categories", statusCode: http.StatusCreated, body: PostCategoryRequestBody{Name: "cat", Type: entity.TypeCategory}},
 		{name: "get single dream with all changes made", method: http.MethodGet, url: "/dreams/1", statusCode: http.StatusOK,
 			response: entity.DreamResponse{
-				Description: desc,
-				CategoriesResponse: entity.CategoriesResponse{
-					Categories: []entity.CategoryResponse{
-						{ID: 1, Name: "person", Type: entity.TypePerson},
-						{ID: 2, Name: "cat", Type: entity.TypeCategory}},
-				},
-				DreamMetaResponse: entity.DreamMetaResponse{
-					ID: 1, Date: date, Finalized: false, Visible: true,
-				},
+				Description:        desc,
+				ID:                 1,
+				Date:               date,
+				Finalized:          false,
+				Visible:            true,
+				CategoriesResponse: catResp,
 			}},
+		{name: "list dreams, one exists", method: http.MethodGet, url: "/dreams", statusCode: http.StatusOK,
+			response: entity.DreamsResponse{
+				Dreams: []entity.DreamResponse{{
+					ID:                 1,
+					Description:        desc,
+					Date:               date,
+					Finalized:          false,
+					Visible:            true,
+					CategoriesResponse: catResp,
+				}}}},
 		{name: "remove person from dream", method: http.MethodDelete, url: "/dreams/1/categories/1", statusCode: http.StatusOK},
 		{name: "remove category from dream", method: http.MethodDelete, url: "/dreams/1/categories/2", statusCode: http.StatusOK},
 		{name: "rate the dream", method: http.MethodPatch, url: "/dreams/1", statusCode: http.StatusOK,
 			body: UpdateDreamRequest{Rating: &rating}},
 		{name: "get rated dream", method: http.MethodGet, url: "/dreams/1", statusCode: http.StatusOK,
 			response: entity.DreamResponse{
-				Description:       desc,
-				DreamMetaResponse: entity.DreamMetaResponse{ID: 1, Date: date, Finalized: false, Visible: true, Rating: &rating},
+				Description: desc, ID: 1, Date: date, Finalized: false, Visible: true, Rating: &rating,
 			}},
-		{name: "Finalize the dream", method: http.MethodPatch, url: "/dreams/1/finalize", statusCode: http.StatusOK},
-		{name: "Dream is finalized", method: http.MethodGet, url: "/dreams/1", statusCode: http.StatusOK,
-			response: entity.DreamResponse{
-				Description:       desc,
-				DreamMetaResponse: entity.DreamMetaResponse{ID: 1, Date: date, Finalized: true, Visible: true, Rating: &rating}},
+		{name: "finalize dream", method: http.MethodPatch, url: "/dreams/1/finalize", statusCode: http.StatusOK},
+		{name: "dream is finalized", method: http.MethodGet, url: "/dreams/1", statusCode: http.StatusOK,
+			response: entity.DreamResponse{Description: desc, ID: 1, Date: date, Finalized: true, Visible: true, Rating: &rating},
 		},
-		{name: "Get dreams with rating and finalization", method: http.MethodGet, url: "/dreams", statusCode: http.StatusOK,
+		{name: "get dreams with rating and finalization", method: http.MethodGet, url: "/dreams", statusCode: http.StatusOK,
 			response: entity.DreamsResponse{
-				Dreams: []entity.DreamMetaResponse{{
-					ID: 1, Date: date, Finalized: true, Visible: true,
-					Rating: &rating,
+				Dreams: []entity.DreamResponse{{
+					ID: 1, Date: date, Finalized: true, Visible: true, Rating: &rating, Description: "description",
+					CategoriesResponse: entity.CategoriesResponse{},
 				},
 				}}},
 		{name: "delete dream", method: http.MethodDelete, url: "/dreams/1", statusCode: http.StatusOK},
@@ -99,14 +97,13 @@ func (s *ApiTestSuite) TestPrivateDreams() {
 		{name: "login", method: http.MethodPost, url: "/login", statusCode: http.StatusOK, body: LoginRequest{Name: "Benni", Password: "0803"}, after: extractToken},
 		{name: "toggle visibility of dream", method: http.MethodPatch, url: "/dreams/private/1", statusCode: http.StatusOK, token: tokenFn},
 		{name: "private dreams not listed", method: http.MethodGet, url: "/dreams", statusCode: http.StatusOK,
-			response: entity.DreamsResponse{Dreams: []entity.DreamMetaResponse{}}},
+			response: entity.DreamsResponse{Dreams: []entity.DreamResponse{}}},
 		{name: "private dreams listed", method: http.MethodGet, url: "/dreams/private", statusCode: http.StatusOK, token: tokenFn,
-			response: entity.DreamsResponse{Dreams: []entity.DreamMetaResponse{{ID: 1, Date: date, Finalized: false, Visible: false}}}},
+			response: entity.DreamsResponse{Dreams: []entity.DreamResponse{{ID: 1, Date: date, Finalized: false, Visible: false}}}},
 		{name: "private single dream not found", method: http.MethodGet, url: "/dreams/1", statusCode: http.StatusNotFound},
 		{name: "get private single dream", method: http.MethodGet, url: "/dreams/private/1", statusCode: http.StatusOK, token: tokenFn,
 			response: entity.DreamResponse{
-				Description:       "",
-				DreamMetaResponse: entity.DreamMetaResponse{ID: 1, Date: date, Finalized: false, Visible: false}},
+				Description: "", ID: 1, Date: date, Finalized: false, Visible: false},
 		},
 	}
 	for _, test := range tests {

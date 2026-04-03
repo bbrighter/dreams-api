@@ -619,32 +619,6 @@ const docTemplate = `{
                 }
             }
         },
-        "entity.DreamMetaResponse": {
-            "type": "object",
-            "required": [
-                "date",
-                "finalized",
-                "id",
-                "visible"
-            ],
-            "properties": {
-                "date": {
-                    "type": "string"
-                },
-                "finalized": {
-                    "type": "boolean"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "rating": {
-                    "type": "integer"
-                },
-                "visible": {
-                    "type": "boolean"
-                }
-            }
-        },
         "entity.DreamResponse": {
             "type": "object",
             "required": [
@@ -691,7 +665,7 @@ const docTemplate = `{
                 "dreams": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/entity.DreamMetaResponse"
+                        "$ref": "#/definitions/entity.DreamResponse"
                     }
                 }
             }

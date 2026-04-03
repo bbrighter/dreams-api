@@ -18,46 +18,36 @@ type Dream struct {
 type Dreams []Dream
 
 type DreamsResponse struct {
-	Dreams []DreamMetaResponse `json:"dreams" binding:"required"`
-}
-
-type DreamMetaResponse struct {
-	ID        uint      `json:"id" binding:"required"`
-	Date      time.Time `json:"date" binding:"required"`
-	Finalized bool      `json:"finalized" binding:"required"`
-	Visible   bool      `json:"visible" binding:"required"`
-	Rating    *int      `json:"rating,omitempty"`
+	Dreams []DreamResponse `json:"dreams" binding:"required"`
 }
 
 // Response when querying one dream
 type DreamResponse struct {
-	DreamMetaResponse
-	Description string `json:"description" binding:"required"`
+	ID          uint      `json:"id" binding:"required"`
+	Date        time.Time `json:"date" binding:"required"`
+	Finalized   bool      `json:"finalized" binding:"required"`
+	Visible     bool      `json:"visible" binding:"required"`
+	Rating      *int      `json:"rating,omitempty"`
+	Description string    `json:"description" binding:"required"`
 	CategoriesResponse
-}
-
-func (d Dream) toMetaResponse() DreamMetaResponse {
-	return DreamMetaResponse{
-		ID:        d.ID,
-		Date:      d.Date,
-		Visible:   d.Visible,
-		Finalized: d.Finalized,
-		Rating:    d.Rating,
-	}
 }
 
 func (d Dream) ToResponse() DreamResponse {
 	return DreamResponse{
-		DreamMetaResponse:  d.toMetaResponse(),
+		ID:                 d.ID,
+		Date:               d.Date,
+		Visible:            d.Visible,
+		Finalized:          d.Finalized,
+		Rating:             d.Rating,
 		Description:        d.Description,
 		CategoriesResponse: d.Categories.ToResponse(),
 	}
 }
 
 func (d Dreams) ToResponse() DreamsResponse {
-	dreams := []DreamMetaResponse{}
+	dreams := []DreamResponse{}
 	for _, dream := range d {
-		dreams = append(dreams, dream.toMetaResponse())
+		dreams = append(dreams, dream.ToResponse())
 	}
 	return DreamsResponse{Dreams: dreams}
 }
