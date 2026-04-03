@@ -2,37 +2,22 @@ package repository
 
 import (
 	"context"
-	"testing"
 	"time"
 
 	"github.com/bbrighter/dreams-api/internal/entity"
-	"github.com/stretchr/testify/assert"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
-
-func setupDreamsTest(t *testing.T) *DreamsRepo {
-	logger, _ := zap.NewDevelopment()
-	db := NewDatabase(":memory:", logger)
-	repo := NewDreamsRepo(db)
-	err := repo.db.AutoMigrate(
-		&entity.Dream{},
-		&entity.Category{},
-	)
-	assert.NoError(t, err)
-
-	return repo
-}
 
 func (s *RepoTestSuite) TestListDreams() {
 	tests := map[string]struct {
 		createDreamBefore bool
 		showAll           bool
 		expectedLength    int
+		catLength         int
 	}{
 		"no dreams":              {},
-		"one dream":              {createDreamBefore: true, expectedLength: 1},
-		"include private dreams": {createDreamBefore: true, showAll: true, expectedLength: 2},
+		"one dream":              {createDreamBefore: true, expectedLength: 1, catLength: 2},
+		"include private dreams": {createDreamBefore: true, showAll: true, expectedLength: 2, catLength: 2},
 	}
 
 	for name, test := range tests {
@@ -49,6 +34,13 @@ func (s *RepoTestSuite) TestListDreams() {
 			dreams, err := s.dreams.List(s.ctx, test.showAll)
 			s.NoError(err)
 			s.Len(dreams, test.expectedLength)
+			var dream1 entity.Dream
+			for _, dream := range dreams {
+				if dream.ID == 1 {
+					dream1 = dream
+				}
+			}
+			s.Len(dream1.Categories, test.catLength)
 		})
 	}
 }
