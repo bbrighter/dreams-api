@@ -26,7 +26,7 @@ func DreamById(id uint) func(tx *gorm.Statement) {
 }
 
 func (r *DreamsRepo) List(ctx context.Context, showAll bool) (entity.Dreams, error) {
-	tx := gorm.G[entity.Dream](r.db).Where("1=1")
+	tx := gorm.G[entity.Dream](r.db).Where("1=1").Preload("Categories", nil)
 	if !showAll {
 		tx = tx.Scopes(DreamIsNotHidden)
 	}

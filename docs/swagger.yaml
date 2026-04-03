@@ -99,24 +99,6 @@ definitions:
     - count
     - id
     type: object
-  entity.DreamMetaResponse:
-    properties:
-      date:
-        type: string
-      finalized:
-        type: boolean
-      id:
-        type: integer
-      rating:
-        type: integer
-      visible:
-        type: boolean
-    required:
-    - date
-    - finalized
-    - id
-    - visible
-    type: object
   entity.DreamResponse:
     properties:
       categories:
@@ -147,7 +129,7 @@ definitions:
     properties:
       dreams:
         items:
-          $ref: '#/definitions/entity.DreamMetaResponse'
+          $ref: '#/definitions/entity.DreamResponse'
         type: array
     required:
     - dreams
