@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func (s *ApiTestSuite) TestDreams() {
+func (s *apiTestSuite) TestDreams() {
 	var catResp = CategoryListResponse{Categories: []CategoryResponse{
 		{ID: 1, Name: "person", Type: "person"},
 		{ID: 2, Name: "cat", Type: "category"}},
@@ -75,7 +75,7 @@ func (s *ApiTestSuite) TestDreams() {
 	}
 }
 
-func (s *ApiTestSuite) TestBadParams() {
+func (s *apiTestSuite) TestBadParams() {
 
 	date := time.Date(2022, 11, 13, 4, 12, 8, 0, time.UTC)
 	var zeroTime time.Time

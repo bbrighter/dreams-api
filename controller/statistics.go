@@ -19,7 +19,7 @@ func newStatisticsRoute(
 
 	h := handler.Group("/count-categories")
 	{
-		h.GET("/monthly", r.GetMonthlCount)
+		h.GET("/monthly", r.GetMonthlyCount)
 	}
 }
 
@@ -58,7 +58,7 @@ func countsToStatistics(dreams []statistics.CountByMonth, cats []statistics.Coun
 // @Produce json
 // @Success 200 {object} Statistics "Monthly statistics"
 // @Router /count-categories/monthly [get]
-func (r *statisticsRoute) GetMonthlCount(g *gin.Context) {
+func (r *statisticsRoute) GetMonthlyCount(g *gin.Context) {
 	cats, dreams, err := r.c.CountByMonth(g.Request.Context())
 	if handleError(g, err) {
 		return

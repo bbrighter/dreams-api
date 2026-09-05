@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func (s *ApiTestSuite) TestCategories() {
+func (s *apiTestSuite) TestCategories() {
 	date := time.Now()
 
 	tests := []apiTest{
@@ -26,7 +26,7 @@ func (s *ApiTestSuite) TestCategories() {
 	}
 }
 
-func (s *ApiTestSuite) TestMergeCategories() {
+func (s *apiTestSuite) TestMergeCategories() {
 	date := time.Date(2020, 9, 13, 12, 30, 12, 0, time.UTC)
 
 	tests := []apiTest{

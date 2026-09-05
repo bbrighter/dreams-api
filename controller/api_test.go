@@ -22,17 +22,17 @@ import (
 	"gorm.io/gorm"
 )
 
-type ApiTestSuite struct {
+type apiTestSuite struct {
 	suite.Suite
 	g  *gin.Engine
 	db *gorm.DB
 }
 
 func TestApiTestSuite(t *testing.T) {
-	suite.Run(t, new(ApiTestSuite))
+	suite.Run(t, new(apiTestSuite))
 }
 
-func (s *ApiTestSuite) SetupTest() {
+func (s *apiTestSuite) SetupTest() {
 	logger := zap.NewExample()
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	s.Require().NoError(err)
@@ -70,7 +70,7 @@ type apiTest struct {
 	after      func(resp *httptest.ResponseRecorder)
 }
 
-func (s *ApiTestSuite) evaluate(test apiTest) {
+func (s *apiTestSuite) evaluate(test apiTest) {
 	s.Run(test.name, func() {
 		var body io.Reader
 		if test.body != nil {

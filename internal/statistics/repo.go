@@ -3,6 +3,7 @@ package statistics
 import (
 	"context"
 
+	"github.com/bbrighter/dreams-api/internal/entities"
 	"gorm.io/gorm"
 )
 
@@ -18,7 +19,7 @@ func (r StatisticsRepo) CountByCategoryAndMonth(ctx context.Context) ([]CountByC
 	var aggs []CountByCatAndMonth
 
 	err := r.db.WithContext(ctx).
-		Model("dreams").
+		Model(&entities.Dream{}).
 		Select(
 			"categories.id as category_id",
 			"strftime('%Y/%m', dreams.date) as month",
@@ -35,7 +36,7 @@ func (r *StatisticsRepo) CountByDreamAndMonth(ctx context.Context) ([]CountByMon
 	var aggs []CountByMonth
 
 	err := r.db.WithContext(ctx).
-		Model("dreams").
+		Model(&entities.Dream{}).
 		Select(
 			"strftime('%Y/%m', dreams.date) as month",
 			"count(distinct dreams.id) as count",
