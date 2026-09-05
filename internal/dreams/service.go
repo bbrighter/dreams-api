@@ -69,5 +69,5 @@ func (s *DreamsService) UpdateDream(ctx context.Context, id uint, params UpdateD
 }
 
 func (s *DreamsService) DeleteDream(ctx context.Context, id uint) error {
-	return s.DeleteDream(ctx, id)
+	return s.d.DeleteDream(ctx, id)
 }
