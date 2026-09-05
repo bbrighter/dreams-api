@@ -14,5 +14,7 @@
         "uber",
         "usecase",
         "zapgorm"
-    ]
+    ],
+    "editor.defaultFormatter": "golang.go",
+    "editor.formatOnSave": false
 }

@@ -9,20 +9,24 @@
                 "isDefault": true
             },
             "command": "go test -v ./... -coverprofile cover.out",
-            "icon": {"id": "beaker"}
+            "icon": {
+                "id": "beaker"
+            }
         },
         {
             "label": "Test with coverage",
-            "type": "shell", 
+            "type": "shell",
             "group": "test",
             "command": "go tool cover -html cover.out",
             "dependsOn": "Test",
-            "icon": {"id": "light-bulb"},
+            "icon": {
+                "id": "light-bulb"
+            },
         },
         {
             "label": "Create OpenAPI Spec",
             "type": "shell",
-            "command": "export PATH=$PATH:$(go env GOPATH)/bin && swag init",
+            "command": "export PATH=$PATH:$(go env GOPATH)/bin && swag init --requiredByDefault",
         }
     ]
 }
