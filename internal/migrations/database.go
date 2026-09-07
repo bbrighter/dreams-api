@@ -24,7 +24,10 @@ func NewDatabase(name string, log *zap.Logger) *gorm.DB {
 	logger := zapgorm2.New(log)
 	logger.SetAsDefault()
 	db, err := gorm.Open(sqlite.Open(dbName),
-		&gorm.Config{Logger: logger, TranslateError: true},
+		&gorm.Config{
+			Logger:         logger,
+			TranslateError: true,
+		},
 	)
 	if err != nil {
 		log.Fatal("Cannot open database", zap.Error(err))

@@ -1,12 +1,8 @@
 package statistics
 
 type CountByCatAndMonth struct {
-	CategoryId uint `gorm:"column:category_id"`
-	CountByMonth
+	ResultType string `gorm:"column:result_type"`
+	CategoryId *uint  `gorm:"column:category_id"`
+	Month      string `gorm:"column:month" binding:"required"`
+	Count      int64  `gorm:"column:count" binding:"required"`
 }
-
-type CountByMonth struct {
-	Month string `gorm:"column:month" binding:"required"`
-	Count int64  `gorm:"column:count" binding:"required"`
-}
-type CountByMonths []CountByMonth

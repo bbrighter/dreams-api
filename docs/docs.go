@@ -115,7 +115,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/count-categories": {
+        "/categories/with-count": {
             "get": {
                 "description": "Get count per category and person",
                 "produces": [

@@ -84,7 +84,7 @@ func (r *categoriesRoute) List(g *gin.Context) {
 // @Description Get count per category and person
 // @Produce json
 // @Success 200 {object} CategoryListResponse "Counts by category and persons"
-// @Router /count-categories [get]
+// @Router /categories/with-count [get]
 func (r *categoriesRoute) ListWithCount(g *gin.Context) {
 	counts, err := r.c.ListAndCountCategories(g.Request.Context())
 	if handleError(g, err) {

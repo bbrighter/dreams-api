@@ -197,7 +197,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/controller.CategoryListResponse'
-  /count-categories:
+  /categories/with-count:
     get:
       description: Get count per category and person
       produces:
