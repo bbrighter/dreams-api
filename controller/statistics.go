@@ -1,7 +1,9 @@
 package controller
 
 import (
+	"cmp"
 	"net/http"
+	"slices"
 
 	"github.com/bbrighter/dreams-api/internal/statistics"
 	"github.com/gin-gonic/gin"
@@ -64,6 +66,9 @@ func countsToStatistics(counts []statistics.CountByCatAndMonth) Statistics {
 	for _, val := range monthlyStats {
 		statistics = append(statistics, val)
 	}
+	slices.SortFunc(statistics, func(a, b Statistic) int {
+		return cmp.Compare(a.Month, b.Month)
+	})
 
 	return Statistics{Statistics: statistics}
 }
