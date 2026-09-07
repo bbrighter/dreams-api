@@ -9,7 +9,8 @@ import (
 )
 
 func main() {
-	logger, _ := zap.NewProduction()
+	// logger, _ := zap.NewProduction()
+	logger, _ := zap.NewDevelopment()
 	cnf, err := config.NewConfig(logger)
 	if err != nil {
 		fmt.Print(err)

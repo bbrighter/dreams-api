@@ -38,19 +38,33 @@ type CountByCat struct {
 	Count      int64 `json:"count"`
 }
 
-func countsToStatistics(dreams []statistics.CountByMonth, cats []statistics.CountByCatAndMonth) Statistics {
-	var statistics = []Statistic{}
-	for _, d := range dreams {
-		var dreamCats = []CountByCat{}
-		for _, c := range cats {
-			dreamCats = append(dreamCats, CountByCat{CategoryId: c.CategoryId, Count: c.Count})
+func countsToStatistics(counts []statistics.CountByCatAndMonth) Statistics {
+	var monthlyStats = make(map[string]Statistic)
+	for _, c := range counts {
+		val, ok := monthlyStats[c.Month]
+		if !ok {
+			val = Statistic{Categories: []CountByCat{}, Month: c.Month}
 		}
-		statistics = append(statistics, Statistic{
-			Month:      d.Month,
-			DreamCount: d.Count,
-			Categories: dreamCats,
-		})
+
+		if c.ResultType == "total" {
+			val.DreamCount = c.Count
+		} else if c.CategoryId != nil {
+			val.Categories = append(val.Categories,
+				CountByCat{
+					CategoryId: *c.CategoryId,
+					Count:      c.Count,
+				})
+		}
+
+		monthlyStats[c.Month] = val
+
 	}
+
+	var statistics = make([]Statistic, 0, len(monthlyStats))
+	for _, val := range monthlyStats {
+		statistics = append(statistics, val)
+	}
+
 	return Statistics{Statistics: statistics}
 }
 
@@ -59,10 +73,10 @@ func countsToStatistics(dreams []statistics.CountByMonth, cats []statistics.Coun
 // @Success 200 {object} Statistics "Monthly statistics"
 // @Router /count-categories/monthly [get]
 func (r *statisticsRoute) GetMonthlyCount(g *gin.Context) {
-	cats, dreams, err := r.c.CountByMonth(g.Request.Context())
+	cats, err := r.c.CountByMonth(g.Request.Context())
 	if handleError(g, err) {
 		return
 	}
-	g.JSON(http.StatusOK, countsToStatistics(dreams, cats))
+	g.JSON(http.StatusOK, countsToStatistics(cats))
 
 }

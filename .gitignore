@@ -3,3 +3,6 @@
 interface.ts
 dreams-api
 *.log
+
+// Debug executable on linux
+__debug_bin*
