@@ -31,7 +31,6 @@ func (s *repoTestSuite) SetupSuite() {
 }
 
 func (s *repoTestSuite) TearDownTest() {
-	s.Equal(1, 2)
 	tables := []string{"categories_dreams", "dreams", "categories"}
 	for _, t := range tables {
 		err := s.db.Exec("DELETE FROM " + t).Error
