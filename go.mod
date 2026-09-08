@@ -135,4 +135,7 @@ require (
 	olympos.io/encoding/edn v0.0.0-20201019073823-d3554ca0b0a3 // indirect
 )
 
-tool github.com/evilmartians/lefthook/v2
+tool (
+	github.com/evilmartians/lefthook/v2
+	github.com/google/go-licenses/v2
+)
