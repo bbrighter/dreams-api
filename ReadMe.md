@@ -82,7 +82,7 @@ To regenerate the OpenAPI specification, install the Swag CLI if necessary:
 Then run the VS Code task named `Create OpenAPI Spec`. This task executes:
 
 ```bash
-swag init --requiredByDefault
+go tool swag init --requiredByDefault
 ```
 
 # Production run
