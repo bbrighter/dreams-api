@@ -26,7 +26,7 @@
         {
             "label": "Create OpenAPI Spec",
             "type": "shell",
-            "command": "export PATH=$PATH:$(go env GOPATH)/bin && swag init --requiredByDefault",
+            "command": "go tool swag init --requiredByDefault",
         }
     ]
 }

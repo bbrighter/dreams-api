@@ -69,10 +69,10 @@ func countCategoriesToResponse(cats []categories.CountByCategory) CategoryListRe
 	return CategoryListResponse{Categories: resp}
 }
 
-// @Description Get all categories
-// @Produce json
-// @Success 200 {object} CategoryListResponse
-// @Router /categories [get]
+// @Description	Get all categories
+// @Produce		json
+// @Success		200	{object}	CategoryListResponse
+// @Router			/categories [get]
 func (r *categoriesRoute) List(g *gin.Context) {
 	categories, err := r.c.ListCategories(g.Request.Context())
 	if handleError(g, err) {
@@ -81,10 +81,10 @@ func (r *categoriesRoute) List(g *gin.Context) {
 	g.JSON(http.StatusOK, categoriesToResponse(categories))
 }
 
-// @Description Get count per category and person
-// @Produce json
-// @Success 200 {object} CategoryListResponse "Counts by category and persons"
-// @Router /categories/with-count [get]
+// @Description	Get count per category and person
+// @Produce		json
+// @Success		200	{object}	CategoryListResponse	"Counts by category and persons"
+// @Router			/categories/with-count [get]
 func (r *categoriesRoute) ListWithCount(g *gin.Context) {
 	counts, err := r.c.ListAndCountCategories(g.Request.Context())
 	if handleError(g, err) {
@@ -93,12 +93,12 @@ func (r *categoriesRoute) ListWithCount(g *gin.Context) {
 	g.JSON(http.StatusOK, countCategoriesToResponse(counts))
 }
 
-// @Description Delete a category. Must be contained in no dreams.
-// @Produce json
-// @Success 200
-// @Error 400
-// @Error 404
-// @Router /categories/:id [delete]
+// @Description	Delete a category. Must be contained in no dreams.
+// @Produce		json
+// @Success		200
+// @Error			400
+// @Error			404
+// @Router			/categories/:id [delete]
 func (r *categoriesRoute) Delete(g *gin.Context) {
 	id, err := parseParamUint(g, "id")
 	if handleError(g, err) {
@@ -116,13 +116,13 @@ var validCategoryTypes = map[string]bool{
 	"category": true,
 }
 
-// @Description Change the type of a category.
-// @Produce json
-// @Success 200
-// @Error 400
-// @Error 404
-// @Router /categories/:id/type [patch]
-// @Param type query string true "New type for this category"
+// @Description	Change the type of a category.
+// @Produce		json
+// @Success		200
+// @Error			400
+// @Error			404
+// @Router			/categories/:id/type [patch]
+// @Param			type	query	string	true	"New type for this category"
 func (r *categoriesRoute) ChangeType(g *gin.Context) {
 	id, err := parseParamUint(g, "id")
 	if handleError(g, err) {
@@ -146,13 +146,13 @@ func (r *categoriesRoute) ChangeType(g *gin.Context) {
 	g.Status(http.StatusOK)
 }
 
-// @Description Change the name of a category.
-// @Produce json
-// @Success 200
-// @Error 400
-// @Error 404
-// @Router /categories/:id/name [patch]
-// @Param name query string true "New name for this category"
+// @Description	Change the name of a category.
+// @Produce		json
+// @Success		200
+// @Error			400
+// @Error			404
+// @Router			/categories/:id/name [patch]
+// @Param			name	query	string	true	"New name for this category"
 func (r *categoriesRoute) ChangeName(g *gin.Context) {
 	id, err := parseParamUint(g, "id")
 	if handleError(g, err) {
@@ -176,11 +176,11 @@ type MergeCategoriesParams struct {
 	NewName          string `json:"newName" binding:"required"`
 }
 
-// @Description Merge two categories.
-// @Produce json
-// @Success 200 {object} CategoryListResponse
-// @Router /categories/merge [post]
-// @Param mergeCategoriesParams body MergeCategoriesParams true "Which categories should be merged"
+// @Description	Merge two categories.
+// @Produce		json
+// @Success		200	{object}	CategoryListResponse
+// @Router			/categories/merge [post]
+// @Param			mergeCategoriesParams	body	MergeCategoriesParams	true	"Which categories should be merged"
 func (r *categoriesRoute) Merge(g *gin.Context) {
 	var params MergeCategoriesParams
 	if err := g.BindJSON(&params); err != nil {

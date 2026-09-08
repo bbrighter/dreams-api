@@ -6,3 +6,12 @@ pre-push:
       run: go test ./... -v
     - name: License check
       run: go tool go-licenses check ./... --allowed_licenses 'MIT,Apache-2.0,BSD-3-Clause'
+
+pre-commit:
+  jobs:
+    - name: Format Swagger comments
+      run: go tool swag fmt
+      stage_fixed: true
+    - name: Create OpenAPI spec
+      run: go tool swag init --requiredByDefault
+      stage_fixed: true

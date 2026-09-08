@@ -74,10 +74,10 @@ func dreamsToResponse(dreams []entities.Dream) DreamListResponse {
 	return DreamListResponse{Dreams: resp}
 }
 
-// @Description Get all dreams
-// @Produce json
-// @Success 200 {object} DreamListResponse "List of all dreams"
-// @Router /dreams [get]
+// @Description	Get all dreams
+// @Produce		json
+// @Success		200	{object}	DreamListResponse	"List of all dreams"
+// @Router			/dreams [get]
 func (r *dreamsRoutes) GetAll(g *gin.Context) {
 	dreams, err := r.d.ListDreams(g.Request.Context())
 	if handleError(g, err) {
@@ -86,12 +86,12 @@ func (r *dreamsRoutes) GetAll(g *gin.Context) {
 	g.JSON(200, dreamsToResponse(dreams))
 }
 
-// @Description Get one dream
-// @Produce json
-// @Success 200 {object} DreamResponse "One dream"
-// @Failure 400
-// @Failure 404
-// @Router /dreams/{dreamId} [get]
+// @Description	Get one dream
+// @Produce		json
+// @Success		200	{object}	DreamResponse	"One dream"
+// @Failure		400
+// @Failure		404
+// @Router			/dreams/{dreamId} [get]
 func (r *dreamsRoutes) Get(g *gin.Context) {
 	id, err := parseParamUint(g, "dreamId")
 	if handleError(g, err) {
@@ -110,14 +110,14 @@ type PostDreamRequest struct {
 	Description *string   `json:"description"`
 }
 
-// @Description Create a new dream
-// @Accept json
-// @Produce json
-// @Success 201 {number} ID
-// @Failure 400
-// @Failure 500
-// @Router /dreams [post]
-// @Param postDreamRequest  body PostDreamRequest true "The dream which will be created"
+// @Description	Create a new dream
+// @Accept			json
+// @Produce		json
+// @Success		201	{number}	ID
+// @Failure		400
+// @Failure		500
+// @Router			/dreams [post]
+// @Param			postDreamRequest	body	PostDreamRequest	true	"The dream which will be created"
 func (r *dreamsRoutes) Create(g *gin.Context) {
 	var body PostDreamRequest
 	if err := g.BindJSON(&body); err != nil {
@@ -141,13 +141,13 @@ type UpdateDreamRequest struct {
 	Rating      *int       `json:"rating,omitempty"`
 }
 
-// @Description Update an existing dream
-// @Accept json
-// @Success 200
-// @Failure 400
-// @Failure 404
-// @Router /dreams/{dreamId} [patch]
-// @Param updateDreamRequest body UpdateDreamRequest true "All parameters of the dream that should be updated"
+// @Description	Update an existing dream
+// @Accept			json
+// @Success		200
+// @Failure		400
+// @Failure		404
+// @Router			/dreams/{dreamId} [patch]
+// @Param			updateDreamRequest	body	UpdateDreamRequest	true	"All parameters of the dream that should be updated"
 func (r *dreamsRoutes) Update(g *gin.Context) {
 	var body UpdateDreamRequest
 	err := g.BindJSON(&body)
@@ -170,11 +170,11 @@ func (r *dreamsRoutes) Update(g *gin.Context) {
 	g.Status(http.StatusOK)
 }
 
-// @Description Delete one dreams
-// @Produce json
-// @Failure 400
-// @Failure 404
-// @Router /dreams/{dreamId} [delete]
+// @Description	Delete one dreams
+// @Produce		json
+// @Failure		400
+// @Failure		404
+// @Router			/dreams/{dreamId} [delete]
 func (r *dreamsRoutes) Delete(g *gin.Context) {
 	id, err := parseParamUint(g, "dreamId")
 	if handleError(g, err) {
@@ -188,12 +188,12 @@ func (r *dreamsRoutes) Delete(g *gin.Context) {
 	g.Status(http.StatusOK)
 }
 
-// @Description Add an exiting person or category to a dream
-// @Produce json
-// @Success 200
-// @Failure 400
-// @Failure 404
-// @Router /dreams/{dreamId}/categories/{categoryId} [put]
+// @Description	Add an exiting person or category to a dream
+// @Produce		json
+// @Success		200
+// @Failure		400
+// @Failure		404
+// @Router			/dreams/{dreamId}/categories/{categoryId} [put]
 func (r *dreamsRoutes) PutCategoryToDream(g *gin.Context) {
 	dreamId, err := parseParamUint(g, "dreamId")
 	if handleError(g, err) {
@@ -215,13 +215,13 @@ type PostCategoryRequestBody struct {
 	Type string `json:"categoryType"`
 }
 
-// @Description Add a new person or category to a dream
-// @Produce json
-// @Success 201 {number} ID
-// @Failure 400
-// @Failure 404
-// @Router /dreams/{dreamId}/categories [post]
-// @Param params body PostCategoryRequestBody true "Name and category. Allowed values for 'category' are: 'person', 'category'"
+// @Description	Add a new person or category to a dream
+// @Produce		json
+// @Success		201	{number}	ID
+// @Failure		400
+// @Failure		404
+// @Router			/dreams/{dreamId}/categories [post]
+// @Param			params	body	PostCategoryRequestBody	true	"Name and category. Allowed values for 'category' are: 'person', 'category'"
 func (r *dreamsRoutes) AddCategoryToDream(g *gin.Context) {
 	dreamId, err := parseParamUint(g, "dreamId")
 	if handleError(g, err) {
@@ -241,12 +241,12 @@ func (r *dreamsRoutes) AddCategoryToDream(g *gin.Context) {
 
 }
 
-// @Description Delete a category or person from a dream
-// @Produce json
-// @Success 200
-// @Failure 400
-// @Failure 404
-// @Router /dreams/{dreamId}/categories/{categoryId} [delete]
+// @Description	Delete a category or person from a dream
+// @Produce		json
+// @Success		200
+// @Failure		400
+// @Failure		404
+// @Router			/dreams/{dreamId}/categories/{categoryId} [delete]
 func (r *dreamsRoutes) RemoveCategoryFromDream(g *gin.Context) {
 	dreamId, err := parseParamUint(g, "dreamId")
 	if handleError(g, err) {
@@ -264,12 +264,12 @@ func (r *dreamsRoutes) RemoveCategoryFromDream(g *gin.Context) {
 	g.Status(http.StatusOK)
 }
 
-// @Description Finalize a dream
-// @Produce json
-// @Success 200
-// @Failure 400
-// @Failure 404
-// @Router /dreams/{dreamId}/finalize [patch]
+// @Description	Finalize a dream
+// @Produce		json
+// @Success		200
+// @Failure		400
+// @Failure		404
+// @Router			/dreams/{dreamId}/finalize [patch]
 func (r *dreamsRoutes) Finalize(g *gin.Context) {
 	dreamId, err := parseParamUint(g, "dreamId")
 	if handleError(g, err) {
