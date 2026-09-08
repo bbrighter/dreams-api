@@ -5,4 +5,4 @@ pre-push:
     - name: Test
       run: go test ./... -v
     - name: License check
-      run: go-licenses check ./... --allowed_licenses 'Apache-2.0,BSD-3-Clause'
+      run: go-licenses check ./... --allowed_licenses 'MIT,Apache-2.0,BSD-3-Clause'
