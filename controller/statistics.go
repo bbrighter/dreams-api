@@ -73,10 +73,10 @@ func countsToStatistics(counts []statistics.CountByCatAndMonth) Statistics {
 	return Statistics{Statistics: statistics}
 }
 
-// @Description Get count per month
-// @Produce json
-// @Success 200 {object} Statistics "Monthly statistics"
-// @Router /count-categories/monthly [get]
+// @Description	Get count per month
+// @Produce		json
+// @Success		200	{object}	Statistics	"Monthly statistics"
+// @Router			/count-categories/monthly [get]
 func (r *statisticsRoute) GetMonthlyCount(g *gin.Context) {
 	cats, err := r.c.CountByMonth(g.Request.Context())
 	if handleError(g, err) {
