@@ -21,7 +21,7 @@ type repoTestSuite struct {
 
 func (s *repoTestSuite) SetupSuite() {
 	logger, _ := zap.NewDevelopment()
-	s.db = migrations.NewDatabase(":memory:", logger)
+	s.db = migrations.NewDatabase(":memory:", "", logger)
 	s.ctx = context.Background()
 	s.repo = NewStatisticsRepo(s.db)
 	s.db.AutoMigrate(

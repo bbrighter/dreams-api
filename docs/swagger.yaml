@@ -58,12 +58,24 @@ definitions:
         type: integer
       rating:
         type: integer
+      recording:
+        $ref: '#/definitions/controller.RecordingResponse'
     required:
     - categories
     - date
     - description
     - finalized
     - id
+    type: object
+  controller.ErrorResponse:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+    required:
+    - code
+    - message
     type: object
   controller.MergeCategoriesParams:
     properties:
@@ -98,6 +110,25 @@ definitions:
     - date
     - description
     type: object
+  controller.RecordingResponse:
+    properties:
+      id:
+        type: integer
+      mimeType:
+        type: string
+      recordingState:
+        $ref: '#/definitions/entities.RecordingState'
+      transcript:
+        type: string
+      transcriptionState:
+        $ref: '#/definitions/entities.TranscriptionState'
+    required:
+    - id
+    - mimeType
+    - recordingState
+    - transcript
+    - transcriptionState
+    type: object
   controller.Statistic:
     properties:
       categories:
@@ -131,6 +162,26 @@ definitions:
       rating:
         type: integer
     type: object
+  entities.RecordingState:
+    enum:
+    - creating
+    - stored
+    type: string
+    x-enum-varnames:
+    - RecordingStateCreating
+    - RecordingStateStored
+  entities.TranscriptionState:
+    enum:
+    - pending
+    - processing
+    - completed
+    - failed
+    type: string
+    x-enum-varnames:
+    - TranscriptionStatePending
+    - TranscriptionStateProcessing
+    - TranscriptionStateCompleted
+    - TranscriptionStateFailed
 info:
   contact: {}
 paths:
@@ -347,4 +398,79 @@ paths:
           description: Bad Request
         "404":
           description: Not Found
+  /dreams/{dreamId}/recording:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Add a recording to a dream
+      parameters:
+      - description: Audio recording
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.RecordingResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controller.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controller.ErrorResponse'
+  /dreams/{dreamId}/transcribe:
+    post:
+      description: Transcribe a recording
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.RecordingResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controller.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controller.ErrorResponse'
+  /recordings/{id}:
+    delete:
+      description: Delete a recording
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controller.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controller.ErrorResponse'
+    get:
+      description: Get a recording
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: Recording file
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controller.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controller.ErrorResponse'
 swagger: "2.0"

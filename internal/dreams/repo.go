@@ -24,6 +24,7 @@ func (r *DreamsRepo) GetDream(ctx context.Context, id uint) (entities.Dream, err
 	return gorm.G[entities.Dream](r.db).
 		Where("id = ?", id).
 		Preload("Categories", nil).
+		Preload("Recording", nil).
 		First(ctx)
 }
 

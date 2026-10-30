@@ -348,6 +348,122 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/dreams/{dreamId}/recording": {
+            "post": {
+                "description": "Add a recording to a dream",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Audio recording",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.RecordingResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/dreams/{dreamId}/transcribe": {
+            "post": {
+                "description": "Transcribe a recording",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.RecordingResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/recordings/{id}": {
+            "get": {
+                "description": "Get a recording",
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Recording file",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a recording",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -446,6 +562,24 @@ const docTemplate = `{
                 },
                 "rating": {
                     "type": "integer"
+                },
+                "recording": {
+                    "$ref": "#/definitions/controller.RecordingResponse"
+                }
+            }
+        },
+        "controller.ErrorResponse": {
+            "type": "object",
+            "required": [
+                "code",
+                "message"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
                 }
             }
         },
@@ -498,6 +632,33 @@ const docTemplate = `{
                 }
             }
         },
+        "controller.RecordingResponse": {
+            "type": "object",
+            "required": [
+                "id",
+                "mimeType",
+                "recordingState",
+                "transcript",
+                "transcriptionState"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "mimeType": {
+                    "type": "string"
+                },
+                "recordingState": {
+                    "$ref": "#/definitions/entities.RecordingState"
+                },
+                "transcript": {
+                    "type": "string"
+                },
+                "transcriptionState": {
+                    "$ref": "#/definitions/entities.TranscriptionState"
+                }
+            }
+        },
         "controller.Statistic": {
             "type": "object",
             "required": [
@@ -547,6 +708,32 @@ const docTemplate = `{
                     "type": "integer"
                 }
             }
+        },
+        "entities.RecordingState": {
+            "type": "string",
+            "enum": [
+                "creating",
+                "stored"
+            ],
+            "x-enum-varnames": [
+                "RecordingStateCreating",
+                "RecordingStateStored"
+            ]
+        },
+        "entities.TranscriptionState": {
+            "type": "string",
+            "enum": [
+                "pending",
+                "processing",
+                "completed",
+                "failed"
+            ],
+            "x-enum-varnames": [
+                "TranscriptionStatePending",
+                "TranscriptionStateProcessing",
+                "TranscriptionStateCompleted",
+                "TranscriptionStateFailed"
+            ]
         }
     }
 }`
