@@ -10,13 +10,13 @@ import (
 	"moul.io/zapgorm2"
 )
 
-func NewDatabase(name string, log *zap.Logger) *gorm.DB {
+func NewDatabase(name string, folder string, log *zap.Logger) *gorm.DB {
 	var dbName string
 	if name == ":memory:" {
 		dbName = ":memory:"
 	} else {
-		dbName = path.Join("data", name)
-		err := os.MkdirAll(path.Join(".", "data"), os.ModePerm)
+		dbName = path.Join(folder, name)
+		err := os.MkdirAll(path.Join(".", folder), os.ModePerm)
 		if err != nil {
 			log.Fatal("Cannot create database folder", zap.Error(err))
 		}

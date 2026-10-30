@@ -21,17 +21,18 @@ type repoTestSuite struct {
 
 func (s *repoTestSuite) SetupSuite() {
 	logger, _ := zap.NewDevelopment()
-	s.db = migrations.NewDatabase(":memory:", logger)
+	s.db = migrations.NewDatabase(":memory:", "", logger)
 	s.ctx = context.Background()
 	s.repo = NewDreamsRepo(s.db)
 	s.db.AutoMigrate(
 		entities.Category{},
 		entities.Dream{},
+		entities.Recording{},
 	)
 }
 
 func (s *repoTestSuite) TearDownTest() {
-	tables := []string{"categories_dreams", "dreams", "categories"}
+	tables := []string{"recordings", "categories_dreams", "dreams", "categories"}
 	for _, t := range tables {
 		err := s.db.Exec("DELETE FROM " + t).Error
 		s.Require().NoError(err)
@@ -39,7 +40,7 @@ func (s *repoTestSuite) TearDownTest() {
 }
 
 func (s *repoTestSuite) TearDownSubTest() {
-	tables := []string{"categories_dreams", "dreams", "categories"}
+	tables := []string{"recordings", "categories_dreams", "dreams", "categories"}
 	for _, t := range tables {
 		err := s.db.Exec("DELETE FROM " + t).Error
 		s.Require().NoError(err)
@@ -74,10 +75,11 @@ func (s *repoTestSuite) TestListDreamsWithCategories() {
 	s.Equal(entities.TypeCategory, dreams[0].Categories[0].Type)
 }
 
-func (s *repoTestSuite) TestGetDreamWithCategories() {
+func (s *repoTestSuite) TestGetDreamWithCategoriesAndRecordings() {
 	id := s.createDreamWith("desc", false, nil, []entities.Category{
 		{Name: "Name", Type: entities.TypeCategory},
 	})
+	s.db.Create(&entities.Recording{DreamID: id, Transcript: "blabla"})
 
 	dream, err := s.repo.GetDream(s.ctx, id)
 	s.NoError(err)
@@ -85,6 +87,7 @@ func (s *repoTestSuite) TestGetDreamWithCategories() {
 	s.False(dream.Finalized)
 	s.Nil(dream.Rating)
 	s.Len(dream.Categories, 1)
+	s.NotNil(dream.Recording)
 }
 
 func (s *repoTestSuite) TestCreateDream() {

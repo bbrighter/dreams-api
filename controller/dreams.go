@@ -46,6 +46,7 @@ func newDreamsRoute(
 type DreamListResponse struct {
 	Dreams []DreamResponse `json:"dreams"`
 }
+
 type DreamResponse struct {
 	ID          uint               `json:"id"`
 	Date        time.Time          `json:"date"`
@@ -53,6 +54,7 @@ type DreamResponse struct {
 	Finalized   bool               `json:"finalized"`
 	Categories  []CategoryResponse `json:"categories"`
 	Rating      *int               `json:"rating,omitempty"`
+	Recording   *RecordingResponse `json:"recording,omitempty"`
 }
 
 func dreamToResponse(dream entities.Dream) DreamResponse {
@@ -63,6 +65,7 @@ func dreamToResponse(dream entities.Dream) DreamResponse {
 		Finalized:   dream.Finalized,
 		Categories:  categoriesToResponse(dream.Categories).Categories,
 		Rating:      dream.Rating,
+		Recording:   recordToResponse(dream.Recording),
 	}
 }
 

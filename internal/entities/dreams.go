@@ -11,6 +11,7 @@ type Dream struct {
 	Finalized   bool
 	Categories  Categories `gorm:"many2many:categories_dreams"`
 	Rating      *int
+	Recording   *Recording
 }
 
 type Dreams []Dream

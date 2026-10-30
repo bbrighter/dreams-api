@@ -19,6 +19,7 @@ var migrations = []*gormigrate.Migration{
 	migration10,
 	migration11,
 	migration12,
+	migration13,
 }
 
 func migrationFactory(db *gorm.DB) *gormigrate.Gormigrate {

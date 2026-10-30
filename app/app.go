@@ -6,11 +6,15 @@ import (
 	"github.com/bbrighter/dreams-api/config"
 	"github.com/bbrighter/dreams-api/controller"
 	"github.com/bbrighter/dreams-api/docs"
+	"github.com/bbrighter/dreams-api/internal/blob"
 	"github.com/bbrighter/dreams-api/internal/categories"
 	dreamcategories "github.com/bbrighter/dreams-api/internal/dreamCategories"
+	dreamtranscriptions "github.com/bbrighter/dreams-api/internal/dreamTranscriptions"
 	"github.com/bbrighter/dreams-api/internal/dreams"
 	"github.com/bbrighter/dreams-api/internal/migrations"
+	"github.com/bbrighter/dreams-api/internal/recordings"
 	"github.com/bbrighter/dreams-api/internal/statistics"
+	"github.com/bbrighter/dreams-api/internal/transcription"
 	unitofwork "github.com/bbrighter/dreams-api/internal/unitOfWork"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -18,12 +22,16 @@ import (
 )
 
 func Run(cfg *config.Config, logger *zap.Logger) {
-	db := migrations.NewDatabase(cfg.DbName, logger)
+	mimeType := "audio/webm;codecs=opus"
+	db := migrations.NewDatabase(cfg.DbName, cfg.DataFolder, logger)
 	migrations.Migration(db, logger)
 	dreamsRepo := dreams.NewDreamsRepo(db)
 	categoriesRepo := categories.NewCategoriesRepo(db)
 	statisticsRepo := statistics.NewStatisticsRepo(db)
+	transRepo := transcription.NewTranscriptionRepo(cfg.Transcription.Url, cfg.Transcription.Model, mimeType)
+	recordRepo := recordings.NewRecordingsRepository(db)
 	uow := unitofwork.NewUnitOfWork(db)
+	blobManager := blob.NewBlobStorage(cfg.DataFolder)
 
 	handler := gin.New()
 	handler.Use(
@@ -35,12 +43,23 @@ func Run(cfg *config.Config, logger *zap.Logger) {
 		}),
 	)
 
+	transService := transcription.NewTranscriptionService(transRepo)
+	dreamService := dreams.NewDreamsService(dreamsRepo)
+	recordingService := recordings.NewRecordingsService(recordRepo, blobManager, mimeType)
+
+	if err := transService.Init(); err != nil {
+		panic(err)
+	}
+
 	controller.NewRouter(
 		handler,
-		dreams.NewDreamsService(dreamsRepo),
+		dreamService,
 		categories.NewCategoriesService(categoriesRepo),
 		dreamcategories.NewDreamCategoriesService(dreamsRepo, categoriesRepo, uow),
 		statistics.NewStatisticsService(statisticsRepo),
+		dreamtranscriptions.NewDreamTranscriptionService(transService, dreamService, recordingService),
+		recordingService,
+		mimeType,
 	)
 
 	var host = cfg.Host + ":" + cfg.Port

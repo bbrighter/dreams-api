@@ -1,8 +1,16 @@
-*.sqlite
 *.exe
 interface.ts
 dreams-api
 *.log
 
+// Local data
+dreams.sqlite
+recording_*
+
 // Debug executable on linux
 __debug_bin*
+
+// Testing
+*/test_data/**
+cover.out
+cover.html

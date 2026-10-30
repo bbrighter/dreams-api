@@ -1,0 +1,24 @@
+## Docker compose suited to run API locally using Whisper. Can be adapted to be used in production
+services:
+  speaches:
+    container_name: speaches
+    image: ghcr.io/speaches-ai/speaches:latest-cpu
+
+    restart: unless-stopped
+    ports:
+      - 8000:8000
+
+    volumes:
+      - hf-hub-cache:/home/ubuntu/.cache/huggingface/hub
+
+    env_file:
+      - path: .env
+        required: false
+    # healthcheck:
+    #   test: ["CMD", "curl", "--fail", "http://0.0.0.0:8000/health"] # TODO: won't work if a user changes the port
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 5s
+volumes:
+  hf-hub-cache:

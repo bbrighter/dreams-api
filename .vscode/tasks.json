@@ -17,7 +17,7 @@
             "label": "Test with coverage",
             "type": "shell",
             "group": "test",
-            "command": "go tool cover -html cover.out",
+            "command": "go tool cover -html=cover.out -o cover.html",
             "dependsOn": "Test",
             "icon": {
                 "id": "light-bulb"

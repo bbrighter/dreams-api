@@ -9,7 +9,7 @@ import (
 
 func TestMigration(t *testing.T) {
 	logger := zap.NewExample()
-	db := NewDatabase(":memory:", logger)
+	db := NewDatabase(":memory:", "", logger)
 
 	assert.NotPanics(t, func() {
 		Migration(db, logger)
