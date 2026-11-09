@@ -61,7 +61,7 @@ func TestModelExists(t *testing.T) {
 			))
 			defer server.Close()
 
-			repo := NewTranscriptionRepo(server.URL, "modelName", "mime")
+			repo := NewTranscriptionRepo(server.URL, "modelName", "mime", 120)
 
 			found, err := repo.ModelExists(t.Context())
 			if test.expectedErr != nil {
@@ -98,7 +98,7 @@ func TestDownloadMode(t *testing.T) {
 			))
 			defer server.Close()
 
-			repo := NewTranscriptionRepo(server.URL, "xyz", "mime")
+			repo := NewTranscriptionRepo(server.URL, "xyz", "mime", 120)
 
 			err := repo.DownloadModel(context.Background())
 			if test.expectedErr != nil {
@@ -161,7 +161,7 @@ func TestTranscribe(t *testing.T) {
 			))
 			defer server.Close()
 
-			repo := NewTranscriptionRepo(server.URL, "modelName", "mime")
+			repo := NewTranscriptionRepo(server.URL, "modelName", "mime", 120)
 
 			transcript, err := repo.Transcribe(t.Context(), []byte("123"))
 			if test.expectedErr {

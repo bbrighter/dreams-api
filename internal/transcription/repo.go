@@ -14,21 +14,22 @@ import (
 )
 
 type TranscriptionRepo struct {
-	client   *http.Client
-	url      string
-	model    string
-	language string
-	mimeType string
+	client         *http.Client
+	url            string
+	model          string
+	language       string
+	mimeType       string
+	timeoutSeconds int
 }
 
-func NewTranscriptionRepo(url string, model string, mimeType string) *TranscriptionRepo {
+func NewTranscriptionRepo(url string, model string, mimeType string, timeoutSeconds int) *TranscriptionRepo {
 	return &TranscriptionRepo{
 		url:      url,
 		model:    model,
 		language: "de",
 		mimeType: mimeType,
 		client: &http.Client{
-			Timeout: 2 * time.Minute,
+			Timeout: time.Duration(timeoutSeconds) * time.Second,
 		},
 	}
 }
