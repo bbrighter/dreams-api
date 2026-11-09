@@ -15,9 +15,10 @@ type Config struct {
 }
 
 type TranscriptionConfig struct {
-	Url      string `env:"TRANSCRIPTION_URL" env-default:"http://localhost:8000"`
-	Model    string `env:"TRANSCRIPTION_MODEL" env-default:"Systran/faster-whisper-tiny"`
-	Language string `env:"TRANSCRIPTION_LANGUAGE" env-default:"de"`
+	Url          string `env:"TRANSCRIPTION_URL" env-default:"http://localhost:8000"`
+	Model        string `env:"TRANSCRIPTION_MODEL" env-default:"Systran/faster-whisper-tiny"`
+	Language     string `env:"TRANSCRIPTION_LANGUAGE" env-default:"de"`
+	TimeoutInSec int    `env:"TIMEOUT_IN_SEC" env-default:"120"`
 }
 
 // NewConfig returns app config.

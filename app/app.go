@@ -28,7 +28,7 @@ func Run(cfg *config.Config, logger *zap.Logger) {
 	dreamsRepo := dreams.NewDreamsRepo(db)
 	categoriesRepo := categories.NewCategoriesRepo(db)
 	statisticsRepo := statistics.NewStatisticsRepo(db)
-	transRepo := transcription.NewTranscriptionRepo(cfg.Transcription.Url, cfg.Transcription.Model, mimeType)
+	transRepo := transcription.NewTranscriptionRepo(cfg.Transcription.Url, cfg.Transcription.Model, mimeType, cfg.Transcription.TimeoutInSec)
 	recordRepo := recordings.NewRecordingsRepository(db)
 	uow := unitofwork.NewUnitOfWork(db)
 	blobManager := blob.NewBlobStorage(cfg.DataFolder)
