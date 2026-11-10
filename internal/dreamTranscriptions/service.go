@@ -3,6 +3,7 @@ package dreamtranscriptions
 import (
 	"context"
 	"errors"
+	"time"
 
 	apperrors "github.com/bbrighter/dreams-api/internal/appErrors"
 	"github.com/bbrighter/dreams-api/internal/dreams"
@@ -60,8 +61,10 @@ func (s *DreamTranscriptionService) Transcribe(ctx context.Context, dreamId uint
 	}
 
 	fail := func(err error) (*entities.Recording, error) {
+		cleanupCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
+		defer cancel()
 		rec.TranscriptionState = entities.TranscriptionStateFailed
-		return rec, errors.Join(err, s.r.FailProcessing(ctx, rec))
+		return rec, errors.Join(err, s.r.FailProcessing(cleanupCtx, rec))
 	}
 
 	file, err := s.r.Get(ctx, rec.ID)
